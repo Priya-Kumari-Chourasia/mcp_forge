@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MCP-Forge — API docs in, a tested MCP server out</title>
+<meta name="description" content="MCP-Forge reads API documentation and generates a working, tested MCP server automatically, using LangGraph, agentic RAG, and the A2A protocol.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14181F;
+    --bg-raised: #1C222C;
+    --bg-raised-2: #232A36;
+    --line: #2E3644;
+    --text: #E8E6E0;
+    --text-dim: #9BA3B0;
+    --text-faint: #6B7280;
+    --gold: #C9963E;
+    --gold-dim: #8A6A2E;
+    --steel: #5B7FDB;
+    --font-display: 'IBM Plex Mono', ui-monospace, monospace;
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  * { box-sizing: inherit; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    background: rgba(20,24,31,0.88); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; max-width: 1080px; margin: 0 auto; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--text); text-decoration: none; }
+  .logo-mark { width: 22px; height: 22px; flex-shrink: 0; }
+  .nav-cta {
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 500;
+    color: var(--bg); background: var(--gold); padding: 9px 16px; border-radius: 3px;
+    text-decoration: none; white-space: nowrap;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 72px 0 64px; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+  h1 {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4vw, 2.7rem);
+    line-height: 1.15; margin: 0 0 22px; letter-spacing: -0.01em;
+  }
+  .hero-sub { color: var(--text-dim); font-size: 1.08rem; max-width: 46ch; margin: 0 0 30px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary, .btn-secondary {
+    font-family: var(--font-display); font-size: 0.88rem; font-weight: 500;
+    padding: 12px 20px; border-radius: 3px; text-decoration: none; display: inline-block;
+  }
+  .btn-primary { background: var(--gold); color: var(--bg); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--line); }
+
+  /* ---------- terminal ---------- */
+  .terminal {
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 6px;
+    overflow: hidden; box-shadow: 0 20px 50px -20px rgba(0,0,0,0.5);
+  }
+  .terminal-bar { display: flex; gap: 6px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+  .term-body {
+    font-family: var(--font-display); font-size: 0.78rem; line-height: 1.8;
+    padding: 20px; overflow-x: auto; white-space: pre;
+  }
+  .t-dim { color: var(--text-faint); }
+  .t-plan { color: var(--steel); }
+  .t-ok { color: var(--gold); font-weight: 600; }
+  .cursor { display: inline-block; width: 7px; height: 14px; background: var(--gold); margin-left: 2px; animation: blink 1.1s steps(1) infinite; vertical-align: -2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- sections ---------- */
+  section { padding: 64px 0; border-top: 1px solid var(--line); }
+  h2 {
+    font-family: var(--font-display); font-weight: 600; font-size: 1.6rem;
+    margin: 0 0 20px; letter-spacing: -0.01em;
+  }
+  .lede { color: var(--text-dim); max-width: 62ch; font-size: 1.02rem; margin: 0 0 8px; }
+
+  /* ---------- pipeline steps ---------- */
+  .pipeline { margin-top: 40px; display: flex; flex-direction: column; }
+  .step { display: grid; grid-template-columns: 48px 1fr; gap: 20px; padding: 22px 0; position: relative; }
+  .step:not(:last-child)::after {
+    content: ''; position: absolute; left: 23px; top: 58px; bottom: -22px; width: 1px; background: var(--line);
+  }
+  .step-num {
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 600; color: var(--gold); flex-shrink: 0; background: var(--bg-raised);
+  }
+  .step h3 { font-family: var(--font-display); font-size: 1.02rem; margin: 6px 0 6px; font-weight: 600; }
+  .step p { color: var(--text-dim); margin: 0; max-width: 58ch; font-size: 0.96rem; }
+
+  /* ---------- verified section ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin-top: 36px; }
+  .split > div { padding: 30px; }
+  .split > div:first-child { border-right: 1px solid var(--line); background: var(--bg-raised); }
+  .split-label { font-family: var(--font-display); font-size: 0.78rem; color: var(--text-faint); margin: 0 0 12px; }
+  .split h4 { font-family: var(--font-display); font-size: 1.1rem; margin: 0 0 10px; }
+  .split p { color: var(--text-dim); margin: 0; font-size: 0.95rem; }
+  .split .yes h4 { color: var(--gold); }
+
+  /* ---------- features ---------- */
+  .feature-list { margin-top: 36px; }
+  .feature { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .feature:last-child { border-bottom: none; }
+  .feature h3 { font-family: var(--font-display); font-size: 0.98rem; margin: 0; font-weight: 600; }
+  .feature p { color: var(--text-dim); margin: 0; font-size: 0.95rem; max-width: 60ch; }
+
+  /* ---------- comparison table ---------- */
+  table { width: 100%; border-collapse: collapse; margin-top: 32px; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--font-display); font-weight: 500; color: var(--text-faint); font-size: 0.78rem; }
+  td:first-child, th:first-child { color: var(--text); font-family: var(--font-display); font-size: 0.85rem; padding-left: 0; }
+  td { color: var(--text-dim); }
+  .table-wrap { overflow-x: auto; }
+
+  /* ---------- get started ---------- */
+  .code-block {
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 6px;
+    padding: 18px 20px; font-family: var(--font-display); font-size: 0.85rem;
+    color: var(--text-dim); margin: 20px 0; overflow-x: auto;
+  }
+  .code-block .cmt { color: var(--text-faint); }
+  .code-block .g { color: var(--gold); }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 40px 0; }
+  .footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  footer p { color: var(--text-faint); font-size: 0.88rem; margin: 0; }
+  footer a { color: var(--text-dim); }
+
+  @media (max-width: 780px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; }
+    .split > div:first-child { border-right: none; border-bottom: 1px solid var(--line); }
+    .feature { grid-template-columns: 1fr; gap: 8px; }
+    th:nth-child(3), td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#top">
+      <svg class="logo-mark" viewBox="0 0 24 24" fill="none"><path d="M3 17L11 9M11 9L9 5L14 3L21 10L19 15L15 13M11 9L15 13M6 20L10 16" stroke="#C9963E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      MCP-Forge
+    </a>
+    <a class="nav-cta" href="https://github.com/Priya-Kumari-Chourasia/mcp_forge" target="_blank" rel="noopener">Get the code</a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero" style="border-top:none; padding-top:56px;">
+      <div class="hero-grid">
+        <div>
+          <h1>Turn API docs into a tested MCP server.</h1>
+          <p class="hero-sub">Point it at documentation — even messy, incomplete documentation — and get back a working MCP server. Extracted, generated, and verified by a real test run. No hand-written integration code.</p>
+          <div class="cta-row">
+            <a class="btn-primary" href="https://github.com/Priya-Kumari-Chourasia/mcp_forge" target="_blank" rel="noopener">Get the code</a>
+            <a class="btn-secondary" href="#how">See how it works</a>
+          </div>
+        </div>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="term-body"><span class="t-dim">$</span> python graph.py --url petstore3.swagger.io/api/v3/openapi.json
+<span class="t-dim">ORCHESTRATOR -></span> plan: <span class="t-plan">complex</span>
+  ROUTING: complex path
+STEP 1 (parse_docs) -> OpenAPI spec detected, 19 endpoint(s), no LLM needed
+STEP 1b (grade) -> issues: []
+STEP 2 (generate_tool) attempt 1 -> code for 19 endpoint(s)
+STEP 3 (test via A2A) -> <span class="t-ok">passed=True</span>
+  19 functions defined and valid
+  DECISION: passed, finishing<span class="cursor"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Every team writes this by hand</h2>
+      <p class="lede">Exposing an API to an agent means reading its documentation, working out its auth scheme, writing tool functions, and testing that they actually work. A team with twenty internal APIs does this twenty times, by hand, and the documentation is rarely clean enough to make it quick.</p>
+      <p class="lede">MCP-Forge does this translation for you — and unlike asking an LLM once and hoping, it checks its own work at two separate points before handing you anything.</p>
+    </section>
+
+    <section id="how">
+      <h2>How it works</h2>
+      <p class="lede">Four stages, each one a real agent decision — not a fixed script.</p>
+      <div class="pipeline">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h3>Orchestrator reads the docs first</h3>
+            <p>Before anything else runs, an orchestrator agent classifies the API as simple or complex and routes execution down the right path.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h3>Agentic RAG extraction</h3>
+            <p>Structured endpoint info gets pulled from the docs, then graded for completeness. Missing a field? It re-queries automatically, with a refined prompt, instead of moving on with a gap.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h3>Code generation</h3>
+            <p>One MCP tool function gets written per endpoint, from the verified extraction — whether the API has one endpoint or thirty.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <h3>A2A-verified validation</h3>
+            <p>The generated code is sent, over a real HTTP request, to a separate validator agent that statically checks syntax and structure — deliberately never calling the functions live, since every one of them is designed to hit a real external API. A failure comes back as a real error and triggers another generation attempt.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Plausible isn't the same as verified</h2>
+      <p class="lede">A single prompt to an LLM can produce code that looks right. The problem shows up later, when someone tries to use it.</p>
+      <div class="split">
+        <div>
+          <p class="split-label">One prompt</p>
+          <h4>Looks right</h4>
+          <p>Generates once, returns whatever comes back. If a parameter name is wrong or an auth detail is missed, nothing catches it until someone tries to run the code.</p>
+        </div>
+        <div class="yes">
+          <p class="split-label">MCP-Forge</p>
+          <h4>Actually checked</h4>
+          <p>The extraction grades its own completeness. The generated code is statically validated by a separate agent over A2A — syntax, structure, real callable functions. Failures are real errors, fed back automatically, until it passes or hits a retry limit.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What's in it</h2>
+      <div class="feature-list">
+        <div class="feature">
+          <h3>Real A2A communication</h3>
+          <p>Code generation and testing run as separate, independently started services, exchanging task/message/artifact JSON over HTTP — not a function call pretending to be a protocol.</p>
+        </div>
+        <div class="feature">
+          <h3>Self-correcting extraction</h3>
+          <p>The documentation-reading step doesn't trust its first answer. It grades itself against required fields and retries with a sharper prompt when something's missing.</p>
+        </div>
+        <div class="feature">
+          <h3>Multi-endpoint aware</h3>
+          <p>Handles a one-endpoint API and a thirty-endpoint API through the same pipeline, generating one function per endpoint either way. Verified against a live 19-endpoint public API.</p>
+        </div>
+        <div class="feature">
+          <h3>Deterministic OpenAPI parsing</h3>
+          <p>A structured OpenAPI or Swagger spec is parsed directly — no LLM call, no risk of misreading something that was already machine-readable.</p>
+        </div>
+        <div class="feature">
+          <h3>Point it at your own docs</h3>
+          <p>A real command-line interface — a file, a URL, or raw text. No code editing required to run it against a different API.</p>
+        </div>
+        <div class="feature">
+          <h3>Swappable LLM backend</h3>
+          <p>Ships with a free offline stub for fast iteration, and a real Groq integration for production use — one environment variable apart.</p>
+        </div>
+        <div class="feature">
+          <h3>Free to run, start to finish</h3>
+          <p>Groq's free tier for inference, Oracle's Always Free tier for hosting. No card required for either.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Where this sits</h2>
+      <p class="lede">Other tools solve adjacent versions of this problem. Worth knowing where MCP-Forge actually differs.</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Project</th><th>Approach</th><th>Focus</th></tr>
+          <tr><td>MCP-Forge</td><td>Parses written documentation via agentic RAG</td><td>Verified generation, real A2A between agents</td></tr>
+          <tr><td>mcp-forger</td><td>Parses docs, repos, and live URLs</td><td>Breadth — multi-language output, dashboard, versioning</td></tr>
+          <tr><td>pokeforge</td><td>Browser automation on live, undocumented sites</td><td>Sites with no docs at all</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Get started</h2>
+      <p class="lede">Runs free and offline out of the box. Add a Groq key when you want real generation.</p>
+      <div class="code-block"><span class="cmt"># install</span>
+pip install -r requirements.txt
+
+<span class="cmt"># run free, offline — no key needed</span>
+python graph.py --text "GET /ping - health check"
+
+<span class="cmt"># point it at your own API's live OpenAPI spec</span>
+python graph.py --url https://your-api.com/openapi.json
+
+<span class="cmt"># or a local file of prose documentation</span>
+python graph.py --file my_api_docs.txt</div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <p>Built by Tilu — M.Tech CSE, IIT Jodhpur</p>
+    <p><a href="https://github.com/Priya-Kumari-Chourasia/mcp_forge" target="_blank" rel="noopener">View source on GitHub</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
