@@ -3,4 +3,9 @@ flask
 requests
 langchain-groq
 python-dotenv
-mcp
+pyyaml
+mcp>=2
+a2a-sdk>=1.0
+chromadb
+pytest
+streamlit
