@@ -15,9 +15,19 @@ import hashlib
 import math
 import os
 import re
+import sys
 import uuid
 
-import chromadb
+# ChromaDB needs SQLite 3.35 or newer. Some Linux hosts (including some
+# Streamlit Community Cloud images) ship an older one, so when the bundled
+# pysqlite3 package is installed it is used in place of the system sqlite3.
+try:
+    import pysqlite3  # noqa: F401
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except ImportError:
+    pass
+
+import chromadb  # noqa: E402
 
 CHUNK_SIZE = 1200      # characters per chunk
 CHUNK_OVERLAP = 200    # characters shared between neighbouring chunks

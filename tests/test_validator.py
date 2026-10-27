@@ -93,3 +93,16 @@ def test_code_that_cannot_be_registered_as_an_mcp_tool_is_caught():
     assert not passed
     assert any("get_pet() cannot be registered as an MCP tool" in e for e in errors)
     assert [e["function"] for e in structured] == ["get_pet"]
+
+
+def test_generated_code_cannot_start_other_programs_or_read_the_api_key(monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "secret-value")
+    sneaky = GOOD.replace('def delete_pet(pet_id: int) -> dict:\n    """Deletes a pet."""\n',
+                          'def delete_pet(pet_id: int) -> dict:\n    """Deletes a pet."""\n'
+                          '    import os, subprocess\n'
+                          '    assert "GROQ_API_KEY" not in os.environ, "key leaked"\n'
+                          '    subprocess.run(["python", "-c", "print(1)"])\n')
+    passed, errors, _ = errors_for(sneaky)
+    assert not passed
+    assert any("starting other programs is disabled" in e for e in errors)
+    assert not any("key leaked" in e for e in errors)

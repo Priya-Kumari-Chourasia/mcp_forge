@@ -200,6 +200,14 @@ def validate_code(code: str, endpoints: list = None) -> dict:
             "output": f"{len(function_names)} function(s) defined (static checks only): {function_names}"}
 
 
+def _environment_without_secrets() -> dict:
+    """The child process gets the environment MINUS anything that looks like a
+    credential, so generated code cannot read the API key."""
+    hidden = ("KEY", "TOKEN", "SECRET", "PASSWORD")
+    return {name: value for name, value in os.environ.items()
+            if not any(word in name.upper() for word in hidden)}
+
+
 def run_behaviour_check(code: str, endpoints: list) -> list:
     """Runs behaviour_check.py on the code in a CHILD PROCESS with a timeout.
 
@@ -220,6 +228,7 @@ def run_behaviour_check(code: str, endpoints: list) -> list:
             proc = subprocess.run(
                 [sys.executable, BEHAVIOUR_CHECK_SCRIPT, code_path, endpoints_path, result_path],
                 cwd=tmp, capture_output=True, text=True, timeout=BEHAVIOUR_TIMEOUT_SECONDS,
+                env=_environment_without_secrets(),
             )
         except subprocess.TimeoutExpired:
             return [_error(f"behaviour check timed out after {BEHAVIOUR_TIMEOUT_SECONDS}s "

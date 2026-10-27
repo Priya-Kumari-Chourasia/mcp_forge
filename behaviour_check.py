@@ -66,6 +66,28 @@ def _no_network(*args, **kwargs):
     raise RuntimeError("real network access is disabled during validation")
 
 
+def _no_processes(*args, **kwargs):
+    raise RuntimeError("starting other programs is disabled during validation")
+
+
+def _block_process_spawning():
+    """Generated tools only need to build an HTTP request, so they have no reason
+    to start other programs. Blocking it stops code from escaping the network
+    block by launching a fresh, unpatched process. (This raises the bar; it is
+    not a complete sandbox.)"""
+    import subprocess
+    # The MCP SDK refers to subprocess.Popen when it is imported, so import it
+    # (for the registration check later) BEFORE Popen is replaced.
+    import mcp.server.mcpserver  # noqa: F401
+    subprocess.Popen = _no_processes
+    for name in ("system", "popen", "execv", "execve", "execvp", "execvpe", "execl", "execle",
+                 "execlp", "execlpe", "spawnv", "spawnve", "spawnvp", "spawnvpe", "spawnl",
+                 "spawnle", "spawnlp", "spawnlpe", "fork", "forkpty", "posix_spawn", "posix_spawnp",
+                 "startfile"):
+        if hasattr(os, name):
+            setattr(os, name, _no_processes)
+
+
 def dummy_value(param: inspect.Parameter):
     """A harmless argument of roughly the right type."""
     by_type = {int: 1, float: 1.0, bool: True, dict: {}, list: [], str: "x"}
@@ -162,6 +184,7 @@ def main(code_path: str, endpoints_path: str, result_path: str):
     socket.socket.connect = _no_network
     socket.create_connection = _no_network
     os.environ.setdefault("API_BASE_URL", DUMMY_BASE_URL)
+    _block_process_spawning()
 
     try:
         spec = importlib.util.spec_from_file_location("generated_tools", code_path)

@@ -10,9 +10,13 @@ Two modes:
     key, cannot hit a rate limit.
   - Live run: runs the pipeline now, with the real LLM.
 
-Setting PUBLIC_DEMO=true (for a public deployment) limits live runs to the
-built-in examples and caps how many can run per day. The validator executes
-LLM-generated code, so a public site should not accept arbitrary input.
+Setting PUBLIC_DEMO=true (for a public deployment) caps how many live runs can
+happen per day and limits visitors to the built-in examples. ALLOW_CUSTOM_DOCS=true
+lets them paste their own docs as well - only turn that on once generated code
+runs in an isolated container. The validator's child process blocks the usual
+ways to reach the network or start programs and hides secret environment
+variables, but determined code can get around those blocks and can read files
+(such as the file holding the Groq key), so it is not a security sandbox.
 """
 
 import datetime
@@ -26,7 +30,8 @@ st.set_page_config(page_title="MCP-Forge", layout="wide")
 
 # On a hosting service, settings arrive as "secrets". Copy them into the
 # environment BEFORE importing the pipeline, because llm.py reads them on import.
-for _key in ("GROQ_API_KEY", "USE_REAL_LLM", "EMBEDDINGS", "PUBLIC_DEMO", "MAX_LIVE_RUNS_PER_DAY"):
+for _key in ("GROQ_API_KEY", "USE_REAL_LLM", "EMBEDDINGS", "PUBLIC_DEMO", "MAX_LIVE_RUNS_PER_DAY",
+             "ALLOW_CUSTOM_DOCS"):
     try:
         if _key in st.secrets:
             os.environ.setdefault(_key, str(st.secrets[_key]))
@@ -39,6 +44,10 @@ import pipeline_runner as runner                             # noqa: E402
 from cli import prepare_docs                                 # noqa: E402
 
 PUBLIC_DEMO = os.getenv("PUBLIC_DEMO", "false").lower() == "true"
+# Off by default: on a public demo, docs pasted by a stranger could steer the LLM
+# into writing code that leaks secrets (see the note at the top of this file).
+# Running locally (PUBLIC_DEMO=false), your own docs are always allowed.
+ALLOW_CUSTOM_DOCS = os.getenv("ALLOW_CUSTOM_DOCS", "false").lower() == "true"
 MAX_LIVE_RUNS_PER_DAY = int(os.getenv("MAX_LIVE_RUNS_PER_DAY", "40"))
 
 EXAMPLES = {
@@ -244,14 +253,13 @@ with st.sidebar:
     st.header("Run")
     mode = st.radio("Mode", ["Recorded run", "Live run"],
                     help="A recorded run replays a saved run instantly. A live run calls the LLM now.")
-    sources = list(EXAMPLES) if (PUBLIC_DEMO or mode == "Recorded run") else list(EXAMPLES) + ["My own docs"]
+    custom_docs_enabled = ALLOW_CUSTOM_DOCS or not PUBLIC_DEMO
+    sources = list(EXAMPLES) + (["My own docs"] if mode == "Live run" and custom_docs_enabled else [])
     choice = st.selectbox("Documentation", sources)
-    if PUBLIC_DEMO:
-        pass
-    elif mode == "Recorded run":
+    if custom_docs_enabled and mode == "Recorded run":
         st.caption("To test your own URL or pasted docs, switch Mode to **Live run**, "
                    "then pick **My own docs** at the bottom of this list.")
-    elif choice != "My own docs":
+    elif custom_docs_enabled and choice != "My own docs":
         st.caption("To test your own URL or pasted docs, pick **My own docs** at the bottom of this list.")
 
     own_text, own_url = "", ""
@@ -273,8 +281,8 @@ with st.sidebar:
     if mode == "Live run":
         st.caption(f"LLM: {'Groq ' + llm.MODEL_NAME if llm.USE_REAL_LLM else 'offline stub (no GROQ_API_KEY set)'}")
     if PUBLIC_DEMO:
-        st.caption("Public demo: live runs are limited to the built-in examples, because the validator "
-                   "executes generated code.")
+        st.caption(f"Public demo: up to {MAX_LIVE_RUNS_PER_DAY} live runs per day across all visitors. "
+                   "Very long docs are cut to their first 60,000 characters.")
 
 slots = {"stages": st.empty(), "progress": st.empty(), "summary": st.empty()}
 tabs = st.tabs(["Extraction (agentic RAG)", "Validation (A2A)", "Self-correction", "Generated server", "Log"])
