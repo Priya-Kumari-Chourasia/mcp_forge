@@ -1,0 +1,4338 @@
+[
+ {
+  "node": "start",
+  "log": "",
+  "state": {
+   "input_kind": "OpenAPI spec",
+   "input_chars": 17106,
+   "agent_card": {
+    "name": "MCP-Forge Validator",
+    "description": "Validates generated MCP tool code: static checks, then a behavioural check that calls every tool through an MCP server against mocked HTTP.",
+    "supportedInterfaces": [
+     {
+      "url": "http://localhost:8000/",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+     }
+    ],
+    "version": "1.0.0",
+    "capabilities": {
+     "streaming": false,
+     "pushNotifications": false
+    },
+    "defaultInputModes": [
+     "text/x-python",
+     "application/json"
+    ],
+    "defaultOutputModes": [
+     "text/plain",
+     "application/json"
+    ],
+    "skills": [
+     {
+      "id": "validate_mcp_tools",
+      "name": "Validate MCP tools",
+      "description": "Send Python tool functions as a text part and the endpoints they must implement as a data part ({\"endpoints\": [...]}). Returns a pass/fail verdict with one structured error per problem.",
+      "tags": [
+       "validation",
+       "mcp",
+       "code"
+      ]
+     }
+    ]
+   },
+   "security_agent_card": {
+    "name": "MCP-Forge Security Reviewer",
+    "description": "Reviews generated MCP tool code without running it: each tool may make only its own documented request and use only allowlisted names. Flags instruction-like text in tool descriptions (tool poisoning).",
+    "supportedInterfaces": [
+     {
+      "url": "http://localhost:8001/",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+     }
+    ],
+    "version": "1.0.0",
+    "capabilities": {
+     "streaming": false,
+     "pushNotifications": false
+    },
+    "defaultInputModes": [
+     "text/x-python",
+     "application/json"
+    ],
+    "defaultOutputModes": [
+     "text/plain",
+     "application/json"
+    ],
+    "skills": [
+     {
+      "id": "review_mcp_tools",
+      "name": "Security review of MCP tools",
+      "description": "Send the generated tool functions (without the server header) as a text part and the endpoints as a data part ({\"endpoints\": [{\"name\", \"method\", \"path\", ...}]}). The code is never executed. Returns a pass/fail verdict with one structured error per problem, plus warnings that do not block.",
+      "tags": [
+       "security",
+       "mcp",
+       "code",
+       "static-analysis"
+      ]
+     }
+    ]
+   },
+   "bug_injected": false
+  }
+ },
+ {
+  "node": "orchestrator",
+  "log": "ORCHESTRATOR -> plan: complex (19 endpoint(s), no LLM needed); codegen retry budget: 4 attempt(s)\n  ROUTING: OpenAPI spec -> deterministic parser\nSTEP 1 (parse_docs) -> OpenAPI spec, 19 endpoint(s), no LLM needed\nSTEP 1b (grade_extraction) -> 19 usable endpoint(s), dropped: []\nSTEP 2 (generate_tool) attempt 1 -> 19 endpoint(s) in 2 batch(es)\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": null,
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null,
+   "security_passed": null,
+   "security_output": null,
+   "security_warnings": []
+  }
+ },
+ {
+  "node": "parse_docs",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "PUT",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update an existing pet.",
+     "parameters": [],
+     "operation_id": "updatePet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "update_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Add a new pet to the store.",
+     "parameters": [],
+     "operation_id": "addPet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "add_pet"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByStatus",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by status.",
+     "parameters": [
+      {
+       "name": "status",
+       "in": "query",
+       "required": true,
+       "type": "string",
+       "description": "Status values that need to be considered for filter",
+       "enum": [
+        "available",
+        "pending",
+        "sold"
+       ]
+      }
+     ],
+     "operation_id": "findPetsByStatus",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_status"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByTags",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by tags.",
+     "parameters": [
+      {
+       "name": "tags",
+       "in": "query",
+       "required": true,
+       "type": "array",
+       "description": "Tags to filter by",
+       "items": "string"
+      }
+     ],
+     "operation_id": "findPetsByTags",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_tags"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find pet by ID.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to return"
+      }
+     ],
+     "operation_id": "getPetById",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "get_pet_by_id"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Updates a pet in the store with form data.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet that needs to be updated"
+      },
+      {
+       "name": "name",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Name of pet that needs to be updated"
+      },
+      {
+       "name": "status",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Status of pet that needs to be updated"
+      }
+     ],
+     "operation_id": "updatePetWithForm",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "update_pet_with_form"
+    },
+    {
+     "method": "DELETE",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Deletes a pet.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "Pet id to delete"
+      }
+     ],
+     "operation_id": "deletePet",
+     "tags": [
+      "pet"
+     ],
+     "name": "delete_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}/uploadImage",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Uploads an image.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to update"
+      },
+      {
+       "name": "additionalMetadata",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Additional Metadata"
+      }
+     ],
+     "operation_id": "uploadFile",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/octet-stream",
+      "required": false,
+      "fields": []
+     },
+     "returns": "object",
+     "name": "upload_file"
+    },
+    {
+     "method": "GET",
+     "path": "/store/inventory",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Returns pet inventories by status.",
+     "parameters": [],
+     "operation_id": "getInventory",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_inventory"
+    },
+    {
+     "method": "POST",
+     "path": "/store/order",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Place an order for a pet.",
+     "parameters": [],
+     "operation_id": "placeOrder",
+     "tags": [
+      "store"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "petId",
+       "quantity",
+       "shipDate",
+       "status",
+       "complete"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "petId",
+        "type": "integer"
+       },
+       {
+        "name": "quantity",
+        "type": "integer"
+       },
+       {
+        "name": "shipDate",
+        "type": "string"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "Order Status",
+        "enum": [
+         "placed",
+         "approved",
+         "delivered"
+        ]
+       },
+       {
+        "name": "complete",
+        "type": "boolean"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "place_order"
+    },
+    {
+     "method": "GET",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find purchase order by ID.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of order that needs to be fetched"
+      }
+     ],
+     "operation_id": "getOrderById",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_order_by_id"
+    },
+    {
+     "method": "DELETE",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete purchase order by identifier.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of the order that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteOrder",
+     "tags": [
+      "store"
+     ],
+     "name": "delete_order"
+    },
+    {
+     "method": "POST",
+     "path": "/user",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Create user.",
+     "parameters": [],
+     "operation_id": "createUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "create_user"
+    },
+    {
+     "method": "POST",
+     "path": "/user/createWithList",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Creates list of users with given input array.",
+     "parameters": [],
+     "operation_id": "createUsersWithListInput",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ],
+      "type": "array"
+     },
+     "returns": "object",
+     "name": "create_users_with_list_input"
+    },
+    {
+     "method": "GET",
+     "path": "/user/login",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs user into the system.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The user name for login"
+      },
+      {
+       "name": "password",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The password for login in clear text"
+      }
+     ],
+     "operation_id": "loginUser",
+     "tags": [
+      "user"
+     ],
+     "name": "login_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/logout",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs out current logged in user session.",
+     "parameters": [],
+     "operation_id": "logoutUser",
+     "tags": [
+      "user"
+     ],
+     "name": "logout_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Get user by user name.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be fetched. Use user1 for testing"
+      }
+     ],
+     "operation_id": "getUserByName",
+     "tags": [
+      "user"
+     ],
+     "returns": "object",
+     "name": "get_user_by_name"
+    },
+    {
+     "method": "PUT",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "name that need to be deleted"
+      }
+     ],
+     "operation_id": "updateUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "name": "update_user"
+    },
+    {
+     "method": "DELETE",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteUser",
+     "tags": [
+      "user"
+     ],
+     "name": "delete_user"
+    }
+   ],
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "base_url": "https://petstore3.swagger.io/api/v3",
+    "auth": [
+     {
+      "scheme": "petstore_auth",
+      "type": "bearer"
+     },
+     {
+      "scheme": "api_key",
+      "type": "header",
+      "name": "api_key"
+     }
+    ]
+   },
+   "selection_note": null,
+   "mcp_client_check": null,
+   "security_passed": null,
+   "security_output": null,
+   "security_warnings": []
+  }
+ },
+ {
+  "node": "grade_extraction",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "PUT",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update an existing pet.",
+     "parameters": [],
+     "operation_id": "updatePet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "update_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Add a new pet to the store.",
+     "parameters": [],
+     "operation_id": "addPet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "add_pet"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByStatus",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by status.",
+     "parameters": [
+      {
+       "name": "status",
+       "in": "query",
+       "required": true,
+       "type": "string",
+       "description": "Status values that need to be considered for filter",
+       "enum": [
+        "available",
+        "pending",
+        "sold"
+       ]
+      }
+     ],
+     "operation_id": "findPetsByStatus",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_status"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByTags",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by tags.",
+     "parameters": [
+      {
+       "name": "tags",
+       "in": "query",
+       "required": true,
+       "type": "array",
+       "description": "Tags to filter by",
+       "items": "string"
+      }
+     ],
+     "operation_id": "findPetsByTags",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_tags"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find pet by ID.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to return"
+      }
+     ],
+     "operation_id": "getPetById",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "get_pet_by_id"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Updates a pet in the store with form data.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet that needs to be updated"
+      },
+      {
+       "name": "name",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Name of pet that needs to be updated"
+      },
+      {
+       "name": "status",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Status of pet that needs to be updated"
+      }
+     ],
+     "operation_id": "updatePetWithForm",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "update_pet_with_form"
+    },
+    {
+     "method": "DELETE",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Deletes a pet.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "Pet id to delete"
+      }
+     ],
+     "operation_id": "deletePet",
+     "tags": [
+      "pet"
+     ],
+     "name": "delete_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}/uploadImage",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Uploads an image.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to update"
+      },
+      {
+       "name": "additionalMetadata",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Additional Metadata"
+      }
+     ],
+     "operation_id": "uploadFile",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/octet-stream",
+      "required": false,
+      "fields": []
+     },
+     "returns": "object",
+     "name": "upload_file"
+    },
+    {
+     "method": "GET",
+     "path": "/store/inventory",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Returns pet inventories by status.",
+     "parameters": [],
+     "operation_id": "getInventory",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_inventory"
+    },
+    {
+     "method": "POST",
+     "path": "/store/order",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Place an order for a pet.",
+     "parameters": [],
+     "operation_id": "placeOrder",
+     "tags": [
+      "store"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "petId",
+       "quantity",
+       "shipDate",
+       "status",
+       "complete"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "petId",
+        "type": "integer"
+       },
+       {
+        "name": "quantity",
+        "type": "integer"
+       },
+       {
+        "name": "shipDate",
+        "type": "string"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "Order Status",
+        "enum": [
+         "placed",
+         "approved",
+         "delivered"
+        ]
+       },
+       {
+        "name": "complete",
+        "type": "boolean"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "place_order"
+    },
+    {
+     "method": "GET",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find purchase order by ID.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of order that needs to be fetched"
+      }
+     ],
+     "operation_id": "getOrderById",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_order_by_id"
+    },
+    {
+     "method": "DELETE",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete purchase order by identifier.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of the order that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteOrder",
+     "tags": [
+      "store"
+     ],
+     "name": "delete_order"
+    },
+    {
+     "method": "POST",
+     "path": "/user",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Create user.",
+     "parameters": [],
+     "operation_id": "createUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "create_user"
+    },
+    {
+     "method": "POST",
+     "path": "/user/createWithList",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Creates list of users with given input array.",
+     "parameters": [],
+     "operation_id": "createUsersWithListInput",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ],
+      "type": "array"
+     },
+     "returns": "object",
+     "name": "create_users_with_list_input"
+    },
+    {
+     "method": "GET",
+     "path": "/user/login",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs user into the system.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The user name for login"
+      },
+      {
+       "name": "password",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The password for login in clear text"
+      }
+     ],
+     "operation_id": "loginUser",
+     "tags": [
+      "user"
+     ],
+     "name": "login_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/logout",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs out current logged in user session.",
+     "parameters": [],
+     "operation_id": "logoutUser",
+     "tags": [
+      "user"
+     ],
+     "name": "logout_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Get user by user name.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be fetched. Use user1 for testing"
+      }
+     ],
+     "operation_id": "getUserByName",
+     "tags": [
+      "user"
+     ],
+     "returns": "object",
+     "name": "get_user_by_name"
+    },
+    {
+     "method": "PUT",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "name that need to be deleted"
+      }
+     ],
+     "operation_id": "updateUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "name": "update_user"
+    },
+    {
+     "method": "DELETE",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteUser",
+     "tags": [
+      "user"
+     ],
+     "name": "delete_user"
+    }
+   ],
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "base_url": "https://petstore3.swagger.io/api/v3",
+    "auth": [
+     {
+      "scheme": "petstore_auth",
+      "type": "bearer"
+     },
+     {
+      "scheme": "api_key",
+      "type": "header",
+      "name": "api_key"
+     }
+    ]
+   },
+   "selection_note": null,
+   "mcp_client_check": null,
+   "security_passed": null,
+   "security_output": null,
+   "security_warnings": []
+  }
+ },
+ {
+  "node": "generate_tool",
+  "log": "  batch 1/2 done (15 endpoint(s))\n  batch 2/2 done (4 endpoint(s))\nSTEP 3 (security review via A2A) attempt 1\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "PUT",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update an existing pet.",
+     "parameters": [],
+     "operation_id": "updatePet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "update_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Add a new pet to the store.",
+     "parameters": [],
+     "operation_id": "addPet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "add_pet"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByStatus",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by status.",
+     "parameters": [
+      {
+       "name": "status",
+       "in": "query",
+       "required": true,
+       "type": "string",
+       "description": "Status values that need to be considered for filter",
+       "enum": [
+        "available",
+        "pending",
+        "sold"
+       ]
+      }
+     ],
+     "operation_id": "findPetsByStatus",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_status"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByTags",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by tags.",
+     "parameters": [
+      {
+       "name": "tags",
+       "in": "query",
+       "required": true,
+       "type": "array",
+       "description": "Tags to filter by",
+       "items": "string"
+      }
+     ],
+     "operation_id": "findPetsByTags",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_tags"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find pet by ID.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to return"
+      }
+     ],
+     "operation_id": "getPetById",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "get_pet_by_id"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Updates a pet in the store with form data.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet that needs to be updated"
+      },
+      {
+       "name": "name",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Name of pet that needs to be updated"
+      },
+      {
+       "name": "status",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Status of pet that needs to be updated"
+      }
+     ],
+     "operation_id": "updatePetWithForm",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "update_pet_with_form"
+    },
+    {
+     "method": "DELETE",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Deletes a pet.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "Pet id to delete"
+      }
+     ],
+     "operation_id": "deletePet",
+     "tags": [
+      "pet"
+     ],
+     "name": "delete_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}/uploadImage",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Uploads an image.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to update"
+      },
+      {
+       "name": "additionalMetadata",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Additional Metadata"
+      }
+     ],
+     "operation_id": "uploadFile",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/octet-stream",
+      "required": false,
+      "fields": []
+     },
+     "returns": "object",
+     "name": "upload_file"
+    },
+    {
+     "method": "GET",
+     "path": "/store/inventory",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Returns pet inventories by status.",
+     "parameters": [],
+     "operation_id": "getInventory",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_inventory"
+    },
+    {
+     "method": "POST",
+     "path": "/store/order",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Place an order for a pet.",
+     "parameters": [],
+     "operation_id": "placeOrder",
+     "tags": [
+      "store"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "petId",
+       "quantity",
+       "shipDate",
+       "status",
+       "complete"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "petId",
+        "type": "integer"
+       },
+       {
+        "name": "quantity",
+        "type": "integer"
+       },
+       {
+        "name": "shipDate",
+        "type": "string"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "Order Status",
+        "enum": [
+         "placed",
+         "approved",
+         "delivered"
+        ]
+       },
+       {
+        "name": "complete",
+        "type": "boolean"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "place_order"
+    },
+    {
+     "method": "GET",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find purchase order by ID.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of order that needs to be fetched"
+      }
+     ],
+     "operation_id": "getOrderById",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_order_by_id"
+    },
+    {
+     "method": "DELETE",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete purchase order by identifier.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of the order that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteOrder",
+     "tags": [
+      "store"
+     ],
+     "name": "delete_order"
+    },
+    {
+     "method": "POST",
+     "path": "/user",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Create user.",
+     "parameters": [],
+     "operation_id": "createUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "create_user"
+    },
+    {
+     "method": "POST",
+     "path": "/user/createWithList",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Creates list of users with given input array.",
+     "parameters": [],
+     "operation_id": "createUsersWithListInput",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ],
+      "type": "array"
+     },
+     "returns": "object",
+     "name": "create_users_with_list_input"
+    },
+    {
+     "method": "GET",
+     "path": "/user/login",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs user into the system.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The user name for login"
+      },
+      {
+       "name": "password",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The password for login in clear text"
+      }
+     ],
+     "operation_id": "loginUser",
+     "tags": [
+      "user"
+     ],
+     "name": "login_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/logout",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs out current logged in user session.",
+     "parameters": [],
+     "operation_id": "logoutUser",
+     "tags": [
+      "user"
+     ],
+     "name": "logout_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Get user by user name.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be fetched. Use user1 for testing"
+      }
+     ],
+     "operation_id": "getUserByName",
+     "tags": [
+      "user"
+     ],
+     "returns": "object",
+     "name": "get_user_by_name"
+    },
+    {
+     "method": "PUT",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "name that need to be deleted"
+      }
+     ],
+     "operation_id": "updateUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "name": "update_user"
+    },
+    {
+     "method": "DELETE",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteUser",
+     "tags": [
+      "user"
+     ],
+     "name": "delete_user"
+    }
+   ],
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1,
+      2
+     ],
+     "stage": "validation",
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "base_url": "https://petstore3.swagger.io/api/v3",
+    "auth": [
+     {
+      "scheme": "petstore_auth",
+      "type": "bearer"
+     },
+     {
+      "scheme": "api_key",
+      "type": "header",
+      "name": "api_key"
+     }
+    ]
+   },
+   "selection_note": null,
+   "mcp_client_check": null,
+   "security_passed": null,
+   "security_output": null,
+   "security_warnings": []
+  }
+ },
+ {
+  "node": "security_review",
+  "log": "  A2A: discovered agent 'MCP-Forge Security Reviewer' (skills: ['review_mcp_tools'])\n  A2A: task 0d23e427-038f-44ac-a8dd-4036f729e8b6 -> TASK_STATE_COMPLETED\n  verdict: passed=True\nSTEP 4 (validate via A2A) attempt 1\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "PUT",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update an existing pet.",
+     "parameters": [],
+     "operation_id": "updatePet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "update_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Add a new pet to the store.",
+     "parameters": [],
+     "operation_id": "addPet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "add_pet"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByStatus",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by status.",
+     "parameters": [
+      {
+       "name": "status",
+       "in": "query",
+       "required": true,
+       "type": "string",
+       "description": "Status values that need to be considered for filter",
+       "enum": [
+        "available",
+        "pending",
+        "sold"
+       ]
+      }
+     ],
+     "operation_id": "findPetsByStatus",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_status"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByTags",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by tags.",
+     "parameters": [
+      {
+       "name": "tags",
+       "in": "query",
+       "required": true,
+       "type": "array",
+       "description": "Tags to filter by",
+       "items": "string"
+      }
+     ],
+     "operation_id": "findPetsByTags",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_tags"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find pet by ID.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to return"
+      }
+     ],
+     "operation_id": "getPetById",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "get_pet_by_id"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Updates a pet in the store with form data.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet that needs to be updated"
+      },
+      {
+       "name": "name",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Name of pet that needs to be updated"
+      },
+      {
+       "name": "status",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Status of pet that needs to be updated"
+      }
+     ],
+     "operation_id": "updatePetWithForm",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "update_pet_with_form"
+    },
+    {
+     "method": "DELETE",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Deletes a pet.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "Pet id to delete"
+      }
+     ],
+     "operation_id": "deletePet",
+     "tags": [
+      "pet"
+     ],
+     "name": "delete_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}/uploadImage",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Uploads an image.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to update"
+      },
+      {
+       "name": "additionalMetadata",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Additional Metadata"
+      }
+     ],
+     "operation_id": "uploadFile",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/octet-stream",
+      "required": false,
+      "fields": []
+     },
+     "returns": "object",
+     "name": "upload_file"
+    },
+    {
+     "method": "GET",
+     "path": "/store/inventory",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Returns pet inventories by status.",
+     "parameters": [],
+     "operation_id": "getInventory",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_inventory"
+    },
+    {
+     "method": "POST",
+     "path": "/store/order",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Place an order for a pet.",
+     "parameters": [],
+     "operation_id": "placeOrder",
+     "tags": [
+      "store"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "petId",
+       "quantity",
+       "shipDate",
+       "status",
+       "complete"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "petId",
+        "type": "integer"
+       },
+       {
+        "name": "quantity",
+        "type": "integer"
+       },
+       {
+        "name": "shipDate",
+        "type": "string"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "Order Status",
+        "enum": [
+         "placed",
+         "approved",
+         "delivered"
+        ]
+       },
+       {
+        "name": "complete",
+        "type": "boolean"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "place_order"
+    },
+    {
+     "method": "GET",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find purchase order by ID.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of order that needs to be fetched"
+      }
+     ],
+     "operation_id": "getOrderById",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_order_by_id"
+    },
+    {
+     "method": "DELETE",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete purchase order by identifier.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of the order that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteOrder",
+     "tags": [
+      "store"
+     ],
+     "name": "delete_order"
+    },
+    {
+     "method": "POST",
+     "path": "/user",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Create user.",
+     "parameters": [],
+     "operation_id": "createUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "create_user"
+    },
+    {
+     "method": "POST",
+     "path": "/user/createWithList",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Creates list of users with given input array.",
+     "parameters": [],
+     "operation_id": "createUsersWithListInput",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ],
+      "type": "array"
+     },
+     "returns": "object",
+     "name": "create_users_with_list_input"
+    },
+    {
+     "method": "GET",
+     "path": "/user/login",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs user into the system.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The user name for login"
+      },
+      {
+       "name": "password",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The password for login in clear text"
+      }
+     ],
+     "operation_id": "loginUser",
+     "tags": [
+      "user"
+     ],
+     "name": "login_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/logout",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs out current logged in user session.",
+     "parameters": [],
+     "operation_id": "logoutUser",
+     "tags": [
+      "user"
+     ],
+     "name": "logout_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Get user by user name.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be fetched. Use user1 for testing"
+      }
+     ],
+     "operation_id": "getUserByName",
+     "tags": [
+      "user"
+     ],
+     "returns": "object",
+     "name": "get_user_by_name"
+    },
+    {
+     "method": "PUT",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "name that need to be deleted"
+      }
+     ],
+     "operation_id": "updateUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "name": "update_user"
+    },
+    {
+     "method": "DELETE",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteUser",
+     "tags": [
+      "user"
+     ],
+     "name": "delete_user"
+    }
+   ],
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1,
+      2
+     ],
+     "stage": "validation",
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "base_url": "https://petstore3.swagger.io/api/v3",
+    "auth": [
+     {
+      "scheme": "petstore_auth",
+      "type": "bearer"
+     },
+     {
+      "scheme": "api_key",
+      "type": "header",
+      "name": "api_key"
+     }
+    ]
+   },
+   "selection_note": null,
+   "mcp_client_check": null,
+   "security_passed": true,
+   "security_output": "19 tool(s) passed the security review: each makes one request to its own endpoint and uses nothing outside the allowlist",
+   "security_warnings": []
+  }
+ },
+ {
+  "node": "test_via_a2a",
+  "log": "  A2A: discovered agent 'MCP-Forge Validator' (skills: ['validate_mcp_tools'])\n  A2A: task 615b120b-24c3-479b-82c8-fb146a14b7d7 -> TASK_STATE_COMPLETED\n  verdict: passed=True\n  19 tool(s) passed: each was called through an MCP server and sent the documented method, path, required parameters and body: ['update_pet', 'add_pet', 'find_pets_by_status', 'find_pets_by_tags', 'get_pet_by_id', 'update_pet_with_form', 'delete_pet', 'upload_file', 'get_inventory', 'place_order', 'get_order_by_id', 'delete_order', 'create_user', 'create_users_with_list_input', 'login_user', 'logout_user', 'get_user_by_name', 'update_user', 'delete_user']\n  DECISION: passed, finishing\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "PUT",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update an existing pet.",
+     "parameters": [],
+     "operation_id": "updatePet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "update_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Add a new pet to the store.",
+     "parameters": [],
+     "operation_id": "addPet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "add_pet"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByStatus",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by status.",
+     "parameters": [
+      {
+       "name": "status",
+       "in": "query",
+       "required": true,
+       "type": "string",
+       "description": "Status values that need to be considered for filter",
+       "enum": [
+        "available",
+        "pending",
+        "sold"
+       ]
+      }
+     ],
+     "operation_id": "findPetsByStatus",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_status"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByTags",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by tags.",
+     "parameters": [
+      {
+       "name": "tags",
+       "in": "query",
+       "required": true,
+       "type": "array",
+       "description": "Tags to filter by",
+       "items": "string"
+      }
+     ],
+     "operation_id": "findPetsByTags",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_tags"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find pet by ID.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to return"
+      }
+     ],
+     "operation_id": "getPetById",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "get_pet_by_id"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Updates a pet in the store with form data.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet that needs to be updated"
+      },
+      {
+       "name": "name",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Name of pet that needs to be updated"
+      },
+      {
+       "name": "status",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Status of pet that needs to be updated"
+      }
+     ],
+     "operation_id": "updatePetWithForm",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "update_pet_with_form"
+    },
+    {
+     "method": "DELETE",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Deletes a pet.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "Pet id to delete"
+      }
+     ],
+     "operation_id": "deletePet",
+     "tags": [
+      "pet"
+     ],
+     "name": "delete_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}/uploadImage",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Uploads an image.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to update"
+      },
+      {
+       "name": "additionalMetadata",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Additional Metadata"
+      }
+     ],
+     "operation_id": "uploadFile",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/octet-stream",
+      "required": false,
+      "fields": []
+     },
+     "returns": "object",
+     "name": "upload_file"
+    },
+    {
+     "method": "GET",
+     "path": "/store/inventory",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Returns pet inventories by status.",
+     "parameters": [],
+     "operation_id": "getInventory",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_inventory"
+    },
+    {
+     "method": "POST",
+     "path": "/store/order",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Place an order for a pet.",
+     "parameters": [],
+     "operation_id": "placeOrder",
+     "tags": [
+      "store"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "petId",
+       "quantity",
+       "shipDate",
+       "status",
+       "complete"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "petId",
+        "type": "integer"
+       },
+       {
+        "name": "quantity",
+        "type": "integer"
+       },
+       {
+        "name": "shipDate",
+        "type": "string"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "Order Status",
+        "enum": [
+         "placed",
+         "approved",
+         "delivered"
+        ]
+       },
+       {
+        "name": "complete",
+        "type": "boolean"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "place_order"
+    },
+    {
+     "method": "GET",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find purchase order by ID.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of order that needs to be fetched"
+      }
+     ],
+     "operation_id": "getOrderById",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_order_by_id"
+    },
+    {
+     "method": "DELETE",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete purchase order by identifier.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of the order that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteOrder",
+     "tags": [
+      "store"
+     ],
+     "name": "delete_order"
+    },
+    {
+     "method": "POST",
+     "path": "/user",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Create user.",
+     "parameters": [],
+     "operation_id": "createUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "create_user"
+    },
+    {
+     "method": "POST",
+     "path": "/user/createWithList",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Creates list of users with given input array.",
+     "parameters": [],
+     "operation_id": "createUsersWithListInput",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ],
+      "type": "array"
+     },
+     "returns": "object",
+     "name": "create_users_with_list_input"
+    },
+    {
+     "method": "GET",
+     "path": "/user/login",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs user into the system.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The user name for login"
+      },
+      {
+       "name": "password",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The password for login in clear text"
+      }
+     ],
+     "operation_id": "loginUser",
+     "tags": [
+      "user"
+     ],
+     "name": "login_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/logout",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs out current logged in user session.",
+     "parameters": [],
+     "operation_id": "logoutUser",
+     "tags": [
+      "user"
+     ],
+     "name": "logout_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Get user by user name.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be fetched. Use user1 for testing"
+      }
+     ],
+     "operation_id": "getUserByName",
+     "tags": [
+      "user"
+     ],
+     "returns": "object",
+     "name": "get_user_by_name"
+    },
+    {
+     "method": "PUT",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "name that need to be deleted"
+      }
+     ],
+     "operation_id": "updateUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "name": "update_user"
+    },
+    {
+     "method": "DELETE",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteUser",
+     "tags": [
+      "user"
+     ],
+     "name": "delete_user"
+    }
+   ],
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1,
+      2
+     ],
+     "stage": "validation",
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": true,
+   "test_output": "19 tool(s) passed: each was called through an MCP server and sent the documented method, path, required parameters and body: ['update_pet', 'add_pet', 'find_pets_by_status', 'find_pets_by_tags', 'get_pet_by_id', 'update_pet_with_form', 'delete_pet', 'upload_file', 'get_inventory', 'place_order', 'get_order_by_id', 'delete_order', 'create_user', 'create_users_with_list_input', 'login_user', 'logout_user', 'get_user_by_name', 'update_user', 'delete_user']",
+   "output_path": null,
+   "api_meta": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "base_url": "https://petstore3.swagger.io/api/v3",
+    "auth": [
+     {
+      "scheme": "petstore_auth",
+      "type": "bearer"
+     },
+     {
+      "scheme": "api_key",
+      "type": "header",
+      "name": "api_key"
+     }
+    ]
+   },
+   "selection_note": null,
+   "mcp_client_check": null,
+   "security_passed": true,
+   "security_output": "19 tool(s) passed the security review: each makes one request to its own endpoint and uses nothing outside the allowlist",
+   "security_warnings": []
+  }
+ },
+ {
+  "node": "package_server",
+  "log": "\nPackaged MCP server -> generated\\swagger-petstore-openapi-3-0/\n  19 tool(s): ['update_pet', 'add_pet', 'find_pets_by_status', 'find_pets_by_tags', 'get_pet_by_id', 'update_pet_with_form', 'delete_pet', 'upload_file', 'get_inventory', 'place_order', 'get_order_by_id', 'delete_order', 'create_user', 'create_users_with_list_input', 'login_user', 'logout_user', 'get_user_by_name', 'update_user', 'delete_user']\n  Validation: PASSED\n  MCP client check: started server.py over stdio and listed 19 tool(s)\n  Attempts:\n    attempt 1: generated batch(es) [1, 2] -> passed\n  Claude Desktop config: generated\\swagger-petstore-openapi-3-0\\claude_desktop_config.json\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "PUT",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update an existing pet.",
+     "parameters": [],
+     "operation_id": "updatePet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "update_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Add a new pet to the store.",
+     "parameters": [],
+     "operation_id": "addPet",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": true,
+      "fields": [
+       "id",
+       "name",
+       "category",
+       "photoUrls",
+       "tags",
+       "status"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "name",
+        "type": "string",
+        "required": true
+       },
+       {
+        "name": "category",
+        "type": "object"
+       },
+       {
+        "name": "photoUrls",
+        "type": "array",
+        "required": true
+       },
+       {
+        "name": "tags",
+        "type": "array"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "pet status in the store",
+        "enum": [
+         "available",
+         "pending",
+         "sold"
+        ]
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "add_pet"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByStatus",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by status.",
+     "parameters": [
+      {
+       "name": "status",
+       "in": "query",
+       "required": true,
+       "type": "string",
+       "description": "Status values that need to be considered for filter",
+       "enum": [
+        "available",
+        "pending",
+        "sold"
+       ]
+      }
+     ],
+     "operation_id": "findPetsByStatus",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_status"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/findByTags",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Finds Pets by tags.",
+     "parameters": [
+      {
+       "name": "tags",
+       "in": "query",
+       "required": true,
+       "type": "array",
+       "description": "Tags to filter by",
+       "items": "string"
+      }
+     ],
+     "operation_id": "findPetsByTags",
+     "tags": [
+      "pet"
+     ],
+     "returns": "array",
+     "name": "find_pets_by_tags"
+    },
+    {
+     "method": "GET",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find pet by ID.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to return"
+      }
+     ],
+     "operation_id": "getPetById",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "get_pet_by_id"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Updates a pet in the store with form data.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet that needs to be updated"
+      },
+      {
+       "name": "name",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Name of pet that needs to be updated"
+      },
+      {
+       "name": "status",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Status of pet that needs to be updated"
+      }
+     ],
+     "operation_id": "updatePetWithForm",
+     "tags": [
+      "pet"
+     ],
+     "returns": "object",
+     "name": "update_pet_with_form"
+    },
+    {
+     "method": "DELETE",
+     "path": "/pet/{petId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Deletes a pet.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "Pet id to delete"
+      }
+     ],
+     "operation_id": "deletePet",
+     "tags": [
+      "pet"
+     ],
+     "name": "delete_pet"
+    },
+    {
+     "method": "POST",
+     "path": "/pet/{petId}/uploadImage",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Uploads an image.",
+     "parameters": [
+      {
+       "name": "petId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of pet to update"
+      },
+      {
+       "name": "additionalMetadata",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "Additional Metadata"
+      }
+     ],
+     "operation_id": "uploadFile",
+     "tags": [
+      "pet"
+     ],
+     "request_body": {
+      "content_type": "application/octet-stream",
+      "required": false,
+      "fields": []
+     },
+     "returns": "object",
+     "name": "upload_file"
+    },
+    {
+     "method": "GET",
+     "path": "/store/inventory",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Returns pet inventories by status.",
+     "parameters": [],
+     "operation_id": "getInventory",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_inventory"
+    },
+    {
+     "method": "POST",
+     "path": "/store/order",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Place an order for a pet.",
+     "parameters": [],
+     "operation_id": "placeOrder",
+     "tags": [
+      "store"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "petId",
+       "quantity",
+       "shipDate",
+       "status",
+       "complete"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "petId",
+        "type": "integer"
+       },
+       {
+        "name": "quantity",
+        "type": "integer"
+       },
+       {
+        "name": "shipDate",
+        "type": "string"
+       },
+       {
+        "name": "status",
+        "type": "string",
+        "description": "Order Status",
+        "enum": [
+         "placed",
+         "approved",
+         "delivered"
+        ]
+       },
+       {
+        "name": "complete",
+        "type": "boolean"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "place_order"
+    },
+    {
+     "method": "GET",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Find purchase order by ID.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of order that needs to be fetched"
+      }
+     ],
+     "operation_id": "getOrderById",
+     "tags": [
+      "store"
+     ],
+     "returns": "object",
+     "name": "get_order_by_id"
+    },
+    {
+     "method": "DELETE",
+     "path": "/store/order/{orderId}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete purchase order by identifier.",
+     "parameters": [
+      {
+       "name": "orderId",
+       "in": "path",
+       "required": true,
+       "type": "integer",
+       "description": "ID of the order that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteOrder",
+     "tags": [
+      "store"
+     ],
+     "name": "delete_order"
+    },
+    {
+     "method": "POST",
+     "path": "/user",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Create user.",
+     "parameters": [],
+     "operation_id": "createUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "returns": "object",
+     "name": "create_user"
+    },
+    {
+     "method": "POST",
+     "path": "/user/createWithList",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Creates list of users with given input array.",
+     "parameters": [],
+     "operation_id": "createUsersWithListInput",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ],
+      "type": "array"
+     },
+     "returns": "object",
+     "name": "create_users_with_list_input"
+    },
+    {
+     "method": "GET",
+     "path": "/user/login",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs user into the system.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The user name for login"
+      },
+      {
+       "name": "password",
+       "in": "query",
+       "required": false,
+       "type": "string",
+       "description": "The password for login in clear text"
+      }
+     ],
+     "operation_id": "loginUser",
+     "tags": [
+      "user"
+     ],
+     "name": "login_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/logout",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Logs out current logged in user session.",
+     "parameters": [],
+     "operation_id": "logoutUser",
+     "tags": [
+      "user"
+     ],
+     "name": "logout_user"
+    },
+    {
+     "method": "GET",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Get user by user name.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be fetched. Use user1 for testing"
+      }
+     ],
+     "operation_id": "getUserByName",
+     "tags": [
+      "user"
+     ],
+     "returns": "object",
+     "name": "get_user_by_name"
+    },
+    {
+     "method": "PUT",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Update user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "name that need to be deleted"
+      }
+     ],
+     "operation_id": "updateUser",
+     "tags": [
+      "user"
+     ],
+     "request_body": {
+      "content_type": "application/json",
+      "required": false,
+      "fields": [
+       "id",
+       "username",
+       "firstName",
+       "lastName",
+       "email",
+       "password",
+       "phone",
+       "userStatus"
+      ],
+      "field_details": [
+       {
+        "name": "id",
+        "type": "integer"
+       },
+       {
+        "name": "username",
+        "type": "string"
+       },
+       {
+        "name": "firstName",
+        "type": "string"
+       },
+       {
+        "name": "lastName",
+        "type": "string"
+       },
+       {
+        "name": "email",
+        "type": "string"
+       },
+       {
+        "name": "password",
+        "type": "string"
+       },
+       {
+        "name": "phone",
+        "type": "string"
+       },
+       {
+        "name": "userStatus",
+        "type": "integer",
+        "description": "User Status"
+       }
+      ]
+     },
+     "name": "update_user"
+    },
+    {
+     "method": "DELETE",
+     "path": "/user/{username}",
+     "base_url": "https://petstore3.swagger.io/api/v3",
+     "description": "Delete user resource.",
+     "parameters": [
+      {
+       "name": "username",
+       "in": "path",
+       "required": true,
+       "type": "string",
+       "description": "The name that needs to be deleted"
+      }
+     ],
+     "operation_id": "deleteUser",
+     "tags": [
+      "user"
+     ],
+     "name": "delete_user"
+    }
+   ],
+   "rag_candidates": null,
+   "rag_trace": [],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1,
+      2
+     ],
+     "stage": "validation",
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": true,
+   "test_output": "19 tool(s) passed: each was called through an MCP server and sent the documented method, path, required parameters and body: ['update_pet', 'add_pet', 'find_pets_by_status', 'find_pets_by_tags', 'get_pet_by_id', 'update_pet_with_form', 'delete_pet', 'upload_file', 'get_inventory', 'place_order', 'get_order_by_id', 'delete_order', 'create_user', 'create_users_with_list_input', 'login_user', 'logout_user', 'get_user_by_name', 'update_user', 'delete_user']",
+   "output_path": "generated\\swagger-petstore-openapi-3-0\\server.py",
+   "api_meta": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "base_url": "https://petstore3.swagger.io/api/v3",
+    "auth": [
+     {
+      "scheme": "petstore_auth",
+      "type": "bearer"
+     },
+     {
+      "scheme": "api_key",
+      "type": "header",
+      "name": "api_key"
+     }
+    ]
+   },
+   "selection_note": null,
+   "mcp_client_check": {
+    "passed": true,
+    "tools_listed": 19,
+    "missing": [],
+    "error": null
+   },
+   "security_passed": true,
+   "security_output": "19 tool(s) passed the security review: each makes one request to its own endpoint and uses nothing outside the allowlist",
+   "security_warnings": [],
+   "server_code": "\"\"\"\nMCP server for Swagger Petstore - OpenAPI 3.0.\nGenerated by MCP-Forge. Every tool was validated before packaging.\n\nSettings (environment variables):\n  PETSTORE_BASE_URL        the API's base URL (default: https://petstore3.swagger.io/api/v3)\n  PETSTORE_TOKEN           access token\n  PETSTORE_API_KEY         API key\n\"\"\"\nimport base64\nimport os\nimport re\nfrom typing import Annotated, Any, Literal, Optional, Union\nfrom urllib.parse import quote\n\nimport httpx\nfrom pydantic import Field\nfrom mcp.server.mcpserver import MCPServer\nfrom mcp.server.mcpserver.exceptions import ToolError\nfrom mcp.types import ToolAnnotations\n\nserver = MCPServer('Swagger Petstore - OpenAPI 3.0')\n\nBASE_URL_ENV = 'PETSTORE_BASE_URL'\nBASE_URL = (os.environ.get('PETSTORE_BASE_URL') or 'https://petstore3.swagger.io/api/v3').rstrip(\"/\")\n\n# How this API accepts credentials. Each value is read from an environment\n# variable, so secrets never pass through the AI client as tool arguments.\nAUTH = [{'type': 'bearer', 'env': 'PETSTORE_TOKEN'}, {'type': 'header', 'name': 'api_key', 'env': 'PETSTORE_API_KEY'}]\n\n\n# A path placeholder: {petId}, or :petId (the style some prose docs use).\n_PLACEHOLDER = re.compile(r\"\\{([^{}/]+)\\}|(?<=/):([A-Za-z_]\\w*)\")\n\n\ndef _fill_path(path, values):\n    \"\"\"'/pet/{petId}' + {\"petId\": 5} -> '/pet/5'.\n\n    Each value is URL-encoded as ONE path segment ('/' becomes %2F), and '',\n    '.' and '..' are refused. Without this, a value such as '../user/admin'\n    would turn the request into a call to a different endpoint than the tool's.\n    \"\"\"\n    def fill(match):\n        name = match.group(1) or match.group(2)\n        if values.get(name) is None:\n            raise ToolError(f\"Missing a value for the path parameter '{name}'.\")\n        segment = str(values[name])\n        if segment in (\"\", \".\", \"..\"):\n            raise ToolError(f\"{segment!r} is not a valid value for the path parameter '{name}'.\")\n        return quote(segment, safe=\"\")\n    return _PLACEHOLDER.sub(fill, path)\n\n\ndef _request(method, path, *, path_params=None, params=None, json=None, data=None, headers=None):\n    \"\"\"Sends one request to the API. Every tool below calls this.\n\n    - fills the path's placeholders from path_params, encoded (see _fill_path)\n    - prefixes BASE_URL and adds the credentials configured in AUTH\n    - leaves out query parameters whose value is None (not set by the AI)\n    - raises ToolError for an HTTP error, naming the status code: MCP clients\n      show a ToolError's message to the AI, while any other exception reaches\n      it only as a generic \"Error executing tool\"\n    \"\"\"\n    if not BASE_URL:\n        raise ToolError(f\"The API base URL is not set. Set the {BASE_URL_ENV} environment variable.\")\n    path = _fill_path(path, path_params or {})\n    params = {key: value for key, value in (params or {}).items() if value is not None}\n    headers = dict(headers or {})\n    cookies = {}\n    for entry in AUTH:\n        if entry[\"type\"] == \"basic\":\n            username, password = os.environ.get(entry[\"env\"]), os.environ.get(entry[\"env_password\"])\n            if username and password:\n                token = base64.b64encode(f\"{username}:{password}\".encode()).decode()\n                headers[\"Authorization\"] = f\"Basic {token}\"\n            continue\n        value = os.environ.get(entry[\"env\"])\n        if not value:\n            continue                              # not configured: send the request without it\n        if entry[\"type\"] == \"bearer\":\n            headers[\"Authorization\"] = f\"Bearer {value}\"\n        elif entry[\"type\"] == \"header\":\n            headers[entry[\"name\"]] = value\n        elif entry[\"type\"] == \"query\":\n            params[entry[\"name\"]] = value\n        elif entry[\"type\"] == \"cookie\":\n            cookies[entry[\"name\"]] = value\n\n    try:\n        response = httpx.request(method, BASE_URL + path, params=params, json=json, data=data,\n                                 headers=headers, cookies=cookies, timeout=30, follow_redirects=True)\n    except httpx.HTTPError as error:\n        raise ToolError(f\"{method} {path} could not reach the API: {error}\") from error\n\n    if response.is_error:\n        raise ToolError(f\"{method} {path} failed with HTTP {response.status_code}: {response.text[:1000]}\")\n    if not response.content:\n        return {\"status\": response.status_code}\n    if \"json\" in response.headers.get(\"content-type\", \"\"):\n        return response.json()\n    return response.text\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))\ndef update_pet(\n    body: Annotated[dict, Field(description=\"Pet object with fields: id (int), name (string, required), category (object), photoUrls (array, required), tags (array), status (string, enum)\")],\n) -> Union[dict, list, str]:\n    \"\"\"Update an existing pet.\"\"\"\n    return _request(\"PUT\", \"/pet\", json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef add_pet(\n    body: Annotated[dict, Field(description=\"Pet object with fields: id (int), name (string, required), category (object), photoUrls (array, required), tags (array), status (string, enum)\")],\n) -> Union[dict, list, str]:\n    \"\"\"Add a new pet to the store.\"\"\"\n    return _request(\"POST\", \"/pet\", json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef find_pets_by_status(\n    status: Annotated[Literal[\"available\", \"pending\", \"sold\"], Field(description=\"Status values that need to be considered for filter\")],\n) -> Union[dict, list, str]:\n    \"\"\"Finds Pets by status.\"\"\"\n    return _request(\"GET\", \"/pet/findByStatus\", params={\"status\": status})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef find_pets_by_tags(\n    tags: Annotated[list[str], Field(description=\"Tags to filter by\")],\n) -> Union[dict, list, str]:\n    \"\"\"Finds Pets by tags.\"\"\"\n    return _request(\"GET\", \"/pet/findByTags\", params={\"tags\": tags})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_pet_by_id(\n    pet_id: Annotated[int, Field(description=\"ID of pet to return\")],\n) -> Union[dict, list, str]:\n    \"\"\"Find pet by ID.\"\"\"\n    return _request(\"GET\", \"/pet/{petId}\", path_params={\"petId\": pet_id})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef update_pet_with_form(\n    pet_id: Annotated[int, Field(description=\"ID of pet that needs to be updated\")],\n    name: Annotated[Optional[str], Field(description=\"Name of pet that needs to be updated\")] = None,\n    status: Annotated[Optional[str], Field(description=\"Status of pet that needs to be updated\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Updates a pet in the store with form data.\"\"\"\n    return _request(\n        \"POST\",\n        \"/pet/{petId}\",\n        path_params={\"petId\": pet_id},\n        params={\"name\": name, \"status\": status},\n    )\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))\ndef delete_pet(\n    pet_id: Annotated[int, Field(description=\"Pet id to delete\")],\n) -> Union[dict, list, str]:\n    \"\"\"Deletes a pet.\"\"\"\n    return _request(\"DELETE\", \"/pet/{petId}\", path_params={\"petId\": pet_id})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef upload_file(\n    pet_id: Annotated[int, Field(description=\"ID of pet to update\")],\n    additional_metadata: Annotated[Optional[str], Field(description=\"Additional Metadata\")] = None,\n    body: Annotated[Optional[dict], Field(description=\"Binary file data\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Uploads an image.\"\"\"\n    return _request(\n        \"POST\",\n        \"/pet/{petId}/uploadImage\",\n        path_params={\"petId\": pet_id},\n        params={\"additionalMetadata\": additional_metadata},\n        data=body,\n    )\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_inventory() -> Union[dict, list, str]:\n    \"\"\"Returns pet inventories by status.\"\"\"\n    return _request(\"GET\", \"/store/inventory\")\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef place_order(\n    body: Annotated[Optional[dict], Field(description=\"Order object with fields: id (int), petId (int), quantity (int), shipDate (string), status (string, enum), complete (bool)\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Place an order for a pet.\"\"\"\n    return _request(\"POST\", \"/store/order\", json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_order_by_id(\n    order_id: Annotated[int, Field(description=\"ID of order that needs to be fetched\")],\n) -> Union[dict, list, str]:\n    \"\"\"Find purchase order by ID.\"\"\"\n    return _request(\"GET\", \"/store/order/{orderId}\", path_params={\"orderId\": order_id})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))\ndef delete_order(\n    order_id: Annotated[int, Field(description=\"ID of the order that needs to be deleted\")],\n) -> Union[dict, list, str]:\n    \"\"\"Delete purchase order by identifier.\"\"\"\n    return _request(\"DELETE\", \"/store/order/{orderId}\", path_params={\"orderId\": order_id})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef create_user(\n    body: Annotated[Optional[dict], Field(description=\"User object with fields: id (int), username (string), firstName (string), lastName (string), email (string), password (string), phone (string), userStatus (int, description: User Status)\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Create user.\"\"\"\n    return _request(\"POST\", \"/user\", json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef create_users_with_list_input(\n    body: Annotated[Optional[list[dict]], Field(description=\"List of user objects with fields: id (int), username (string), firstName (string), lastName (string), email (string), password (string), phone (string), userStatus (int, description: User Status)\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Creates list of users with given input array.\"\"\"\n    return _request(\"POST\", \"/user/createWithList\", json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef login_user(\n    username: Annotated[Optional[str], Field(description=\"The user name for login\")] = None,\n    password: Annotated[Optional[str], Field(description=\"The password for login in clear text\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Logs user into the system.\"\"\"\n    return _request(\"GET\", \"/user/login\", params={\"username\": username, \"password\": password})\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef logout_user() -> Union[dict, list, str]:\n    \"\"\"Logs out current logged in user session.\"\"\"\n    return _request(\"GET\", \"/user/logout\")\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_user_by_name(\n    username: Annotated[str, Field(description=\"The name that needs to be fetched.\")],\n) -> Union[dict, list, str]:\n    \"\"\"Get user by user name.\"\"\"\n    return _request(\"GET\", \"/user/{username}\", path_params={\"username\": username})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))\ndef update_user(\n    username: Annotated[str, Field(description=\"name that need to be deleted\")],\n    body: Annotated[Optional[dict], Field(description=\"User fields: id, username, firstName, lastName, email, password, phone, userStatus\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Update user resource.\"\"\"\n    return _request(\"PUT\", \"/user/{username}\", path_params={\"username\": username}, json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))\ndef delete_user(\n    username: Annotated[str, Field(description=\"The name that needs to be deleted\")],\n) -> Union[dict, list, str]:\n    \"\"\"Delete user resource.\"\"\"\n    return _request(\"DELETE\", \"/user/{username}\", path_params={\"username\": username})\n\n\nif __name__ == \"__main__\":\n    server.run()\n"
+  }
+ }
+]
