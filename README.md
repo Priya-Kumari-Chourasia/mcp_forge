@@ -40,14 +40,16 @@ MCP-Forge automates that translation. Give it documentation and it produces a pa
                                   |  A2A: Agent Card, SendMessage  |   errors + previous code
                                   v                                |   go back to the generator
                            VALIDATOR AGENT ------------------------+
-                          (separate process)
+                          (FastAPI, over HTTP)
                                   |
                            PACKAGE SERVER             server.py + README + Claude Desktop config
                                   |                   + validation report
                           MCP CLIENT CHECK            start server.py over stdio, list its tools
 ```
 
-The LangGraph graph holds the orchestrator, the extraction nodes and the code generator. The validator is an independent agent in its own process, reached only through the A2A protocol.
+The LangGraph graph holds the orchestrator, the extraction nodes and the code generator. The validator is an independent agent reached only through the A2A protocol, over HTTP: started with `python validator_agent.py` it is its own process, and the web UI starts the same app on a background thread when nothing is listening at its address.
+
+Why each technology was chosen, and what else was considered, is in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 **The LLM writes only the tool functions.** Everything that must be right in every server - the base URL, authentication, error handling, tool annotations - comes from a fixed, tested template (`server_template.py`). Each generated tool is a few lines that call `_request()`.
 
@@ -62,7 +64,7 @@ The LangGraph graph holds the orchestrator, the extraction nodes and the code ge
 | **A2A** | The validator publishes an Agent Card and answers `SendMessage`; the pipeline discovers it and calls it with the official `a2a-sdk` client | `validator_agent.py`, `a2a_client.py` |
 | **MCP** | The output is an MCP server built on the `mcp` Python SDK; the validator calls every tool through an MCP server, and an MCP client checks the packaged file | `server_template.py`, `behaviour_check.py` |
 | **httpx** | The HTTP client inside every generated server; the validator replaces its send function with a recorder | `server_template.py`, `behaviour_check.py` |
-| **Flask** | Hosts the validator agent's HTTP endpoints | `validator_agent.py` |
+| **FastAPI + uvicorn** | Host the validator agent. The `a2a-sdk` server mounts the A2A routes on the FastAPI app; FastAPI adds the `/docs` page | `validator_agent.py` |
 | **Groq** | LLM backend (`openai/gpt-oss-120b`): extraction, code generation, and the tool-calling chat in the Try it tab | `llm.py`, `try_it.py` |
 | **ChromaDB** | In-memory vector store for the documentation chunks | `rag.py` |
 
@@ -132,11 +134,14 @@ OpenAPI specs skip RAG entirely. A spec is already structured, so `spec_parser.p
 
 ## A2A (the validator agent)
 
-`validator_agent.py` implements the A2A JSON-RPC binding, protocol version 1.0:
+`validator_agent.py` is a FastAPI app. The A2A protocol itself (JSON-RPC binding, protocol version 1.0) is handled by the official `a2a-sdk` server; the file holds only the agent's logic, a `ValidatorExecutor`.
 
 - `GET /.well-known/agent-card.json` - the Agent Card: name, skill, and the URL and binding to call
 - `POST /` with method `SendMessage` - takes a Message with two parts (the code as text, the endpoints as data) and returns a Task
-- `POST /` with method `GetTask` - returns a finished Task by id
+- `POST /` with method `GetTask` - returns a finished Task by id (the newest 500 are kept)
+- `GET /docs` - FastAPI's page describing these endpoints
+
+Requests must carry the header `A2A-Version: 1.0` (the SDK client sends it); without it the agent answers with the protocol's "version not supported" error. Validation runs on a worker thread, so the agent keeps answering while a check is running.
 
 The pipeline (`a2a_client.py`) knows only the agent's address. It fetches the Agent Card first, then sends the message using the official `a2a-sdk` client.
 
@@ -191,7 +196,7 @@ mcp-forge/
 |-- rag.py                    # Chunking, embeddings, ChromaDB index
 |-- rag_nodes.py              # Agentic RAG nodes: index, discover, retrieve, grade, rewrite
 |-- spec_parser.py            # Deterministic OpenAPI/Swagger parsing (JSON + YAML)
-|-- validator_agent.py        # The validator: an A2A agent on Flask (separate process)
+|-- validator_agent.py        # The validator: an A2A agent (FastAPI + a2a-sdk server, uvicorn)
 |-- behaviour_check.py        # Calls generated tools through an MCP server against mocked HTTP, in a child process
 |-- a2a_client.py             # Agent Card discovery + SendMessage via a2a-sdk
 |-- llm.py                    # LLM abstraction - Groq, or the offline stub
@@ -202,6 +207,7 @@ mcp-forge/
 |-- demo_runs/                # Recorded runs the UI can replay
 |-- examples/                 # A sample prose API guide
 |-- tests/                    # pytest suite
+|-- docs/DECISIONS.md         # Why each technology and design choice, and the alternatives
 |-- requirements.txt
 `-- .env.example
 ```
@@ -219,7 +225,7 @@ pip install -r requirements.txt
 ```bash
 python validator_agent.py
 ```
-Its Agent Card is then at http://localhost:8000/.well-known/agent-card.json
+Its Agent Card is then at http://localhost:8000/.well-known/agent-card.json and its endpoints are described at http://localhost:8000/docs. `VALIDATOR_PORT` changes the port; `VALIDATOR_HOST=0.0.0.0` accepts connections from other machines.
 
 ### 3. Run offline, no API key needed
 ```bash
@@ -270,7 +276,7 @@ python -m pytest
 |---|---|
 | `test_self_correction.py` | Attempt 1 fails, the validator's error reaches the retry prompt, attempt 2 passes; only the failing batch is regenerated |
 | `test_agentic_rag.py` | An endpoint past the first 6,000 characters is found; an insufficient retrieval triggers a rewritten query |
-| `test_a2a.py` | Agent Card at the well-known path; the official SDK client can discover and call the agent |
+| `test_a2a.py` | Agent Card at the well-known path; the official SDK client can discover and call the agent; a request without the protocol version is refused; the agent keeps answering while a validation runs; old tasks are forgotten beyond the limit |
 | `test_validator.py` | A return type that rejects a JSON array, required parameters or bodies not sent, undefined names, wrong methods, missing endpoints, tools that bypass `_request`, and tools that cannot be registered on an MCP server are all caught |
 | `test_spec_parser.py` | Relative server URLs, path-level and `$ref` parameters, descriptions and enums, response shapes, security schemes, form and list bodies, YAML |
 | `test_server_template.py` | A packaged server, run as its own process and called over MCP, returns a JSON array, reports HTTP 404 with its status, rejects invalid values, and sends credentials from environment variables; endpoint selection; the MCP client check |

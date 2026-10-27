@@ -53,13 +53,12 @@ def ensure_validator_running() -> dict:
         pass
 
     from urllib.parse import urlparse
-    from werkzeug.serving import make_server
     import validator_agent
 
+    # The same FastAPI app `python validator_agent.py` runs, served by uvicorn on a
+    # background thread. It is still reached only over A2A (HTTP), as a separate agent would be.
     address = urlparse(nodes.VALIDATOR_AGENT_URL)
-    _validator_server = make_server(address.hostname or "127.0.0.1", address.port or 8000,
-                                    validator_agent.app, threaded=True)
-    threading.Thread(target=_validator_server.serve_forever, daemon=True).start()
+    _, _validator_server = validator_agent.serve_in_thread(address.hostname or "127.0.0.1", address.port or 8000)
     return requests.get(card_url, timeout=5).json()
 
 

@@ -1,14 +1,21 @@
 """
 VALIDATOR AGENT - a separate agent the pipeline talks to over the A2A protocol.
 
-It runs in its own process and implements the A2A (Agent2Agent) JSON-RPC
-binding, protocol version 1.0, on top of Flask:
+It runs as its own service: FastAPI + uvicorn, with the A2A protocol handled
+by the official a2a-sdk (JSON-RPC binding, protocol version 1.0):
 
   GET  /.well-known/agent-card.json   the Agent Card: who this agent is, what
                                       skill it offers, and where/how to call it
-  POST /                              JSON-RPC 2.0 endpoint
+  POST /                              JSON-RPC 2.0 endpoint (send the header
+                                      "A2A-Version: 1.0"; the SDK client does)
          SendMessage  -> validates the code in the message, returns a Task
          GetTask      -> returns a previously completed Task by id
+  GET  /docs                          FastAPI's page documenting the endpoints
+
+Why the SDK's server and not hand-written JSON-RPC: the protocol (request
+parsing, method routing, error codes, task lifecycle, version check) is the
+SDK's job, kept in step with the A2A spec by its maintainers. This file only
+holds the agent's own logic - the ValidatorExecutor below.
 
 A caller needs to know nothing about this agent in advance except its URL:
 it fetches the Agent Card (discovery), then sends a Message. The Message has
@@ -29,32 +36,41 @@ Two layers of checks:
                    parameters and body, and return a result the MCP client
                    accepts? Done in a child process with HTTP mocked (see
                    behaviour_check.py), so no real API is ever touched.
+
+Run it:  python validator_agent.py      (listens on http://127.0.0.1:8000)
 """
 
 import ast
+import asyncio
 import json
 import os
+import socket
 import subprocess
 import sys
 import tempfile
-import uuid
+import threading
+import time
+from collections import OrderedDict
 
-from flask import Flask, request, jsonify
-from google.protobuf import json_format
-from google.protobuf.timestamp_pb2 import Timestamp
+import uvicorn
+from fastapi import FastAPI
 
-from a2a.helpers.proto_helpers import new_data_artifact, new_text_artifact
-from a2a.types.a2a_pb2 import (
-    AgentCapabilities, AgentCard, AgentInterface, AgentSkill,
-    SendMessageRequest, SendMessageResponse, Task, TaskState, TaskStatus,
+from a2a.helpers.proto_helpers import (
+    get_data_parts, get_text_parts, new_data_part, new_task_from_user_message, new_text_part,
 )
-
-app = Flask(__name__)
+from a2a.server.agent_execution import AgentExecutor, RequestContext
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.routes import add_a2a_routes_to_fastapi, create_agent_card_routes, create_jsonrpc_routes
+from a2a.server.tasks import InMemoryTaskStore, TaskStore, TaskUpdater
+from a2a.types.a2a_pb2 import AgentCapabilities, AgentCard, AgentInterface, AgentSkill
+from a2a.utils.errors import UnsupportedOperationError
 
 BEHAVIOUR_CHECK_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "behaviour_check.py")
 BEHAVIOUR_TIMEOUT_SECONDS = 30
 
-TASKS = {}      # task id -> Task, so GetTask can return finished tasks
+# Finished tasks are kept so GetTask can return them, but not forever: a long-running
+# validator would otherwise grow without limit. Beyond this many, the oldest are forgotten.
+MAX_STORED_TASKS = 500
 
 
 # ----------------------------------------------------------------------
@@ -65,7 +81,7 @@ def build_agent_card(base_url: str) -> AgentCard:
     return AgentCard(
         name="MCP-Forge Validator",
         description="Validates generated MCP tool code: static checks, then a behavioural check "
-                    "that every tool sends the documented HTTP method and URL.",
+                    "that calls every tool through an MCP server against mocked HTTP.",
         version="1.0.0",
         supported_interfaces=[
             AgentInterface(url=base_url, protocol_binding="JSONRPC", protocol_version="1.0"),
@@ -84,76 +100,101 @@ def build_agent_card(base_url: str) -> AgentCard:
     )
 
 
-@app.get("/.well-known/agent-card.json")
-def agent_card():
-    return jsonify(json_format.MessageToDict(build_agent_card(request.host_url)))
+class BoundedTaskStore(TaskStore):
+    """The SDK's in-memory task store, plus a limit: it remembers the newest
+    MAX_STORED_TASKS tasks and forgets older ones. (The SDK also has a
+    database-backed store; a validator's verdicts are only read straight after
+    validation, so durable storage would add a database for no benefit.)"""
+
+    def __init__(self, max_tasks: int = MAX_STORED_TASKS):
+        self.max_tasks = max_tasks
+        self._store = InMemoryTaskStore()
+        self._order = OrderedDict()          # task id -> the call context it was saved with, oldest first
+
+    async def save(self, task, context):
+        await self._store.save(task, context)
+        self._order[task.id] = context
+        self._order.move_to_end(task.id)
+        while len(self._order) > self.max_tasks:
+            old_id, old_context = self._order.popitem(last=False)
+            await self._store.delete(old_id, old_context)
+
+    async def get(self, task_id, context):
+        return await self._store.get(task_id, context)
+
+    async def list(self, params, context):
+        return await self._store.list(params, context)
+
+    async def delete(self, task_id, context):
+        self._order.pop(task_id, None)
+        await self._store.delete(task_id, context)
 
 
-def _rpc_result(rpc_id, message):
-    return jsonify({"jsonrpc": "2.0", "id": rpc_id, "result": json_format.MessageToDict(message)})
+class ValidatorExecutor(AgentExecutor):
+    """The agent's own logic, in the shape the A2A SDK expects: read the message,
+    validate, publish the verdict as artifacts, and close the task."""
 
+    async def execute(self, context: RequestContext, event_queue) -> None:
+        task = context.current_task or new_task_from_user_message(context.message)
+        if context.current_task is None:
+            await event_queue.enqueue_event(task)
+        updater = TaskUpdater(event_queue, task.id, task.context_id)
 
-def _rpc_error(rpc_id, code, text):
-    return jsonify({"jsonrpc": "2.0", "id": rpc_id, "error": {"code": code, "message": text}})
+        parts = context.message.parts
+        code = "\n".join(get_text_parts(parts))
+        endpoints = next((d.get("endpoints", []) for d in get_data_parts(parts) if isinstance(d, dict)), [])
+        print(f"[validator] task {task.id}: {len(endpoints)} endpoint(s) to check")
 
-
-@app.post("/")
-def json_rpc():
-    body = request.get_json(silent=True)
-    if not isinstance(body, dict) or body.get("jsonrpc") != "2.0":
-        return _rpc_error(None, -32600, "Invalid JSON-RPC request")
-    rpc_id, method, params = body.get("id"), body.get("method"), body.get("params") or {}
-
-    if method == "SendMessage":
         try:
-            send_request = json_format.ParseDict(params, SendMessageRequest())
-        except json_format.ParseError as e:
-            return _rpc_error(rpc_id, -32602, f"Invalid params: {e}")
-        return _rpc_result(rpc_id, SendMessageResponse(task=handle_message(send_request.message)))
+            # validate_code waits up to 30 s for a child process. Run it on a worker
+            # thread so the server keeps answering other requests meanwhile.
+            result = await asyncio.to_thread(validate_code, code, endpoints)
+        except Exception as e:                      # the validator itself broke
+            await updater.add_artifact([new_text_part(f"{type(e).__name__}: {e}")], name="validator-error")
+            await updater.failed()
+            return
 
-    if method == "GetTask":
-        task = TASKS.get(params.get("id"))
-        if task is None:
-            return _rpc_error(rpc_id, -32001, "Task not found")
-        return _rpc_result(rpc_id, task)
+        await updater.add_artifact([new_text_part(result["output"])], name="validation-summary")
+        await updater.add_artifact([new_data_part({"passed": result["passed"], "errors": result["errors"]})],
+                                   name="validation-verdict")
+        await updater.complete()
+        print(f"[validator] task {task.id} -> passed={result['passed']}")
 
-    return _rpc_error(rpc_id, -32601, f"Method not found: {method}")
+    async def cancel(self, context: RequestContext, event_queue) -> None:
+        # A validation takes seconds and has nothing to clean up, so cancelling is not offered.
+        raise UnsupportedOperationError()
 
 
-def handle_message(message) -> Task:
-    """Runs the validation skill on an incoming A2A Message and wraps the result in a Task."""
-    code, endpoints = "", []
-    for part in message.parts:
-        if part.HasField("text"):
-            code = part.text
-        elif part.HasField("data"):
-            endpoints = json_format.MessageToDict(part.data).get("endpoints", [])
+def create_app(public_url: str) -> FastAPI:
+    """The validator as a FastAPI app. public_url is the address callers use to
+    reach it; it goes into the Agent Card, so it must be the real one (for
+    example http://validator:8000/ inside Docker, not localhost)."""
+    card = build_agent_card(public_url)
+    handler = DefaultRequestHandler(agent_executor=ValidatorExecutor(), task_store=BoundedTaskStore(),
+                                    agent_card=card)
+    app = FastAPI(title="MCP-Forge Validator", version="1.0.0",
+                  description="An A2A agent that validates generated MCP tool code.")
+    add_a2a_routes_to_fastapi(app, agent_card_routes=create_agent_card_routes(card),
+                              jsonrpc_routes=create_jsonrpc_routes(handler, rpc_url="/"))
+    return app
 
-    task_id = str(uuid.uuid4())
-    print(f"[validator] task {task_id}: {len(endpoints)} endpoint(s) to check")
-    now = Timestamp()
-    now.GetCurrentTime()
-    try:
-        result = validate_code(code, endpoints)
-        state = TaskState.TASK_STATE_COMPLETED
-        artifacts = [
-            new_text_artifact("validation-summary", result["output"]),
-            new_data_artifact("validation-verdict", {"passed": result["passed"], "errors": result["errors"]}),
-        ]
-        print(f"[validator] task {task_id} -> passed={result['passed']}")
-    except Exception as e:                      # the validator itself broke
-        state = TaskState.TASK_STATE_FAILED
-        artifacts = [new_text_artifact("validator-error", f"{type(e).__name__}: {e}")]
 
-    task = Task(
-        id=task_id,
-        context_id=message.context_id or str(uuid.uuid4()),
-        status=TaskStatus(state=state, timestamp=now),
-        artifacts=artifacts,
-        history=[message],
-    )
-    TASKS[task_id] = task
-    return task
+def serve_in_thread(host: str = "127.0.0.1", port: int = 0):
+    """Starts the validator in a background thread of THIS process and returns
+    (base_url, server). The web UI uses it to run as one command, and the tests
+    use it with port=0 (any free port). Binding the socket first means the port
+    is known before the Agent Card is built. Stop it with server.should_exit = True."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind((host, port))
+    base_url = f"http://{host}:{sock.getsockname()[1]}"
+    server = uvicorn.Server(uvicorn.Config(create_app(base_url + "/"), log_level="warning"))
+    threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True).start()
+    deadline = time.time() + 15
+    while not server.started:
+        if time.time() > deadline:
+            raise RuntimeError("the validator agent did not start within 15 seconds")
+        time.sleep(0.05)
+    return base_url, server
 
 
 # ----------------------------------------------------------------------
@@ -246,6 +287,13 @@ def run_behaviour_check(code: str, endpoints: list) -> list:
 
 
 if __name__ == "__main__":
-    print("Validator agent listening on http://localhost:8000")
-    print("  Agent Card: http://localhost:8000/.well-known/agent-card.json")
-    app.run(port=8000)
+    # VALIDATOR_HOST=0.0.0.0 lets other machines (or containers) reach it; the default
+    # only accepts connections from this machine. VALIDATOR_PUBLIC_URL is the address
+    # written into the Agent Card, for when callers reach it under another name.
+    host = os.getenv("VALIDATOR_HOST", "127.0.0.1")
+    port = int(os.getenv("VALIDATOR_PORT", "8000"))
+    public_url = os.getenv("VALIDATOR_PUBLIC_URL", f"http://localhost:{port}/")
+    print(f"Validator agent listening on http://{host}:{port}")
+    print(f"  Agent Card: {public_url.rstrip('/')}/.well-known/agent-card.json")
+    print(f"  API docs:   {public_url.rstrip('/')}/docs")
+    uvicorn.run(create_app(public_url), host=host, port=port, log_level="warning")
