@@ -73,13 +73,15 @@ def scripted_llm(prompt):
         query = [p["name"] for p in ep["parameters"] if p["in"] == "query"]
         signature = [f"{a}: str" for a in path_args] + [f"{q}: Optional[str] = None" for q in query]
         params = "{" + ", ".join(f'"{q}": {q}' for q in query) + "}"
+        path_params = "{" + ", ".join(f'"{a}": {a}' for a in path_args) + "}"
         code += (f'\ndef {ep["name"]}({", ".join(signature)}) -> Union[dict, list, str]:\n'
                  f'    """{ep["description"]}"""\n'
-                 f'    return _request("{ep["method"]}", f"{ep["path"]}", params={params})\n')
+                 f'    return _request("{ep["method"]}", "{ep["path"]}", path_params={path_params}, '
+                 f'params={params})\n')
     return code
 
 
-def test_prose_docs_go_through_retrieve_grade_rewrite(tmp_path, monkeypatch, validator_agent_url):
+def test_prose_docs_go_through_retrieve_grade_rewrite(tmp_path, monkeypatch, pipeline_agents):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(nodes, "call_llm", scripted_llm)
     monkeypatch.setattr(rag_nodes, "call_llm", scripted_llm)
@@ -107,7 +109,7 @@ def test_prose_docs_go_through_retrieve_grade_rewrite(tmp_path, monkeypatch, val
     assert len(report["retrieval"]) == 3                       # 1 round for GET, 2 for DELETE
 
 
-def test_gives_up_after_max_rounds_but_keeps_the_endpoint(tmp_path, monkeypatch, validator_agent_url):
+def test_gives_up_after_max_rounds_but_keeps_the_endpoint(tmp_path, monkeypatch, pipeline_agents):
     monkeypatch.chdir(tmp_path)
 
     def never_satisfied(prompt):
@@ -125,7 +127,7 @@ def test_gives_up_after_max_rounds_but_keeps_the_endpoint(tmp_path, monkeypatch,
                                     "base_url": "", "parameters": [], "name": "get_ping"}]
 
 
-def test_openapi_specs_skip_rag_entirely(tmp_path, monkeypatch, validator_agent_url):
+def test_openapi_specs_skip_rag_entirely(tmp_path, monkeypatch, pipeline_agents):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(nodes, "call_llm", scripted_llm)
     monkeypatch.setattr(rag_nodes, "call_llm", lambda prompt: 1 / 0)    # must never be called

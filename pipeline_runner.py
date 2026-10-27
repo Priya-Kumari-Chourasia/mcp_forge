@@ -36,30 +36,38 @@ SHOWN_KEYS = [
     "orchestration_plan", "max_code_attempts", "endpoints", "rag_candidates", "rag_trace",
     "codegen_attempt", "attempt_history", "test_passed", "test_output", "output_path",
     "api_meta", "selection_note", "mcp_client_check",
+    "security_passed", "security_output", "security_warnings",
 ]
 
-_validator_server = None
+_agent_servers = {}
 
 
-def ensure_validator_running() -> dict:
-    """Returns the validator's Agent Card, starting the agent in a background
-    thread first if nothing is answering at its address. This lets the UI run
-    as a single process (one command locally, one app on a hosting service)."""
-    global _validator_server
-    card_url = nodes.VALIDATOR_AGENT_URL.rstrip("/") + "/.well-known/agent-card.json"
+def ensure_agent_running(agent_url: str, agent_module) -> dict:
+    """Returns the Agent Card of the agent at agent_url, starting that agent in
+    a background thread first if nothing is answering there. This lets the UI
+    run as a single process (one command locally, one app on a hosting service).
+    The agent is the same FastAPI app `python <agent>.py` runs, and it is still
+    reached only over A2A (HTTP), as a separate service would be."""
+    from urllib.parse import urlparse
+
+    card_url = agent_url.rstrip("/") + "/.well-known/agent-card.json"
     try:
         return requests.get(card_url, timeout=2).json()
     except requests.RequestException:
         pass
-
-    from urllib.parse import urlparse
-    import validator_agent
-
-    # The same FastAPI app `python validator_agent.py` runs, served by uvicorn on a
-    # background thread. It is still reached only over A2A (HTTP), as a separate agent would be.
-    address = urlparse(nodes.VALIDATOR_AGENT_URL)
-    _, _validator_server = validator_agent.serve_in_thread(address.hostname or "127.0.0.1", address.port or 8000)
+    address = urlparse(agent_url)
+    _, _agent_servers[agent_url] = agent_module.serve_in_thread(address.hostname or "127.0.0.1", address.port)
     return requests.get(card_url, timeout=5).json()
+
+
+def ensure_validator_running() -> dict:
+    import validator_agent
+    return ensure_agent_running(nodes.VALIDATOR_AGENT_URL, validator_agent)
+
+
+def ensure_security_agent_running() -> dict:
+    import security_agent
+    return ensure_agent_running(nodes.SECURITY_AGENT_URL, security_agent)
 
 
 class BugInjector:
@@ -132,10 +140,12 @@ def stream_run(raw_docs: str, source_url: str = None, inject_bug: bool = False, 
     once a second with the node's latest output and how long it has been
     silent, so the UI can show that the run is alive."""
     agent_card = ensure_validator_running()
+    security_card = ensure_security_agent_running()
     yield {
         "node": "start", "log": "",
         "state": {"input_kind": "OpenAPI spec" if is_openapi_spec(raw_docs) else "Prose docs",
-                  "input_chars": len(raw_docs), "agent_card": agent_card, "bug_injected": inject_bug},
+                  "input_chars": len(raw_docs), "agent_card": agent_card, "security_agent_card": security_card,
+                  "bug_injected": inject_bug},
     }
 
     live_log = _LiveLog()

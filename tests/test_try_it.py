@@ -20,12 +20,12 @@ def find_pets_by_status(
 
 def get_pet_by_id(pet_id: Annotated[int, Field(description="ID of the pet")]) -> Union[dict, list, str]:
     """Find pet by ID."""
-    return _request("GET", f"/pet/{pet_id}")
+    return _request("GET", "/pet/{petId}", path_params={"petId": pet_id})
 
 
 def delete_pet(pet_id: Annotated[int, Field(description="ID of the pet")]) -> Union[dict, list, str]:
     """Deletes a pet."""
-    return _request("DELETE", f"/pet/{pet_id}")
+    return _request("DELETE", "/pet/{petId}", path_params={"petId": pet_id})
 '''
 ENDPOINTS = [{"name": "find_pets_by_status", "method": "GET"}, {"name": "get_pet_by_id", "method": "GET"},
              {"name": "delete_pet", "method": "DELETE"}]

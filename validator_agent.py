@@ -2,7 +2,7 @@
 VALIDATOR AGENT - a separate agent the pipeline talks to over the A2A protocol.
 
 It runs as its own service: FastAPI + uvicorn, with the A2A protocol handled
-by the official a2a-sdk (JSON-RPC binding, protocol version 1.0):
+by the official a2a-sdk (see a2a_server.py, shared with the security agent):
 
   GET  /.well-known/agent-card.json   the Agent Card: who this agent is, what
                                       skill it offers, and where/how to call it
@@ -12,22 +12,14 @@ by the official a2a-sdk (JSON-RPC binding, protocol version 1.0):
          GetTask      -> returns a previously completed Task by id
   GET  /docs                          FastAPI's page documenting the endpoints
 
-Why the SDK's server and not hand-written JSON-RPC: the protocol (request
-parsing, method routing, error codes, task lifecycle, version check) is the
-SDK's job, kept in step with the A2A spec by its maintainers. This file only
-holds the agent's own logic - the ValidatorExecutor below.
-
 A caller needs to know nothing about this agent in advance except its URL:
 it fetches the Agent Card (discovery), then sends a Message. The Message has
 two parts - the generated code (text) and the endpoints it must implement
-(data). The reply is a Task whose artifacts hold the verdict.
+(data). The reply is a Task whose artifacts hold the verdict:
+{"passed": bool, "errors": [...]}.
 
-Note on task state: a Task is COMPLETED whenever validation RAN, even if the
-code failed it - "the code is wrong" is the agent's answer, not a failure of
-the agent. The verdict lives in the artifact: {"passed": bool, "errors": [...]}.
-TASK_STATE_FAILED is reserved for the validator itself breaking.
-
-Not implemented: streaming, push notifications, task cancellation, auth.
+This agent RUNS the code it is sent, so the pipeline sends code here only
+after the security reviewer (security_agent.py) has passed it.
 
 Two layers of checks:
   1. STATIC      - is it valid Python, with functions, and no duplicate names?
@@ -41,36 +33,17 @@ Run it:  python validator_agent.py      (listens on http://127.0.0.1:8000)
 """
 
 import ast
-import asyncio
 import json
 import os
-import socket
 import subprocess
 import sys
 import tempfile
-import threading
-import time
-from collections import OrderedDict
 
-import uvicorn
-from fastapi import FastAPI
-
-from a2a.helpers.proto_helpers import (
-    get_data_parts, get_text_parts, new_data_part, new_task_from_user_message, new_text_part,
-)
-from a2a.server.agent_execution import AgentExecutor, RequestContext
-from a2a.server.request_handlers import DefaultRequestHandler
-from a2a.server.routes import add_a2a_routes_to_fastapi, create_agent_card_routes, create_jsonrpc_routes
-from a2a.server.tasks import InMemoryTaskStore, TaskStore, TaskUpdater
+import a2a_server
 from a2a.types.a2a_pb2 import AgentCapabilities, AgentCard, AgentInterface, AgentSkill
-from a2a.utils.errors import UnsupportedOperationError
 
 BEHAVIOUR_CHECK_SCRIPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "behaviour_check.py")
 BEHAVIOUR_TIMEOUT_SECONDS = 30
-
-# Finished tasks are kept so GetTask can return them, but not forever: a long-running
-# validator would otherwise grow without limit. Beyond this many, the oldest are forgotten.
-MAX_STORED_TASKS = 500
 
 
 # ----------------------------------------------------------------------
@@ -100,101 +73,26 @@ def build_agent_card(base_url: str) -> AgentCard:
     )
 
 
-class BoundedTaskStore(TaskStore):
-    """The SDK's in-memory task store, plus a limit: it remembers the newest
-    MAX_STORED_TASKS tasks and forgets older ones. (The SDK also has a
-    database-backed store; a validator's verdicts are only read straight after
-    validation, so durable storage would add a database for no benefit.)"""
+class ValidatorExecutor(a2a_server.CheckExecutor):
+    """The agent's own logic, in the shape the A2A SDK expects (see a2a_server.CheckExecutor)."""
+    artifact_prefix = "validation"
+    log_name = "validator"
 
-    def __init__(self, max_tasks: int = MAX_STORED_TASKS):
-        self.max_tasks = max_tasks
-        self._store = InMemoryTaskStore()
-        self._order = OrderedDict()          # task id -> the call context it was saved with, oldest first
-
-    async def save(self, task, context):
-        await self._store.save(task, context)
-        self._order[task.id] = context
-        self._order.move_to_end(task.id)
-        while len(self._order) > self.max_tasks:
-            old_id, old_context = self._order.popitem(last=False)
-            await self._store.delete(old_id, old_context)
-
-    async def get(self, task_id, context):
-        return await self._store.get(task_id, context)
-
-    async def list(self, params, context):
-        return await self._store.list(params, context)
-
-    async def delete(self, task_id, context):
-        self._order.pop(task_id, None)
-        await self._store.delete(task_id, context)
+    def check(self, code, endpoints):
+        return validate_code(code, endpoints)
 
 
-class ValidatorExecutor(AgentExecutor):
-    """The agent's own logic, in the shape the A2A SDK expects: read the message,
-    validate, publish the verdict as artifacts, and close the task."""
-
-    async def execute(self, context: RequestContext, event_queue) -> None:
-        task = context.current_task or new_task_from_user_message(context.message)
-        if context.current_task is None:
-            await event_queue.enqueue_event(task)
-        updater = TaskUpdater(event_queue, task.id, task.context_id)
-
-        parts = context.message.parts
-        code = "\n".join(get_text_parts(parts))
-        endpoints = next((d.get("endpoints", []) for d in get_data_parts(parts) if isinstance(d, dict)), [])
-        print(f"[validator] task {task.id}: {len(endpoints)} endpoint(s) to check")
-
-        try:
-            # validate_code waits up to 30 s for a child process. Run it on a worker
-            # thread so the server keeps answering other requests meanwhile.
-            result = await asyncio.to_thread(validate_code, code, endpoints)
-        except Exception as e:                      # the validator itself broke
-            await updater.add_artifact([new_text_part(f"{type(e).__name__}: {e}")], name="validator-error")
-            await updater.failed()
-            return
-
-        await updater.add_artifact([new_text_part(result["output"])], name="validation-summary")
-        await updater.add_artifact([new_data_part({"passed": result["passed"], "errors": result["errors"]})],
-                                   name="validation-verdict")
-        await updater.complete()
-        print(f"[validator] task {task.id} -> passed={result['passed']}")
-
-    async def cancel(self, context: RequestContext, event_queue) -> None:
-        # A validation takes seconds and has nothing to clean up, so cancelling is not offered.
-        raise UnsupportedOperationError()
-
-
-def create_app(public_url: str) -> FastAPI:
+def create_app(public_url: str):
     """The validator as a FastAPI app. public_url is the address callers use to
     reach it; it goes into the Agent Card, so it must be the real one (for
     example http://validator:8000/ inside Docker, not localhost)."""
-    card = build_agent_card(public_url)
-    handler = DefaultRequestHandler(agent_executor=ValidatorExecutor(), task_store=BoundedTaskStore(),
-                                    agent_card=card)
-    app = FastAPI(title="MCP-Forge Validator", version="1.0.0",
-                  description="An A2A agent that validates generated MCP tool code.")
-    add_a2a_routes_to_fastapi(app, agent_card_routes=create_agent_card_routes(card),
-                              jsonrpc_routes=create_jsonrpc_routes(handler, rpc_url="/"))
-    return app
+    return a2a_server.create_app(build_agent_card(public_url), ValidatorExecutor(), title="MCP-Forge Validator",
+                                 description="An A2A agent that validates generated MCP tool code.")
 
 
 def serve_in_thread(host: str = "127.0.0.1", port: int = 0):
-    """Starts the validator in a background thread of THIS process and returns
-    (base_url, server). The web UI uses it to run as one command, and the tests
-    use it with port=0 (any free port). Binding the socket first means the port
-    is known before the Agent Card is built. Stop it with server.should_exit = True."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, port))
-    base_url = f"http://{host}:{sock.getsockname()[1]}"
-    server = uvicorn.Server(uvicorn.Config(create_app(base_url + "/"), log_level="warning"))
-    threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True).start()
-    deadline = time.time() + 15
-    while not server.started:
-        if time.time() > deadline:
-            raise RuntimeError("the validator agent did not start within 15 seconds")
-        time.sleep(0.05)
-    return base_url, server
+    """Starts the validator on a background thread; returns (base_url, server)."""
+    return a2a_server.serve_in_thread(create_app, host, port)
 
 
 # ----------------------------------------------------------------------
@@ -290,10 +188,6 @@ if __name__ == "__main__":
     # VALIDATOR_HOST=0.0.0.0 lets other machines (or containers) reach it; the default
     # only accepts connections from this machine. VALIDATOR_PUBLIC_URL is the address
     # written into the Agent Card, for when callers reach it under another name.
-    host = os.getenv("VALIDATOR_HOST", "127.0.0.1")
     port = int(os.getenv("VALIDATOR_PORT", "8000"))
-    public_url = os.getenv("VALIDATOR_PUBLIC_URL", f"http://localhost:{port}/")
-    print(f"Validator agent listening on http://{host}:{port}")
-    print(f"  Agent Card: {public_url.rstrip('/')}/.well-known/agent-card.json")
-    print(f"  API docs:   {public_url.rstrip('/')}/docs")
-    uvicorn.run(create_app(public_url), host=host, port=port, log_level="warning")
+    a2a_server.run_standalone(create_app, "Validator agent", os.getenv("VALIDATOR_HOST", "127.0.0.1"), port,
+                              os.getenv("VALIDATOR_PUBLIC_URL", f"http://localhost:{port}/"))

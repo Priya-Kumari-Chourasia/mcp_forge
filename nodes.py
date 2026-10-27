@@ -28,11 +28,13 @@ from collections import Counter
 from state import ForgeState
 from llm import call_llm
 from spec_parser import is_openapi_spec, extract_endpoints_from_openapi, get_api_meta
-from a2a_client import validate_via_a2a, ValidatorUnreachable
+from a2a_client import check_via_a2a, AgentUnreachable
+from security_rules import strip_invisible
 import server_template
 
 REQUIRED_FIELDS = ["method", "path", "description"]
 VALIDATOR_AGENT_URL = os.getenv("VALIDATOR_AGENT_URL", "http://localhost:8000")
+SECURITY_AGENT_URL = os.getenv("SECURITY_AGENT_URL", "http://localhost:8001")
 # Endpoints per LLM call - keeps each request within the LLM's limits. For an API with
 # very long docs on Groq's free tier, a smaller batch (MCP_FORGE_BATCH_SIZE=8) avoids
 # requests that are too large for one minute's token allowance.
@@ -206,19 +208,26 @@ CODEGEN_INSTRUCTIONS = """Write the tool functions of an MCP server - exactly ON
 Your code goes directly under a header that is already written. The header imports
 os, Annotated, Any, Literal, Optional, Union and pydantic's Field, and defines:
 
-    _request(method, path, *, params=None, json=None, data=None, headers=None)
+    _request(method, path, *, path_params=None, params=None, json=None, data=None, headers=None)
 
-_request adds the API's base URL and authentication, leaves out params whose value is
-None, raises a clear error when the API returns an error, and returns the response.
+_request fills in the path's placeholders (encoding each value), adds the API's base URL
+and authentication, leaves out params whose value is None, raises a clear error when the
+API returns an error, and returns the response.
 
-Rules:
-- Do NOT write imports, constants or helper functions. Write only the tool functions.
+Rules (a security review checks them before the code is run):
+- Do NOT write imports, constants, helper functions or decorators. Write only the tool functions.
 - Name each function exactly as the endpoint's "name".
-- Each function sends its request with _request(...) and returns what _request returns.
-  The path is the endpoint's path with each {placeholder} filled in from its argument,
-  e.g. f"/pet/{pet_id}". Never write full URLs, and never use requests or httpx directly.
+- Each function makes exactly one _request(...) call and returns what it returns. The method
+  and the path are plain string literals copied exactly from the endpoint, placeholders
+  included: _request("GET", "/pet/{petId}", path_params={"petId": pet_id}).
+  Never fill in the path yourself (no f-strings): _request does it, safely. Never write
+  full URLs, never use requests, httpx or os, and never read environment variables.
+- Use only the function's own arguments, variables it assigns itself, _request and the
+  type names above.
 - One argument per path, query and header parameter, named in snake_case. Send each one
-  under its documented name: params={"petId": pet_id} if the documented name is petId.
+  under its documented name: path parameters in path_params, query parameters in params,
+  header parameters in headers. Example: params={"status": status} if the documented name
+  is status.
 - Path parameters and required query parameters have no default. Every other parameter
   is Optional and defaults to None.
 - Type every argument as Annotated[<type>, Field(description="...")], using the
@@ -246,6 +255,17 @@ def find_pets_by_status(
     \"\"\"Finds pets by status.\"\"\"
     return _request("GET", "/pet/findByStatus", params={"status": status})
 
+and for the endpoint
+{"name": "get_pet_by_id", "method": "GET", "path": "/pet/{petId}",
+ "parameters": [{"name": "petId", "in": "path", "required": true, "type": "integer",
+                 "description": "ID of pet to return"}]}
+
+def get_pet_by_id(
+    pet_id: Annotated[int, Field(description="ID of pet to return")],
+) -> Union[dict, list, str]:
+    \"\"\"Find pet by ID.\"\"\"
+    return _request("GET", "/pet/{petId}", path_params={"petId": pet_id})
+
 Return ONLY valid Python code. No markdown fences, no explanations.
 """
 
@@ -256,8 +276,10 @@ MAX_DESCRIPTION = 200      # characters; long descriptions would push a batch pa
 def _short(text: str) -> str:
     """The first sentence of a description, at most MAX_DESCRIPTION characters.
     Some specs (GitHub's) have paragraph-long parameter descriptions; the first
-    sentence is what a tool's argument description needs."""
-    text = " ".join((text or "").split())
+    sentence is what a tool's argument description needs.
+    Invisible characters are removed first: they are text an LLM reads but a person
+    reviewing the docs cannot see (see security_rules.py)."""
+    text = " ".join(strip_invisible(text).split())
     first = text.split(". ")[0]
     first = first if first.endswith(".") or len(first) == len(text) else first + "."
     return first if len(first) <= MAX_DESCRIPTION else first[:MAX_DESCRIPTION - 3].rstrip() + "..."
@@ -283,7 +305,8 @@ def codegen_view(endpoint: dict) -> dict:
 
 def build_codegen_prompt(batch, previous_code=None, errors=None):
     """First attempt: instructions + endpoints.
-    Retry: the same, PLUS the code that failed and the validator's errors.
+    Retry: the same, PLUS the code that failed and the errors it got (from the
+    security reviewer or the validator, whichever rejected it).
     That extra context is what makes the loop self-correcting - without it,
     the model would be asked the identical question and (at temperature 0)
     would give the identical wrong answer."""
@@ -294,7 +317,7 @@ def build_codegen_prompt(batch, previous_code=None, errors=None):
         prompt += f"""
 Your previous code for these endpoints FAILED validation.
 
-Validator errors:
+Errors (from the security review or the validator):
 {error_lines}
 
 Previous code:
@@ -370,11 +393,11 @@ def generate_tool_node(state: ForgeState) -> ForgeState:
             print(f"  batch {i + 1}/{len(batches)} done ({len(batch)} endpoint(s))")
         regenerated = list(range(len(batches)))
     else:
-        # Retry: regenerate only the batches the validator complained about,
+        # Retry: regenerate only the batches the reviewer or validator complained about,
         # and give each one its own errors plus the code that produced them.
-        failing = errors_by_batch(state.get("test_errors") or [], code_batches)
+        failing = errors_by_batch(state.get("fix_errors") or [], code_batches)
         print(f"STEP 2 (generate_tool) attempt {attempt} -> regenerating {len(failing)} of "
-              f"{len(batches)} batch(es) using the validator's errors")
+              f"{len(batches)} batch(es) using the errors they got")
         for i, batch_errors in sorted(failing.items()):
             code_batches[i] = generate_one_batch(
                 batches[i], f"batch {i + 1}/{len(batches)}",
@@ -392,6 +415,47 @@ def generate_tool_node(state: ForgeState) -> ForgeState:
     return state
 
 
+def security_review_node(state: ForgeState) -> ForgeState:
+    """Hands the generated tools to the security reviewer agent over A2A, BEFORE
+    the validator runs them (the validator executes the code; the reviewer only
+    reads it). Only the tools are sent: the header above them is the fixed,
+    hand-written template."""
+    print(f"STEP 3 (security review via A2A) attempt {state['codegen_attempt']}")
+    try:
+        result = check_via_a2a(SECURITY_AGENT_URL, state["generated_code"], state["endpoints"])
+    except AgentUnreachable:
+        # Fail closed: without a review, the code must not be run.
+        print("ERROR: Could not reach the security agent. Start it first: python security_agent.py")
+        result = {"passed": False, "output": "security agent unreachable", "warnings": [],
+                  "errors": [{"function": None, "endpoint_index": None, "rule": None,
+                              "error": "security agent unreachable"}]}
+
+    state["security_passed"] = result["passed"]
+    state["security_output"] = result["output"]
+    state["security_warnings"] = result["warnings"]
+    if not result["passed"]:
+        state["fix_errors"] = result["errors"]
+        state["attempt_history"][-1].update({"stage": "security review", "passed": False,
+                                             "errors": [e["error"] for e in result["errors"]]})
+
+    print(f"  verdict: passed={result['passed']}")
+    for e in result["errors"]:
+        print(f"  - {e['error']}")
+    for w in result["warnings"]:
+        print(f"  warning: {w['warning']}")
+    return state
+
+
+def route_after_review(state: ForgeState) -> str:
+    if state["security_passed"]:
+        return "validate"
+    if state["security_output"] != "security agent unreachable" and state["codegen_attempt"] < state["max_code_attempts"]:
+        print("  DECISION: security review failed, sending its findings back to generate_tool")
+        return "retry"
+    print("  DECISION: security review failed, nothing will be run or packaged")
+    return "rejected"
+
+
 def code_for_validation(state: ForgeState) -> str:
     """The tools exactly as they will run in the packaged server: under the same header."""
     return server_template.render_header(state.get("api_meta") or {}) + "\n\n" + state["generated_code"]
@@ -400,11 +464,11 @@ def code_for_validation(state: ForgeState) -> str:
 def test_via_a2a_node(state: ForgeState) -> ForgeState:
     """Hands the code, and the endpoints it must implement, to the validator
     agent over the A2A protocol (see a2a_client.py)."""
-    print(f"STEP 3 (validate via A2A) attempt {state['codegen_attempt']}")
+    print(f"STEP 4 (validate via A2A) attempt {state['codegen_attempt']}")
     try:
-        result = validate_via_a2a(VALIDATOR_AGENT_URL, code_for_validation(state), state["endpoints"])
+        result = check_via_a2a(VALIDATOR_AGENT_URL, code_for_validation(state), state["endpoints"])
         passed, output, errors = result["passed"], result["output"], result["errors"]
-    except ValidatorUnreachable:
+    except AgentUnreachable:
         print("ERROR: Could not reach the validator agent.")
         print("  Start it first, in another terminal: python validator_agent.py")
         passed, output = False, "validator unreachable"
@@ -413,9 +477,11 @@ def test_via_a2a_node(state: ForgeState) -> ForgeState:
     state["test_passed"] = passed
     state["test_output"] = output
     state["test_errors"] = errors
+    state["fix_errors"] = errors
 
     # Record the outcome on this attempt's history entry.
-    state["attempt_history"][-1].update({"passed": passed, "errors": [e["error"] for e in errors]})
+    state["attempt_history"][-1].update({"stage": "validation", "passed": passed,
+                                         "errors": [e["error"] for e in errors]})
 
     print(f"  verdict: passed={passed}")
     if passed:
@@ -451,12 +517,31 @@ def package_server_node(state: ForgeState) -> ForgeState:
     os.makedirs(output_dir, exist_ok=True)
 
     # The record of both loops: every codegen attempt and every retrieval round.
+    warnings = [w["warning"] for w in state.get("security_warnings") or []]
     report = {
-        "passed": bool(state.get("test_passed")),
+        "passed": bool(state.get("security_passed") and state.get("test_passed")),
+        "security_review": {"passed": bool(state.get("security_passed")), "summary": state.get("security_output"),
+                            "warnings": warnings},
         "attempts": state.get("attempt_history", []),      # the codegen loop
         "retrieval": state.get("rag_trace", []),           # the agentic RAG loop (prose docs only)
         "selection": state.get("selection_note"),
     }
+
+    if not state.get("security_passed"):
+        # Fail closed: code the security review rejected is never packaged as a server and
+        # never started. It is kept as .txt for inspection, so it cannot be run by accident.
+        # Files from an earlier run of the same API are removed: they would not match this report.
+        for stale in ("server.py", "claude_desktop_config.json", "README.md", "requirements.txt"):
+            if os.path.exists(os.path.join(output_dir, stale)):
+                os.remove(os.path.join(output_dir, stale))
+        _write(os.path.join(output_dir, "rejected_tools.txt"), state.get("generated_code") or "")
+        report_path = os.path.join(output_dir, "validation_report.json")
+        _write(report_path, json.dumps(report, indent=2))
+        print(f"\nREJECTED by the security review: nothing was packaged or run.")
+        print(f"  {state.get('security_output')}")
+        print(f"  Report: {report_path}")
+        state["output_path"] = None
+        return state
 
     try:
         server_code, tool_info = server_template.package_server(state["generated_code"], state["endpoints"], meta)
@@ -473,7 +558,7 @@ def package_server_node(state: ForgeState) -> ForgeState:
     server_path = os.path.join(output_dir, "server.py")
     _write(server_path, server_code)
     _write(os.path.join(output_dir, "requirements.txt"), server_template.SERVER_REQUIREMENTS)
-    _write(os.path.join(output_dir, "README.md"), server_template.readme(meta, tool_info, server_path))
+    _write(os.path.join(output_dir, "README.md"), server_template.readme(meta, tool_info, server_path, warnings))
     _write(os.path.join(output_dir, "claude_desktop_config.json"),
            json.dumps(server_template.claude_desktop_config(meta, server_path), indent=2))
 
@@ -486,13 +571,16 @@ def package_server_node(state: ForgeState) -> ForgeState:
     print(f"\nPackaged MCP server -> {output_dir}/")
     print(f"  {len(tool_info)} tool(s): {[t['name'] for t in tool_info]}")
     print(f"  Validation: {status}")
+    if warnings:
+        print(f"  Security review: {len(warnings)} warning(s) - see README.md")
     if client_check["passed"]:
         print(f"  MCP client check: started server.py over stdio and listed {client_check['tools_listed']} tool(s)")
     else:
         print(f"  MCP client check FAILED: {client_check['error'] or 'missing ' + str(client_check['missing'])}")
     print("  Attempts:")
     for record in state.get("attempt_history", []):
-        outcome = "passed" if record.get("passed") else f"failed with {len(record.get('errors', []))} error(s)"
+        outcome = ("passed" if record.get("passed") else
+                   f"failed {record.get('stage', 'validation')} with {len(record.get('errors', []))} error(s)")
         print(f"    attempt {record['attempt']}: generated batch(es) {record['batches']} -> {outcome}")
     print(f"  Claude Desktop config: {os.path.join(output_dir, 'claude_desktop_config.json')}")
     state["output_path"] = server_path

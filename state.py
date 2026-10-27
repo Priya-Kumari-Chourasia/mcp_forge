@@ -40,10 +40,14 @@ class ForgeState(TypedDict):
     rag_context: Optional[List[str]]      # chunks retrieved for the current round
     rag_trace: List[dict]                 # record of every round: query, sufficient or not, what was missing
 
-    # --- generate / validate loop ---
+    # --- generate / review / validate loop ---
     code_batches: Optional[List[str]]   # generated code, one string per batch of endpoints
     generated_code: Optional[str]       # all batches joined together
     codegen_attempt: int
+    security_passed: Optional[bool]     # the security reviewer's verdict (it runs first, without running the code)
+    security_output: Optional[str]      # its human-readable summary
+    security_warnings: List[dict]       # non-blocking findings, e.g. instruction-like text in the docs
+    fix_errors: Optional[List[dict]]    # what the next attempt must fix: from the reviewer or the validator
     test_passed: Optional[bool]
     test_output: Optional[str]          # human-readable summary from the validator
     test_errors: Optional[List[dict]]   # structured errors from the validator (fed back to the LLM)

@@ -5,15 +5,16 @@ import pipeline_runner as runner
 DOCS = "GET https://catfact.ninja/fact - returns a random cat fact"
 
 
-def run(monkeypatch, tmp_path, validator_agent_url, inject_bug):
+def run(monkeypatch, tmp_path, pipeline_agents, inject_bug):
     monkeypatch.chdir(tmp_path)
     return list(runner.stream_run(DOCS, None, inject_bug))
 
 
-def test_one_event_per_node_ending_with_the_packaged_server(monkeypatch, tmp_path, validator_agent_url):
-    events = run(monkeypatch, tmp_path, validator_agent_url, inject_bug=False)
+def test_one_event_per_node_ending_with_the_packaged_server(monkeypatch, tmp_path, pipeline_agents):
+    events = run(monkeypatch, tmp_path, pipeline_agents, inject_bug=False)
     assert events[0]["node"] == "start"
     assert events[0]["state"]["agent_card"]["name"] == "MCP-Forge Validator"
+    assert events[0]["state"]["security_agent_card"]["name"] == "MCP-Forge Security Reviewer"
     assert events[-1]["node"] == "package_server"
     # get_fact is a GET, so the packaged tool is marked read-only for MCP clients.
     assert "@server.tool(annotations=ToolAnnotations(read_only_hint=True" in events[-1]["state"]["server_code"]
@@ -21,12 +22,14 @@ def test_one_event_per_node_ending_with_the_packaged_server(monkeypatch, tmp_pat
     assert [a["passed"] for a in events[-1]["state"]["attempt_history"]] == [True]
 
 
-def test_demo_switch_breaks_attempt_1_and_the_loop_repairs_it(monkeypatch, tmp_path, validator_agent_url):
+def test_demo_switch_breaks_attempt_1_and_the_loop_repairs_it(monkeypatch, tmp_path, pipeline_agents):
     real_llm = nodes.call_llm
-    events = run(monkeypatch, tmp_path, validator_agent_url, inject_bug=True)
+    events = run(monkeypatch, tmp_path, pipeline_agents, inject_bug=True)
     first, second = events[-1]["state"]["attempt_history"]
-    # The demo switch swapped the tool's HTTP method; the validator names exactly that.
-    assert first["passed"] is False and "get_fact() sent POST https://catfact.ninja/fact" in first["errors"][0]
+    # The demo switch swapped the tool's HTTP method. The security review names exactly that,
+    # before the code is run; the repaired code then passes both agents.
+    assert first["stage"] == "security review" and first["passed"] is False
+    assert "get_fact() sends POST but its endpoint is GET /fact" in first["errors"][0]
     assert second["passed"] is True
     assert nodes.call_llm is real_llm                    # the injector is removed afterwards
 
@@ -39,7 +42,7 @@ def test_recordings_round_trip(monkeypatch, tmp_path):
     assert runner.load_recording("example", False) is None
 
 
-def test_progress_events_arrive_while_a_node_is_busy(monkeypatch, tmp_path, validator_agent_url):
+def test_progress_events_arrive_while_a_node_is_busy(monkeypatch, tmp_path, pipeline_agents):
     """A slow LLM call must not look like a frozen run: heartbeats report how long it has been silent."""
     import time
     monkeypatch.chdir(tmp_path)
@@ -57,7 +60,7 @@ def test_progress_events_arrive_while_a_node_is_busy(monkeypatch, tmp_path, vali
     assert [e for e in events if e["node"] != "progress"][-1]["node"] == "package_server"
 
 
-def test_abandoning_the_run_stops_the_pipeline(monkeypatch, tmp_path, validator_agent_url):
+def test_abandoning_the_run_stops_the_pipeline(monkeypatch, tmp_path, pipeline_agents):
     """Pressing Stop must not leave a background run spending LLM calls."""
     import time
     monkeypatch.chdir(tmp_path)

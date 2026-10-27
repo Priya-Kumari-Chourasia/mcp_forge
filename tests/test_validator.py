@@ -30,12 +30,12 @@ def find_pets_by_status(
 
 def get_pet(pet_id: Annotated[int, Field(description="ID of the pet")]) -> Union[dict, list, str]:
     """Find pet by ID."""
-    return _request("GET", f"/pet/{pet_id}")
+    return _request("GET", "/pet/{petId}", path_params={"petId": pet_id})
 
 
 def delete_pet(pet_id: Annotated[int, Field(description="ID of the pet")]) -> Union[dict, list, str]:
     """Deletes a pet."""
-    return _request("DELETE", f"/pet/{pet_id}")
+    return _request("DELETE", "/pet/{petId}", path_params={"petId": pet_id})
 
 
 def add_pet(body: Annotated[dict, Field(description="The pet: name (required)")]) -> Union[dict, list, str]:
@@ -91,7 +91,8 @@ def test_a_required_body_that_is_not_sent_is_caught():
 
 
 def test_undefined_variable_is_caught():
-    bad = GOOD.replace('return _request("GET", f"/pet/{pet_id}")', 'return _request("GET", f"/pet/{petId}")')
+    bad = GOOD.replace('path_params={"petId": pet_id})\n\n\ndef delete_pet',
+                       'path_params={"petId": petId})\n\n\ndef delete_pet')
     passed, errors, _ = errors_for(bad)
     assert not passed
     assert any("get_pet() raised NameError" in e for e in errors)
@@ -114,7 +115,7 @@ def test_missing_endpoint_is_caught():
 
 def test_using_requests_directly_is_caught():
     """A tool that bypasses _request also bypasses authentication and error handling."""
-    bad = GOOD.replace('return _request("DELETE", f"/pet/{pet_id}")',
+    bad = GOOD.replace('return _request("DELETE", "/pet/{petId}", path_params={"petId": pet_id})',
                        'import requests\n    return requests.delete(f"https://api.example.com/v3/pet/{pet_id}").json()')
     passed, errors, _ = errors_for(bad)
     assert not passed

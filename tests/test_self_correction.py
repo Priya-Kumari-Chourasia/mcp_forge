@@ -1,6 +1,6 @@
 """
 Proves the loop is self-correcting, end to end through the real graph
-and a real validator agent (started on a local port by the fixture):
+and the real agents (security reviewer and validator, started on local ports by the fixture):
 
   attempt 1 -> the LLM writes a tool with a bug
   validator -> rejects it and says exactly what is wrong
@@ -24,12 +24,14 @@ SPEC = json.dumps({
     }}},
 })
 
+# The bug: the tool forgets to pass the path value. It looks right when read (so the
+# security review passes it), and only fails when run - which is the validator's job.
 BUGGY = '''def get_users_id(id: int) -> Union[dict, list, str]:
     """Get a user."""
-    return _request("GET", f"/user/{id}")
+    return _request("GET", "/users/{id}")
 '''
-FIXED = BUGGY.replace('f"/user/{id}"', 'f"/users/{id}"')
-THE_ERROR = "get_users_id() sent GET https://api.example.com/user/1, which matches no documented endpoint"
+FIXED = BUGGY.replace('"/users/{id}")', '"/users/{id}", path_params={"id": id})')
+THE_ERROR = "get_users_id() raised ToolError: Missing a value for the path parameter 'id'."
 
 
 class ScriptedLLM:
@@ -42,7 +44,7 @@ class ScriptedLLM:
         return FIXED if saw_the_error else BUGGY
 
 
-def test_failed_on_attempt_1_fixed_on_attempt_2(tmp_path, monkeypatch, validator_agent_url):
+def test_failed_on_attempt_1_fixed_on_attempt_2(tmp_path, monkeypatch, pipeline_agents):
     monkeypatch.chdir(tmp_path)
     llm = ScriptedLLM()
     monkeypatch.setattr(nodes, "call_llm", llm)
@@ -63,7 +65,7 @@ def test_failed_on_attempt_1_fixed_on_attempt_2(tmp_path, monkeypatch, validator
 
     # The packaged server is the FIXED code, and the report records both attempts.
     server_code = open(result["output_path"]).read()
-    assert '_request("GET", f"/users/{id}")' in server_code and "/user/{id}" not in server_code
+    assert '_request("GET", "/users/{id}", path_params={"id": id})' in server_code
     report = json.load(open(tmp_path / "generated" / "https-api-example-com" / "validation_report.json"))
     assert [a["passed"] for a in report["attempts"]] == [False, True]
     assert report["mcp_client_check"]["passed"] is True          # a real MCP client connected to server.py
@@ -81,18 +83,20 @@ def test_only_the_failing_batch_is_regenerated():
     }
 
 
-def test_gives_up_when_the_retry_budget_runs_out(tmp_path, monkeypatch, validator_agent_url):
+def test_gives_up_when_the_retry_budget_runs_out(tmp_path, monkeypatch, pipeline_agents):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(nodes, "call_llm", lambda prompt: BUGGY)     # an LLM that never learns
 
     result = run(SPEC)
 
+    assert result["security_passed"] is True            # safe code: it was the validator that failed it
     assert result["test_passed"] is False
     assert result["codegen_attempt"] == result["max_code_attempts"] == 2
 
 
-def test_two_batches_only_the_broken_one_is_regenerated(tmp_path, monkeypatch, validator_agent_url):
-    """16 endpoints -> 2 batches. The bug is in batch 2, so the retry makes ONE LLM call, not two."""
+def test_two_batches_only_the_broken_one_is_regenerated(tmp_path, monkeypatch, pipeline_agents):
+    """16 endpoints -> 2 batches. The bug is in batch 2, so the retry makes ONE LLM call, not two.
+    The bug (a wrong HTTP method) is caught by the security review, before any code runs."""
     import re
     monkeypatch.chdir(tmp_path)
     spec = json.dumps({
@@ -119,4 +123,5 @@ def test_two_batches_only_the_broken_one_is_regenerated(tmp_path, monkeypatch, v
     assert result["test_passed"] is True
     assert [a["batches"] for a in result["attempt_history"]] == [[1, 2], [2]]
     assert len(calls) == 3                      # 2 batches, then 1 regeneration
-    assert "get_r15() sent POST https://api.example.com/r15" in calls[2]
+    assert "get_r15() sends POST but its endpoint is GET /r15" in calls[2]
+    assert result["attempt_history"][0]["stage"] == "security review"

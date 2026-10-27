@@ -2,8 +2,8 @@
 MCP-Forge web UI.   Run with:   streamlit run app.py
 
 Shows the pipeline working step by step: the agentic RAG rounds, the A2A
-call to the validator agent, the self-correcting loop, and the MCP server
-that comes out.
+calls to the security reviewer and the validator agent, the self-correcting
+loop, and the MCP server that comes out.
 
 Two modes:
   - Recorded run: replays a saved run from demo_runs/. Instant, needs no API
@@ -13,10 +13,13 @@ Two modes:
 Setting PUBLIC_DEMO=true (for a public deployment) caps how many live runs can
 happen per day and limits visitors to the built-in examples. ALLOW_CUSTOM_DOCS=true
 lets them paste their own docs as well - only turn that on once generated code
-runs in an isolated container. The validator's child process blocks the usual
-ways to reach the network or start programs and hides secret environment
-variables, but determined code can get around those blocks and can read files
-(such as the file holding the Groq key), so it is not a security sandbox.
+runs in an isolated container. Before anything runs, the security review
+refuses code that uses anything outside a small allowlist, and the validator's
+child process blocks the usual ways to reach the network or start programs and
+hides secret environment variables. Both raise the bar a long way, but neither
+is a security sandbox: a rule nobody thought of, or a bug in Python itself, is
+still a way out, and code that gets out can read files such as the one holding
+the Groq key.
 """
 
 import datetime
@@ -66,12 +69,12 @@ EXAMPLES = {
         "slug": "catfact", "kind": "text", "value": "GET https://catfact.ninja/fact - returns a random cat fact"},
 }
 
-STAGES = ["Orchestrator", "Extract endpoints", "Generate tools", "Validate over A2A", "Package MCP server"]
+STAGES = ["Orchestrator", "Extract endpoints", "Generate tools", "Security review", "Validate", "Package server"]
 NODE_TO_STAGE = {
     "orchestrator": 0,
     "parse_docs": 1, "index_docs": 1, "discover_endpoints": 1, "retrieve": 1,
     "grade_retrieval": 1, "rewrite_query": 1, "grade_extraction": 1,
-    "generate_tool": 2, "test_via_a2a": 3, "package_server": 4,
+    "generate_tool": 2, "security_review": 3, "test_via_a2a": 4, "package_server": 5,
 }
 
 
@@ -125,6 +128,7 @@ def draw(events, slots, finished: bool, run_id: str):
     last_node = events[-1]["node"]
     current = NODE_TO_STAGE.get(last_node, -1)
     stopped_early = finished and last_node != "package_server"
+    rejected = finished and state.get("security_passed") is False and not state.get("server_code")
     rounds = state.get("rag_trace") or []
     attempts = [a for a in (state.get("attempt_history") or []) if "passed" in a]
 
@@ -148,7 +152,10 @@ def draw(events, slots, finished: bool, run_id: str):
         c3.metric("Endpoints", len(state.get("endpoints") or []))
         c4.metric("Queries rewritten", sum(1 for r in rounds if not r["sufficient"]),
                   help="Retrieval rounds the grader judged insufficient.")
-        if finished and not stopped_early:
+        if rejected:
+            c5.metric("Result", "Rejected", f"{len(attempts)} attempt(s)", delta_color="off",
+                      help="The security review never passed the code, so it was not run or packaged.")
+        elif finished and not stopped_early:
             c5.metric("Result", "Passed" if state.get("test_passed") else "Failed",
                       f"{len(attempts)} attempt(s)", delta_color="off")
         else:
@@ -156,7 +163,8 @@ def draw(events, slots, finished: bool, run_id: str):
         if state.get("bug_injected"):
             st.info("Demo switch is ON: the first generated tool was broken on purpose (its HTTP method was "
                     "swapped, for example GET to POST) so that the self-correcting loop has an error to fix. "
-                    "The validator's error and the repair on the next attempt are real.")
+                    "The security review catches it before any code runs; its finding and the repair on the "
+                    "next attempt are real.")
         if state.get("selection_note"):
             st.warning(f"Endpoint selection: {state['selection_note']}.")
         if stopped_early:
@@ -187,36 +195,48 @@ def draw(events, slots, finished: bool, run_id: str):
                   "Base URL": e.get("base_url")} for e in endpoints],
                 width="stretch", hide_index=True)
 
-    # --- validation over A2A ---
+    # --- the two agents, over A2A ---
     with slots["a2a"].container():
+        st.markdown("Two independent agents check the generated code. The **security reviewer** reads it without "
+                    "running it; only code it passes goes to the **validator**, which runs it against mocked HTTP.")
+        st.markdown("**1. Discovery - each agent's Agent Card**")
+        st.caption("Fetched from `/.well-known/agent-card.json`. The pipeline knows only each agent's address; "
+                   "the card tells it what the agent can do and how to call it.")
         left, right = st.columns(2)
         with left:
-            st.markdown("**1. Discovery - the validator's Agent Card**")
-            st.caption("Fetched from `/.well-known/agent-card.json`. The pipeline knows only the agent's address; "
-                       "the card tells it what the agent can do and how to call it.")
-            st.json(state.get("agent_card") or {}, expanded=2)
+            st.json(state.get("security_agent_card") or {}, expanded=1)
         with right:
-            st.markdown("**2. SendMessage - tasks sent to the agent**")
-            st.caption("Each message carries the generated code (text part) and the endpoints it must implement "
-                       "(data part). The reply is a Task; the verdict is in its artifacts.")
-            log = "".join(e["log"] for e in events)
-            tasks = re.findall(r"A2A: task (\S+) -> (\S+)", log)
-            if tasks:
-                st.dataframe(
-                    [{"Attempt": i + 1, "Task id": task_id[:8] + "...",
-                      "Task state": task_state.replace("TASK_STATE_", ""),
-                      "Verdict": ("passed" if attempts[i]["passed"] else "failed") if i < len(attempts) else ""}
-                     for i, (task_id, task_state) in enumerate(tasks)],
-                    width="stretch", hide_index=True)
-                st.caption("A task is COMPLETED whenever validation ran, even when the code failed it: "
-                           "\"the code is wrong\" is the agent's answer, not a failure of the agent.")
-            else:
-                st.write("No task sent yet.")
+            st.json(state.get("agent_card") or {}, expanded=1)
+
+        st.markdown("**2. SendMessage - tasks sent to the agents**")
+        st.caption("Each message carries the generated code (text part) and the endpoints it must implement "
+                   "(data part). The reply is a Task; the verdict is in its artifacts.")
+        log = "".join(e["log"] for e in events)
+        tasks = re.findall(r"A2A: discovered agent '([^']+)'.*?A2A: task (\S+) -> (\S+).*?verdict: passed=(\w+)",
+                           log, flags=re.S)
+        if tasks:
+            st.dataframe(
+                [{"Agent": agent.replace("MCP-Forge ", ""), "Task id": task_id[:8] + "...",
+                  "Task state": task_state.replace("TASK_STATE_", ""),
+                  "Verdict": "passed" if verdict == "True" else "failed"}
+                 for agent, task_id, task_state, verdict in tasks],
+                width="stretch", hide_index=True)
+            st.caption("A task is COMPLETED whenever the check ran, even when the code failed it: "
+                       "\"the code is wrong\" is the agent's answer, not a failure of the agent.")
+        else:
+            st.write("No task sent yet.")
+
+        if state.get("security_output"):
+            st.markdown("**3. The security review**")
+            (st.success if state.get("security_passed") else st.error)(state["security_output"])
+            for warning in state.get("security_warnings") or []:
+                st.warning(f"Warning (does not block): {warning['warning']}")
 
     # --- self-correction ---
     with slots["loop"].container():
-        st.markdown("**Self-correcting loop.** When validation fails, the validator's errors and the previous code "
-                    "go back into the prompt, and only the batches that failed are regenerated.")
+        st.markdown("**Self-correcting loop.** When the security review or the validator rejects the code, its "
+                    "errors and the previous code go back into the prompt, and only the batches that failed are "
+                    "regenerated.")
         if not attempts:
             st.write("No validation result yet.")
         for a in attempts:
@@ -224,7 +244,8 @@ def draw(events, slots, finished: bool, run_id: str):
             if a["passed"]:
                 st.success(title + "passed")
             else:
-                st.error(title + f"failed with {len(a['errors'])} error(s), fed back to the generator:")
+                st.error(title + f"failed the {a.get('stage', 'validation')} with {len(a['errors'])} error(s), "
+                                 f"fed back to the generator:")
                 for error in a["errors"]:
                     st.markdown(f"- `{error}`")
         if finished and len(attempts) == 1 and attempts[0]["passed"]:
@@ -251,6 +272,9 @@ def draw(events, slots, finished: bool, run_id: str):
             if finished:
                 st.download_button("Download server.py", code, file_name="server.py", key=f"download-{run_id}")
             st.code(code, language="python")
+        elif rejected:
+            st.error("Rejected by the security review: the code was not run, and no server was packaged. "
+                     "The rejected code and the report are in the run's folder under generated/.")
         else:
             st.write("The server is packaged at the end of the run.")
 
@@ -357,8 +381,9 @@ def show_progress(slot, progress):
 
 st.title("MCP-Forge")
 st.markdown("Turns API documentation into a validated **MCP server**. A LangGraph pipeline extracts the endpoints "
-            "(with **agentic RAG** for prose docs), generates one tool per endpoint, and sends the code to a "
-            "separate validator agent over the **A2A** protocol. Validation errors are fed back until the code passes.")
+            "(with **agentic RAG** for prose docs), generates one tool per endpoint, and sends the code to two "
+            "separate agents over the **A2A** protocol: a **security reviewer** that reads it without running it, "
+            "then a **validator** that runs it against mocked HTTP. Their errors are fed back until the code passes.")
 
 with st.sidebar:
     st.header("Run")
@@ -397,7 +422,7 @@ with st.sidebar:
 
 slots = {"stages": st.empty(), "progress": st.empty(), "summary": st.empty()}
 tabs = dict(zip(["extraction", "a2a", "loop", "output", "try_it", "log"],
-                st.tabs(["Extraction (agentic RAG)", "Validation (A2A)", "Self-correction", "Generated server",
+                st.tabs(["Extraction (agentic RAG)", "Agents (A2A)", "Self-correction", "Generated server",
                          "Try it", "Log"])))
 for name in ("extraction", "a2a", "loop", "output", "log"):
     with tabs[name]:

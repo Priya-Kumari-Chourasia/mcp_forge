@@ -6,27 +6,41 @@ or a file). Where a choice is weaker than it could be, the entry says so.
 
 Contents
 
+Pipeline
 1. [The LLM writes only the tool functions](#1-the-llm-writes-only-the-tool-functions)
 2. [OpenAPI specs are parsed in code, not by the LLM](#2-openapi-specs-are-parsed-in-code-not-by-the-llm)
 3. [LangGraph for the pipeline](#3-langgraph-for-the-pipeline)
 4. [Agentic RAG for prose docs](#4-agentic-rag-for-prose-docs)
 5. [ChromaDB and MiniLM for retrieval](#5-chromadb-and-minilm-for-retrieval)
-6. [The validator is a separate agent, reached over A2A](#6-the-validator-is-a-separate-agent-reached-over-a2a)
+
+Agents
+6. [Two separate agents, reached over A2A](#6-two-separate-agents-reached-over-a2a)
 7. [FastAPI and the A2A SDK's server, not Flask](#7-fastapi-and-the-a2a-sdks-server-not-flask)
-8. [Validation runs on a worker thread](#8-validation-runs-on-a-worker-thread)
+8. [Checks run on a worker thread](#8-checks-run-on-a-worker-thread)
 9. [A bounded in-memory task store](#9-a-bounded-in-memory-task-store)
-10. [Validation calls every tool through a real MCP server, with HTTP mocked](#10-validation-calls-every-tool-through-a-real-mcp-server-with-http-mocked)
-11. [The validator's child process is isolation, not a sandbox](#11-the-validators-child-process-is-isolation-not-a-sandbox)
-12. [Only the failing batches are regenerated](#12-only-the-failing-batches-are-regenerated)
-13. [The official MCP Python SDK, stdio transport, `ToolError`](#13-the-official-mcp-python-sdk-stdio-transport-toolerror)
-14. [Credentials come from environment variables](#14-credentials-come-from-environment-variables)
-15. [Tool names, annotations and the endpoint cap](#15-tool-names-annotations-and-the-endpoint-cap)
-16. [httpx inside generated servers](#16-httpx-inside-generated-servers)
-17. [The Try it tab: read-only by default](#17-the-try-it-tab-read-only-by-default)
-18. [Groq as the LLM](#18-groq-as-the-llm)
-19. [Streamlit for the web UI](#19-streamlit-for-the-web-ui)
-20. [Pinned versions and CI](#20-pinned-versions-and-ci)
-21. [Known weaknesses](#21-known-weaknesses)
+
+Security
+10. [A security review runs before the validator](#10-a-security-review-runs-before-the-validator)
+11. [The review is fixed rules, not an LLM](#11-the-review-is-fixed-rules-not-an-llm)
+12. [An allowlist, not a blocklist](#12-an-allowlist-not-a-blocklist)
+13. [Path values are encoded by the template](#13-path-values-are-encoded-by-the-template)
+14. [Tool poisoning: warn, and strip hidden characters](#14-tool-poisoning-warn-and-strip-hidden-characters)
+15. [Validation calls every tool through a real MCP server, with HTTP mocked](#15-validation-calls-every-tool-through-a-real-mcp-server-with-http-mocked)
+16. [Isolation, not a sandbox](#16-isolation-not-a-sandbox)
+
+Generation and the generated server
+17. [Only the failing batches are regenerated](#17-only-the-failing-batches-are-regenerated)
+18. [The official MCP Python SDK, stdio transport, `ToolError`](#18-the-official-mcp-python-sdk-stdio-transport-toolerror)
+19. [Credentials come from environment variables](#19-credentials-come-from-environment-variables)
+20. [Tool names, annotations and the endpoint cap](#20-tool-names-annotations-and-the-endpoint-cap)
+21. [httpx inside generated servers](#21-httpx-inside-generated-servers)
+
+Product
+22. [The Try it tab: read-only by default](#22-the-try-it-tab-read-only-by-default)
+23. [Groq as the LLM](#23-groq-as-the-llm)
+24. [Streamlit for the web UI](#24-streamlit-for-the-web-ui)
+25. [Pinned versions and CI](#25-pinned-versions-and-ci)
+26. [Known weaknesses](#26-known-weaknesses)
 
 ---
 
@@ -35,14 +49,14 @@ Contents
 **Decision.** Every generated `server.py` is a fixed header from
 `server_template.py` (base URL, authentication, the `_request()` helper, error
 handling) followed by the LLM's tool functions. Each tool is a few lines that
-call `_request("GET", "/pet/{id}", ...)`.
+call `_request("GET", "/pet/{petId}", path_params={"petId": pet_id})`.
 
 **Why.** The parts that must be right in every server are written once, by a
 person, and covered by tests (`test_server_template.py`). The LLM only does the
 part that changes per API: mapping endpoints to Python functions. Its output is
 shorter, so prompts stay within the token limit, and there are fewer places for
-it to make a mistake. The validator checks that every tool goes through
-`_request` instead of making its own HTTP calls.
+it to make a mistake. It also makes the generated part small and regular enough
+for the security review to check it strictly (entries 10-12).
 
 **Alternatives.** Letting the LLM write the whole server. That worked in the
 first version, but each server handled auth and errors differently, and a bug in
@@ -74,9 +88,10 @@ conditional routing (spec or prose) and two loops: the retrieval loop and the
 self-correcting codegen loop.
 
 **Why.**
-- The flow has real cycles with exit conditions (retry until the validator
-  passes or the budget runs out). A graph makes those explicit as edges, not
-  `while` loops buried in functions.
+- The flow has real cycles with exit conditions (retry until both agents pass
+  the code or the budget runs out). A graph makes those explicit as edges, not
+  `while` loops buried in functions. The security review's three outcomes
+  (validate, retry, rejected) are one conditional edge.
 - All nodes share one typed state (`state.py`), so every step's inputs and
   outputs are visible.
 - `graph.stream(stream_mode="updates")` yields one update per node. The web UI
@@ -140,45 +155,49 @@ embeddings do.
 **Tests.** They use a hash-based embedding (`EMBEDDINGS=hash`), so they run
 offline and give the same result every time.
 
-## 6. The validator is a separate agent, reached over A2A
+## 6. Two separate agents, reached over A2A
 
-**Decision.** Validation is done by `validator_agent.py`, an A2A agent. The
-pipeline knows only its URL. It fetches the Agent Card
+**Decision.** The generated code is checked by two A2A agents: the security
+reviewer (`security_agent.py`) and the validator (`validator_agent.py`). The
+pipeline knows only their URLs. For each, it fetches the Agent Card
 (`/.well-known/agent-card.json`), then sends a `SendMessage` with the code and
 the endpoints, using the official `a2a-sdk` client.
 
 **Why.**
 - **A trust boundary.** The validator runs LLM-written code; the pipeline holds
-  the Groq key. Keeping them apart now means the validator can later move into
-  a locked-down container without changing the pipeline.
-- **A standard contract.** The Agent Card says what the agent does and how to
-  call it, so any A2A client can use the validator, not just this pipeline. The
+  the Groq key. Keeping them apart means the validator can later move into a
+  locked-down container without changing the pipeline.
+- **Two different questions.** "Is it safe to run?" (answered by reading the
+  code) and "does it work?" (answered by running it) need different trust: the
+  reviewer never runs code, the validator must. Separate agents keep that line
+  sharp, and each verdict is reported on its own.
+- **A standard contract.** An Agent Card says what the agent does and how to
+  call it, so any A2A client can use either agent, not just this pipeline. The
   verdict comes back as a structured artifact: `{"passed": ..., "errors": [...]}`.
-- **Room to grow.** A second agent (for example a security reviewer) can be
-  added the same way, discovered by its own card.
 
-**Alternatives.** A plain function call: simpler and faster in one process. But
-validation would share a process with the API key, and there would be no
-contract for other callers.
+**Alternatives.** Plain function calls: simpler and faster in one process. But
+the code would be checked in the same process that holds the API key, and there
+would be no contract for other callers. Putting the security rules inside the
+validator: one agent fewer, but then the component that runs code would also be
+the one deciding whether it is safe to run.
 
 **Trade-off.**
-- An HTTP round trip per validation. That costs milliseconds; validation itself
-  takes seconds.
-- A second service to run. The web UI starts it automatically when nothing
-  answers at its address (`ensure_validator_running`).
+- An HTTP round trip per check. That costs milliseconds; validation takes seconds.
+- Two more services to run. The web UI starts both automatically when nothing
+  answers at their addresses (`ensure_agent_running`).
 
-**Design detail.** A Task is `COMPLETED` even when the code fails validation,
-because "the code is wrong" is the agent's answer. `FAILED` means the validator
+**Design detail.** A Task is `COMPLETED` even when the code fails the check,
+because "the code is wrong" is the agent's answer. `FAILED` means the agent
 itself broke.
 
 **Proof.** `test_a2a.py`.
 
 ## 7. FastAPI and the A2A SDK's server, not Flask
 
-**Decision.** The validator is a FastAPI app served by uvicorn. The A2A protocol
-is handled by the `a2a-sdk` server (`DefaultRequestHandler`, mounted with
-`add_a2a_routes_to_fastapi`). The file contains only the agent's logic, in a
-`ValidatorExecutor`.
+**Decision.** Each agent is a FastAPI app served by uvicorn. The A2A protocol is
+handled by the `a2a-sdk` server (`DefaultRequestHandler`, mounted with
+`add_a2a_routes_to_fastapi`). What both agents share lives in `a2a_server.py`;
+each agent file holds only its Agent Card and its check.
 
 **Why.**
 - The first version used Flask with JSON-RPC written by hand. That meant parsing
@@ -189,6 +208,9 @@ is handled by the `a2a-sdk` server (`DefaultRequestHandler`, mounted with
 - With the SDK server, behaviours the spec requires come for free. Example: a
   request without the `A2A-Version: 1.0` header is refused with the standard
   "version not supported" error (-32009), and that is tested.
+- Both agents take code plus endpoints and return a verdict, so one executor
+  class (`CheckExecutor`) serves both. Adding the second agent was a card and a
+  check function, not a second copy of the server code.
 
 **Why FastAPI rather than bare Starlette.** The SDK supports both. FastAPI adds:
 - an automatic OpenAPI description and the `/docs` page
@@ -207,13 +229,13 @@ handlers. See the next entry for the one place that matters.
 **Proof.** `test_a2a.py`: the request without a version header, and the `/docs`
 page.
 
-## 8. Validation runs on a worker thread
+## 8. Checks run on a worker thread
 
-**Decision.** `ValidatorExecutor.execute` calls
-`await asyncio.to_thread(validate_code, ...)`.
+**Decision.** `CheckExecutor.execute` calls
+`await asyncio.to_thread(self.check, ...)`.
 
 **Why.**
-- `validate_code` waits for a child process, for up to 30 seconds.
+- The validator's check waits for a child process, for up to 30 seconds.
 - Called directly inside an async function, it would block uvicorn's event loop.
   While one validation ran, the agent could not answer anything, not even a
   request for its Agent Card.
@@ -235,9 +257,9 @@ only the newest 500 tasks.
 
 **Why.**
 - Finished tasks are kept so that `GetTask` can return them.
-- The SDK's in-memory store never forgets anything, so a validator running for
+- The SDK's in-memory store never forgets anything, so an agent running for
   weeks would keep growing.
-- Verdicts are only read right after validation, so forgetting old ones loses
+- Verdicts are only read right after the check, so forgetting old ones loses
   nothing that is used.
 
 **Alternatives.** The SDK's database-backed store. It would make tasks survive a
@@ -245,7 +267,145 @@ restart, which nothing here needs, at the cost of running a database.
 
 **Proof.** `test_old_tasks_are_forgotten_beyond_the_limit`.
 
-## 10. Validation calls every tool through a real MCP server, with HTTP mocked
+## 10. A security review runs before the validator
+
+**Decision.** After code generation, the security reviewer checks the tools
+first. Only code it passes is sent to the validator. Its findings go back to the
+generator like the validator's errors. If it never passes the code, the run
+**fails closed**:
+- nothing is run, not even the final MCP client check
+- no `server.py` is written, and one from an earlier run of the same API is
+  removed (it would not match this run's report)
+- the rejected code is kept as `rejected_tools.txt`, a name that cannot be run
+  by accident
+
+An unreachable reviewer also stops the run before anything executes.
+
+**Why.** The validator *executes* the generated code, and its child process is
+isolation, not a sandbox (entry 16). So the decision "is this safe to run" has
+to be made before running it, by something that does not run it.
+
+**Alternatives.** Relying on the validator's child process alone: it limits
+damage after the code is already running. Reviewing after validation: too late,
+the code has already run.
+
+**Trade-off.** One more A2A call per attempt (milliseconds). A finding uses one
+attempt from the retry budget, like a validator error.
+
+**Proof.** `test_security_review.py`:
+- a finding is fed back and fixed, and the unsafe attempt never reaches the
+  validator
+- code that never passes is not run or packaged
+- an unreachable reviewer fails closed
+
+The first claim was checked by making the router ignore the review: the tests
+then fail.
+
+## 11. The review is fixed rules, not an LLM
+
+**Decision.** `security_rules.py` reads the code with Python's `ast` module and
+applies fixed rules. No model is involved.
+
+**Why.**
+- **Prompt injection.** The docs being processed are untrusted. If they contain
+  "ignore previous instructions", an LLM reviewer reading them alongside the
+  code could be told to approve it. Rules cannot be persuaded.
+- **Repeatable.** The same code always gets the same verdict, so a test can
+  prove each rule (`test_security_rules.py`), and a finding can be explained by
+  pointing at the rule.
+- **Cheap and fast.** No tokens, milliseconds per review.
+
+**Alternatives.** An LLM reviewer: better at judging intent, but it can be
+manipulated and is not repeatable. A general linter such as Bandit: built to
+find risky patterns in ordinary code. Here the code has a narrow, known shape
+(one request per tool), which allows much stricter rules than a general tool
+can apply.
+
+**Trade-off.** Rules only catch what they describe. That is why the rules are
+an allowlist (next entry): what is not described as allowed is refused.
+
+## 12. An allowlist, not a blocklist
+
+**Decision.** A tool may use only:
+- its own arguments and variables it assigns itself
+- `_request`
+- the type names
+- a few harmless built-ins (`str`, `int`, `len`, ...)
+
+Everything else is refused. On top of that, a tool must make exactly one
+`_request` call, with the method and the path as plain strings equal to its
+endpoint's.
+
+**Why.**
+- A blocklist (no `os`, no `eval`, ...) only stops the dangers someone thought
+  of in advance. Python has many indirect routes (`getattr`, `__import__`,
+  `().__class__.__subclasses__()`, format strings). An allowlist stops them
+  without having to name them. `__dunder__` attributes and `str.format` are
+  refused separately, because those routes go through attributes, not names.
+- Tool code needs very little, so the allowlist can be small. Even `print` is
+  refused: over stdio, a tool's output *is* the MCP connection, so printing
+  corrupts it.
+- A fixed method and path mean the endpoint a tool reaches is visible without
+  running it. The tool's read-only or destructive label is set from its
+  documented method (entry 20), so this also guarantees that a tool labelled
+  read-only cannot send a DELETE.
+
+**Trade-off.** A valid but unusual tool (one that needs a helper function, for
+example) is refused. The code-generation prompt states the same rules, so the
+LLM rarely writes such code. When it does, the finding tells it what to change.
+
+**Proof.** `test_security_rules.py`.
+
+## 13. Path values are encoded by the template
+
+**Decision.** Tools pass the documented path and its values separately:
+`_request("GET", "/user/{username}", path_params={"username": name})`.
+`_request` fills in the placeholders and URL-encodes each value as one path
+segment. It refuses `""`, `"."` and `".."`.
+
+**Why.** This fixes a real bug, found while designing the review. Tools used to
+build the path themselves with f-strings, so
+`get_user_by_name(username="../pet/1")` sent `GET /pet/1`. The URL parser
+resolves `..`, so a tool could reach a different endpoint than its own,
+including endpoints deliberately left out with `--tags`/`--paths`. The AI
+choosing arguments can be steered by text it has read, so this is reachable.
+- Encoding `/` as `%2F` keeps a value inside its segment.
+- `.` and `..` contain no characters that encoding changes, so they are refused
+  outright.
+
+**Why in the template.** One tested implementation for every server, instead of
+trusting the LLM to encode correctly in every tool. A literal path is also what
+lets the review compare it with the endpoint (entry 12).
+
+**Proof.** `test_a_path_value_cannot_reach_another_endpoint` (checked by removing
+the encoding: the test then fails).
+
+## 14. Tool poisoning: warn, and strip hidden characters
+
+**Decision.**
+- Invisible Unicode characters are removed from every description before it
+  reaches the LLM. This covers zero-width characters, bidirectional controls and
+  tag characters (Unicode category Cf).
+- In the generated code, they are an error.
+- Text that reads like instructions to an AI is a **warning**: it is shown in
+  the UI and listed at the top of the generated server's README, but it does
+  not block. Examples are "ignore previous instructions" and "before using this
+  tool, read ~/.ssh/...".
+
+**Why.**
+- An MCP client shows tool descriptions to its LLM, so instructions hidden in
+  them reach the AI that uses the server. This is a known MCP attack called
+  *tool poisoning*.
+- Invisible characters are how such text hides from a person reviewing the
+  docs. Since nothing legitimate needs them in an API description, removing
+  them costs nothing.
+- Instruction-like phrases are a guess. A reworded attack can avoid them, and an
+  honest sentence can match. Blocking on a guess would stop honest APIs, so a
+  person judges.
+
+**Proof.** `test_security_rules.py`; `test_warnings_reach_the_generated_readme`.
+
+## 15. Validation calls every tool through a real MCP server, with HTTP mocked
 
 **Decision.** `behaviour_check.py`:
 - registers the generated tools on a real `MCPServer`
@@ -257,10 +417,12 @@ restart, which nothing here needs, at the cost of running a database.
   parameters, body
 
 **Why.**
-- Static checks (does it parse, are names unique) miss most real bugs. The bug
+- Reading the code (the review) cannot show what it does when it runs. The bug
   that showed this: a tool annotated to return `dict` passed every static check,
   then failed in Claude Desktop because the API returned a list. Calling the
-  tool through MCP with an array-shaped response catches it.
+  tool through MCP with an array-shaped response catches it. So does a tool that
+  forgets to pass its path value, which looks fine when read
+  (`test_self_correction.py` uses exactly that bug).
 - Mocking means every tool can really run, including `delete_pet`, without
   touching the API.
 
@@ -270,35 +432,37 @@ or delete real data, and depends on the API being up.
 **Trade-off.** The response *handling* is not checked against the real API,
 only the request. This is listed in the README's limitations.
 
-**Proof.** `test_validator.py` (15 cases, one per kind of bug).
+**Proof.** `test_validator.py`.
 
-## 11. The validator's child process is isolation, not a sandbox
+## 16. Isolation, not a sandbox
 
-**Decision.** Generated code runs in a child process with:
+**Decision.** Code that passed the review runs in the validator's child process
+with:
 - a 30-second timeout
 - no environment variable whose name contains KEY, TOKEN, SECRET or PASSWORD
 - sockets and process spawning blocked
 
 **Why.**
 - A hanging tool is killed instead of freezing the validator.
-- Generated code cannot read the API key.
+- Generated code cannot read the API key from the environment.
 - Accidental network calls fail.
 
-**What it is not.** Python code that is determined to escape can undo these
-blocks. So it is not a security sandbox, and the project says so instead of
-claiming one. Because of this, the public demo (`PUBLIC_DEMO=true`) does not
-accept custom docs (`ALLOW_CUSTOM_DOCS` defaults to false): only the built-in
-examples can be run.
+**What it is not.** The review and the child process together raise the bar a
+long way, but neither is a sandbox. A rule nobody thought of, or a bug in Python
+itself, is still a way out. The project says so instead of claiming otherwise.
+Because of this, the public demo (`PUBLIC_DEMO=true`) does not accept custom
+docs (`ALLOW_CUSTOM_DOCS` defaults to false): only the built-in examples can be
+run.
 
 **Planned.** Run the validator in a container with no network and a read-only
 filesystem. The A2A boundary (entry 6) is what makes that possible without
 changing the pipeline.
 
-## 12. Only the failing batches are regenerated
+## 17. Only the failing batches are regenerated
 
 **Decision.**
 - Tools are generated in batches of 15 endpoints (`MCP_FORGE_BATCH_SIZE`).
-- The validator's errors are mapped back to the batch that produced them.
+- Errors from either agent are mapped back to the batch that produced them.
 - Only those batches are regenerated, with their errors and their previous code
   in the prompt.
 
@@ -311,11 +475,12 @@ changing the pipeline.
   also cut to 200 characters for the same reason.
 
 **Retry budget.** Set by the orchestrator: 2 attempts for a simple API, 4 for a
-complex one.
+complex one. It is shared by both agents: an attempt counts whether the reviewer
+or the validator rejected it.
 
 **Proof.** `test_self_correction.py`.
 
-## 13. The official MCP Python SDK, stdio transport, `ToolError`
+## 18. The official MCP Python SDK, stdio transport, `ToolError`
 
 **Decision.**
 - Generated servers use the official `mcp` SDK (`MCPServer`, `@server.tool`).
@@ -341,7 +506,7 @@ Desktop connects.
 
 **Later.** The streamable HTTP transport, for servers hosted remotely.
 
-## 14. Credentials come from environment variables
+## 19. Credentials come from environment variables
 
 **Decision.**
 - The spec's security schemes become environment variables, such as
@@ -357,24 +522,28 @@ Desktop connects.
   Claude Desktop's config), so this is the standard place for them.
 
 **Same rule elsewhere.**
-- The validator's child process gets no secrets (entry 11).
-- The Try it tab's server process gets only its declared variables (entry 17).
+- Only the template reads credentials: a tool that touches `os` is refused by
+  the review (entry 12).
+- The validator's child process gets no secrets (entry 16).
+- The Try it tab's server process gets only its declared variables (entry 22).
 
-## 15. Tool names, annotations and the endpoint cap
+## 20. Tool names, annotations and the endpoint cap
 
 **Tool names.** They come from the spec's `operationId`, converted in code
 (`findPetsByStatus` becomes `find_pets_by_status`), not chosen by the LLM.
 - Names stay the same every time a server is regenerated.
 - Names never clash between batches.
+- The review can match each function to exactly one endpoint by name.
 
 **Annotations.**
 - GET tools are marked read-only.
 - PUT, PATCH and DELETE are marked destructive.
 - POST is marked as neither read-only nor destructive.
 
-Clients use these marks to ask before running a tool. Claude Desktop showed an
-approval prompt for `delete_pet`, and the Try it tab offers only read-only tools
-by default.
+The template adds them from the documented method, and the review makes sure
+the tool really sends that method. Clients use these marks to ask before running
+a tool. Claude Desktop showed an approval prompt for `delete_pet`, and the Try
+it tab offers only read-only tools by default.
 
 **Endpoint cap.** At most 40 endpoints by default, and they can be chosen with
 `--tags`, `--paths` and `--max-tools`.
@@ -382,24 +551,23 @@ by default.
 - With hundreds of tools, it picks the wrong one more often and has less room
   left for the conversation.
 
-## 16. httpx inside generated servers
+## 21. httpx inside generated servers
 
 **Decision.** `_request` uses httpx, with a 30-second timeout.
 
 **Why.**
 - httpx sends every request through one function, `Client.send`. The validator
-  replaces that function with a recorder (entry 10).
+  replaces that function with a recorder (entry 15).
 - It supports sync and async, if tools become async later.
 
 **Honest note.** `requests` would also work for the HTTP calls. The deciding
 reason is the single function to replace. A generated server needs only two
 packages: `mcp` and `httpx`.
 
-## 17. The Try it tab: read-only by default
+## 22. The Try it tab: read-only by default
 
 **Decision.** The Try it tab runs an agent loop:
-- Groq gets the generated server's tools over MCP, with
-  `ChatGroq.bind_tools`.
+- Groq gets the generated server's tools over MCP, with `ChatGroq.bind_tools`.
 - It calls tools until it can answer.
 - It stops after 6 rounds of tool calls (`MAX_STEPS`).
 - Tool results are cut to 6,000 characters.
@@ -416,7 +584,7 @@ packages: `mcp` and `httpx`.
 
 **Proof.** `test_try_it.py`.
 
-## 18. Groq as the LLM
+## 23. Groq as the LLM
 
 **Decision.** `openai/gpt-oss-120b` on Groq, at temperature 0, behind `llm.py`.
 
@@ -433,7 +601,7 @@ batches, description trimming and `MCP_FORGE_BATCH_SIZE`.
 **Not locked in.** All calls go through `llm.py`, so changing provider changes
 one file. With no key set, an offline stub is used, which is how the tests run.
 
-## 19. Streamlit for the web UI
+## 24. Streamlit for the web UI
 
 **Decision.** `app.py` is a Streamlit app.
 
@@ -448,9 +616,9 @@ for many users at once, but far more code for a demo UI.
 
 **Trade-off.**
 - Streamlit re-runs the script on every interaction.
-- Its hosting cannot run containers, which the sandbox in entry 11 would need.
+- Its hosting cannot run containers, which the sandbox in entry 16 would need.
 
-## 20. Pinned versions and CI
+## 25. Pinned versions and CI
 
 **Decision.**
 - Every dependency is pinned to an exact version in `requirements.txt`.
@@ -464,14 +632,16 @@ for many users at once, but far more code for a demo UI.
 
 **Trade-off.** Upgrades are manual: change a version, reinstall, run the tests.
 
-## 21. Known weaknesses
+## 26. Known weaknesses
 
 What is weak today, and why it was left that way:
 
 | Weakness | Why it is acceptable now | Fix |
 |---|---|---|
-| The validator is not a security sandbox | The public demo runs only the built-in examples | Container with no network (entry 11) |
-| The validator has no authentication | It listens on 127.0.0.1 by default, so only this machine can reach it | Add auth before exposing it (`VALIDATOR_HOST=0.0.0.0`) |
+| Review plus isolation is still not a sandbox | The public demo runs only the built-in examples | Container with no network (entry 16) |
+| The validator runs whatever it is sent; it relies on its caller having run the review | Only the pipeline calls it, and it listens on 127.0.0.1 by default | The validator renders the trusted header itself and applies the review's blocking rules before running anything |
+| Neither agent has authentication | Both listen on 127.0.0.1 by default, so only this machine can reach them | Add auth before exposing them (`..._HOST=0.0.0.0`) |
+| Instruction-like text detection is a phrase list | It only warns; a person judges | Better detection; it can never be complete |
 | Responses are not checked against the real API | Checking them would mean calling real APIs with real credentials | Optional live check of read-only tools |
 | One base URL per server; no OAuth flow; no file uploads | They cover most REST APIs; OAuth works with a token you already have | Extend `_request` |
 | ChromaDB is more than this needs | It does no harm and would work with a persistent store | Hybrid BM25 retrieval (entry 5) |

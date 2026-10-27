@@ -100,12 +100,12 @@ def find_pets_by_status(
 
 def get_pet_by_id(pet_id: Annotated[int, Field(description="ID of the pet")]) -> Union[dict, list, str]:
     """Find pet by ID."""
-    return _request("GET", f"/pet/{pet_id}")
+    return _request("GET", "/pet/{petId}", path_params={"petId": pet_id})
 
 
 def delete_pet(pet_id: Annotated[int, Field(description="ID of the pet")]) -> Union[dict, list, str]:
     """Deletes a pet."""
-    return _request("DELETE", f"/pet/{pet_id}")
+    return _request("DELETE", "/pet/{petId}", path_params={"petId": pet_id})
 '''
 TOOL_ENDPOINTS = [{"name": "find_pets_by_status", "method": "GET"}, {"name": "get_pet_by_id", "method": "GET"},
                   {"name": "delete_pet", "method": "DELETE"}]
@@ -197,3 +197,28 @@ def test_the_mcp_client_check_passes_for_a_good_server_and_fails_for_a_broken_on
     broken.write_text("raise SystemExit('crashed on start')\n", encoding="utf-8")
     result = T.check_with_mcp_client(str(broken), ["find_pets_by_status"], timeout=30)
     assert result["passed"] is False and result["error"]
+
+
+# ----------------------------------------------------------------------
+# Path parameters cannot redirect a tool to another endpoint
+# ----------------------------------------------------------------------
+
+def test_a_path_value_cannot_reach_another_endpoint(monkeypatch):
+    """Without encoding, get_user_by_name(username="../pet/1") would send GET /pet/1:
+    a call to an endpoint the tool is not for, possibly one left out by --tags/--paths."""
+    import httpx
+    header = {}
+    exec(T.render_header({"title": "t", "base_url": "https://api.example.com/v3", "auth": []}), header)
+    sent = []
+    monkeypatch.setattr(httpx, "request",
+                        lambda method, url, **kwargs: sent.append(url) or httpx.Response(200, json={}))
+
+    header["_request"]("GET", "/user/{username}", path_params={"username": "../pet/1"})
+    header["_request"]("GET", "/widgets/:id", path_params={"id": "a b"})          # the :id style
+    assert sent == ["https://api.example.com/v3/user/..%2Fpet%2F1", "https://api.example.com/v3/widgets/a%20b"]
+
+    for value in ("", ".", ".."):                    # dot segments would be resolved by the URL parser
+        with pytest.raises(header["ToolError"], match="not a valid value"):
+            header["_request"]("GET", "/user/{username}", path_params={"username": value})
+    with pytest.raises(header["ToolError"], match="Missing a value"):
+        header["_request"]("GET", "/user/{username}")
