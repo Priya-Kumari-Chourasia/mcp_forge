@@ -63,7 +63,7 @@ The LangGraph graph holds the orchestrator, the extraction nodes and the code ge
 | **MCP** | The output is an MCP server built on the `mcp` Python SDK; the validator calls every tool through an MCP server, and an MCP client checks the packaged file | `server_template.py`, `behaviour_check.py` |
 | **httpx** | The HTTP client inside every generated server; the validator replaces its send function with a recorder | `server_template.py`, `behaviour_check.py` |
 | **Flask** | Hosts the validator agent's HTTP endpoints | `validator_agent.py` |
-| **Groq** | LLM backend (`openai/gpt-oss-120b`) | `llm.py` |
+| **Groq** | LLM backend (`openai/gpt-oss-120b`): extraction, code generation, and the tool-calling chat in the Try it tab | `llm.py`, `try_it.py` |
 | **ChromaDB** | In-memory vector store for the documentation chunks | `rag.py` |
 
 ---
@@ -87,6 +87,14 @@ What makes the tools usable by an AI client, not just runnable:
 - **Arguments are described.** Each argument carries the spec's description, and allowed values become a `Literal[...]` type, so the client sees `status: one of available, pending, sold`.
 - **Tools are marked by what they do.** GET tools are read-only; DELETE, PUT and PATCH are destructive, so clients can ask before running them.
 - **Names are stable and readable.** Tool names come from the spec's `operationId` (`findPetsByStatus` -> `find_pets_by_status`), decided in code rather than by the LLM.
+
+### Try it without installing anything
+
+The web UI's **Try it** tab chats with the generated server: ask *"Find available pets"*, and an LLM (Groq) answers by calling the server's tools over MCP, the same way Claude Desktop does, while the real API responds. Each answer shows which tools were called. Only read-only tools are offered unless you switch on "Allow tools that change data" (always off on the public demo). The same chat works from the command line:
+
+```bash
+python try_it.py generated/swagger-petstore-openapi-3-0/server.py "Find available pets and show me the first one"
+```
 
 ### Choosing endpoints
 
@@ -188,6 +196,7 @@ mcp-forge/
 |-- a2a_client.py             # Agent Card discovery + SendMessage via a2a-sdk
 |-- llm.py                    # LLM abstraction - Groq, or the offline stub
 |-- cli.py                    # Command-line input: --file, --url or --text, plus endpoint selection and --auth
+|-- try_it.py                 # Chat with a generated server over MCP: the agent loop behind the Try it tab
 |-- app.py                    # Streamlit web UI
 |-- pipeline_runner.py        # Runs the graph step by step for the UI; recordings; demo switch
 |-- demo_runs/                # Recorded runs the UI can replay
@@ -240,7 +249,8 @@ streamlit run app.py
 ```
 The page shows each stage as it runs: the retrieval rounds, the A2A exchange with the validator
 agent, every codegen attempt with the errors fed back, and the generated server with the result of
-the MCP client check. It starts the validator agent itself, so one command is enough.
+the MCP client check. The **Try it** tab then lets you chat with that server (it needs `GROQ_API_KEY`).
+It starts the validator agent itself, so one command is enough.
 
 - **Recorded run** replays a saved run from `demo_runs/` with no LLM calls.
 - **Live run** calls the LLM now. Tick "Save this run as the recorded demo" to create a recording.
@@ -265,6 +275,7 @@ python -m pytest
 | `test_spec_parser.py` | Relative server URLs, path-level and `$ref` parameters, descriptions and enums, response shapes, security schemes, form and list bodies, YAML |
 | `test_server_template.py` | A packaged server, run as its own process and called over MCP, returns a JSON array, reports HTTP 404 with its status, rejects invalid values, and sends credentials from environment variables; endpoint selection; the MCP client check |
 | `test_pipeline_runner.py` | The web UI's runner reports every step; the demo switch triggers a real correction |
+| `test_try_it.py` | The chat calls the server's tools over MCP and answers from the API's data; errors reach the model with their status code; tools that change data are offered only when allowed; the loop stops after a fixed number of calls; the server never sees the Groq key |
 
 The loop tests use a scripted LLM so they are deterministic.
 

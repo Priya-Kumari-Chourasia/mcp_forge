@@ -35,6 +35,17 @@ def call_llm(prompt: str) -> str:
     return _fake_llm_call(prompt)
 
 
+def chat_model():
+    """The chat model for the "Try it" panel (try_it.py). It has to call tools, so
+    only the real LLM will do: the offline stub can answer just the pipeline's own
+    fixed prompts. Returns None in stub mode."""
+    if not USE_REAL_LLM:
+        return None
+    from langchain_groq import ChatGroq
+    return ChatGroq(model=MODEL_NAME, api_key=os.environ["GROQ_API_KEY"], temperature=0,
+                    timeout=60, max_retries=2)
+
+
 def _strip_code_fences(text: str) -> str:
     """LLMs often wrap answers in ```python ... ``` even when told not to."""
     text = text.strip()

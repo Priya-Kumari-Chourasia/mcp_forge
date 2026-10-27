@@ -1,0 +1,3716 @@
+[
+ {
+  "node": "start",
+  "log": "",
+  "state": {
+   "input_kind": "Prose docs",
+   "input_chars": 6337,
+   "agent_card": {
+    "capabilities": {
+     "pushNotifications": false,
+     "streaming": false
+    },
+    "defaultInputModes": [
+     "text/x-python",
+     "application/json"
+    ],
+    "defaultOutputModes": [
+     "text/plain",
+     "application/json"
+    ],
+    "description": "Validates generated MCP tool code: static checks, then a behavioural check that every tool sends the documented HTTP method and URL.",
+    "name": "MCP-Forge Validator",
+    "skills": [
+     {
+      "description": "Send Python tool functions as a text part and the endpoints they must implement as a data part ({\"endpoints\": [...]}). Returns a pass/fail verdict with one structured error per problem.",
+      "id": "validate_mcp_tools",
+      "name": "Validate MCP tools",
+      "tags": [
+       "validation",
+       "mcp",
+       "code"
+      ]
+     }
+    ],
+    "supportedInterfaces": [
+     {
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0",
+      "url": "http://localhost:8000/"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "bug_injected": false
+  }
+ },
+ {
+  "node": "orchestrator",
+  "log": "ORCHESTRATOR -> plan: complex (decided by LLM); codegen retry budget: 4 attempt(s)\n  ROUTING: prose docs -> agentic RAG\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": null,
+   "rag_candidates": null,
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "index_docs",
+  "log": "RAG 1 (index_docs) -> 6337 characters split into 7 chunk(s) and embedded\n  scanning window 1/2 for endpoints...\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": null,
+   "rag_candidates": null,
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "discover_endpoints",
+  "log": "  scanning window 2/2 for endpoints...\nRAG 2 (discover_endpoints) -> 5 endpoint(s) found across 2 window(s): ['GET /books', 'GET /books/{book_id}', 'GET /books/{book_id}/reviews', 'POST /books', 'DELETE /books/{book_id}']\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "retrieve",
+  "log": "RAG 3 (retrieve) GET /books round 1 -> query: \"GET /books endpoint description parameters base URL\"\n  GRADE: sufficient -> endpoint extracted\nRAG 3 (retrieve) GET /books/{book_id} round 1 -> query: \"GET /books/{book_id} endpoint description parameters base URL\"\n  GRADE: sufficient -> endpoint extracted\nRAG 3 (retrieve) GET /books/{book_id}/reviews round 1 -> query: \"GET /books/{book_id}/reviews endpoint description parameters base URL\"\n  GRADE: sufficient -> endpoint extracted\nRAG 3 (retrieve) POST /books round 1 -> query: \"POST /books endpoint description parameters base URL\"\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "grade_retrieval",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "retrieve",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "grade_retrieval",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "retrieve",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "grade_retrieval",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "retrieve",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "grade_retrieval",
+  "log": "  GRADE: sufficient -> endpoint extracted\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "retrieve",
+  "log": "RAG 3 (retrieve) DELETE /books/{book_id} round 1 -> query: \"DELETE /books/{book_id} endpoint description parameters base URL\"\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "grade_retrieval",
+  "log": "  GRADE: sufficient -> endpoint extracted\nSTEP 1b (grade_extraction) -> 5 usable endpoint(s), dropped: []\nSTEP 2 (generate_tool) attempt 1 -> 5 endpoint(s) in 1 batch(es)\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}",
+     "description": "Removes a book from the catalogue permanently.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "keep_reviews",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "delete_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": null,
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "grade_extraction",
+  "log": "",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}",
+     "description": "Removes a book from the catalogue permanently.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "keep_reviews",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "delete_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 0,
+   "attempt_history": [],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": {
+    "title": "",
+    "base_url": "https://api.bookstore.example/v2",
+    "auth": []
+   },
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "generate_tool",
+  "log": "  batch 1/1 done (5 endpoint(s))\nSTEP 3 (validate via A2A) attempt 1\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}",
+     "description": "Removes a book from the catalogue permanently.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "keep_reviews",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "delete_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1
+     ],
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": null,
+   "test_output": null,
+   "output_path": null,
+   "api_meta": {
+    "title": "",
+    "base_url": "https://api.bookstore.example/v2",
+    "auth": []
+   },
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "test_via_a2a",
+  "log": "  A2A: discovered agent 'MCP-Forge Validator' (skills: ['validate_mcp_tools'])\n  A2A: task 94431c0d-c02b-4322-8791-e08100504b35 -> TASK_STATE_COMPLETED\n  verdict: passed=True\n  5 tool(s) passed: each was called through an MCP server and sent the documented method, path, required parameters and body: ['get_books', 'get_books_book_id', 'get_books_book_id_reviews', 'post_books', 'delete_books_book_id']\n  DECISION: passed, finishing\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}",
+     "description": "Removes a book from the catalogue permanently.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "keep_reviews",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "delete_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1
+     ],
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": true,
+   "test_output": "5 tool(s) passed: each was called through an MCP server and sent the documented method, path, required parameters and body: ['get_books', 'get_books_book_id', 'get_books_book_id_reviews', 'post_books', 'delete_books_book_id']",
+   "output_path": null,
+   "api_meta": {
+    "title": "",
+    "base_url": "https://api.bookstore.example/v2",
+    "auth": []
+   },
+   "selection_note": null,
+   "mcp_client_check": null
+  }
+ },
+ {
+  "node": "package_server",
+  "log": "\nPackaged MCP server -> generated\\https-api-bookstore-example-v2/\n  5 tool(s): ['get_books', 'get_books_book_id', 'get_books_book_id_reviews', 'post_books', 'delete_books_book_id']\n  Validation: PASSED\n  MCP client check: started server.py over stdio and listed 5 tool(s)\n  Attempts:\n    attempt 1: generated batch(es) [1] -> passed\n  Claude Desktop config: generated\\https-api-bookstore-example-v2\\claude_desktop_config.json\n",
+  "state": {
+   "orchestration_plan": "complex",
+   "max_code_attempts": 4,
+   "endpoints": [
+    {
+     "method": "GET",
+     "path": "/books",
+     "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "page",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "genre",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}",
+     "description": "Fetch a single book by its identifier.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews",
+     "description": "Retrieves the list of reviews for the specified book.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "min_rating",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "get_books_book_id_reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books",
+     "description": "Create a new book in the catalogue.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [],
+     "request_body": {
+      "content_type": "application/json",
+      "fields": [
+       "title",
+       "author",
+       "price"
+      ]
+     },
+     "name": "post_books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}",
+     "description": "Removes a book from the catalogue permanently.",
+     "base_url": "https://api.bookstore.example/v2",
+     "parameters": [
+      {
+       "name": "book_id",
+       "in": "path",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "keep_reviews",
+       "in": "query",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "name": "delete_books_book_id"
+    }
+   ],
+   "rag_candidates": [
+    {
+     "method": "GET",
+     "path": "/books"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}"
+    },
+    {
+     "method": "GET",
+     "path": "/books/{book_id}/reviews"
+    },
+    {
+     "method": "POST",
+     "path": "/books"
+    },
+    {
+     "method": "DELETE",
+     "path": "/books/{book_id}"
+    }
+   ],
+   "rag_trace": [
+    {
+     "endpoint": "GET /books",
+     "round": 1,
+     "query": "GET /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books",
+      "description": "Lists books in the catalogue, optionally filtered by page and genre.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       },
+       {
+        "name": "genre",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}",
+     "round": 1,
+     "query": "GET /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}",
+      "description": "Fetch a single book by its identifier.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "GET /books/{book_id}/reviews",
+     "round": 1,
+     "query": "GET /books/{book_id}/reviews endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "GET",
+      "path": "/books/{book_id}/reviews",
+      "description": "Retrieves the list of reviews for the specified book.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "min_rating",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    },
+    {
+     "endpoint": "POST /books",
+     "round": 1,
+     "query": "POST /books endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "POST",
+      "path": "/books",
+      "description": "Create a new book in the catalogue.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [],
+      "request_body": {
+       "content_type": "application/json",
+       "fields": [
+        "title",
+        "author",
+        "price"
+       ]
+      }
+     }
+    },
+    {
+     "endpoint": "DELETE /books/{book_id}",
+     "round": 1,
+     "query": "DELETE /books/{book_id} endpoint description parameters base URL",
+     "sufficient": true,
+     "missing": null,
+     "partial": {
+      "method": "DELETE",
+      "path": "/books/{book_id}",
+      "description": "Removes a book from the catalogue permanently.",
+      "base_url": "https://api.bookstore.example/v2",
+      "parameters": [
+       {
+        "name": "book_id",
+        "in": "path",
+        "required": true,
+        "type": "string"
+       },
+       {
+        "name": "keep_reviews",
+        "in": "query",
+        "required": false,
+        "type": "string"
+       }
+      ]
+     }
+    }
+   ],
+   "codegen_attempt": 1,
+   "attempt_history": [
+    {
+     "attempt": 1,
+     "batches": [
+      1
+     ],
+     "passed": true,
+     "errors": []
+    }
+   ],
+   "test_passed": true,
+   "test_output": "5 tool(s) passed: each was called through an MCP server and sent the documented method, path, required parameters and body: ['get_books', 'get_books_book_id', 'get_books_book_id_reviews', 'post_books', 'delete_books_book_id']",
+   "output_path": "generated\\https-api-bookstore-example-v2\\server.py",
+   "api_meta": {
+    "title": "",
+    "base_url": "https://api.bookstore.example/v2",
+    "auth": []
+   },
+   "selection_note": null,
+   "mcp_client_check": {
+    "passed": true,
+    "tools_listed": 5,
+    "missing": [],
+    "error": null
+   },
+   "server_code": "\"\"\"\nMCP server for api.bookstore.example.\nGenerated by MCP-Forge. Every tool was validated before packaging.\n\nSettings (environment variables):\n  BOOKSTORE_BASE_URL       the API's base URL (default: https://api.bookstore.example/v2)\n\"\"\"\nimport base64\nimport os\nfrom typing import Annotated, Any, Literal, Optional, Union\n\nimport httpx\nfrom pydantic import Field\nfrom mcp.server.mcpserver import MCPServer\nfrom mcp.server.mcpserver.exceptions import ToolError\nfrom mcp.types import ToolAnnotations\n\nserver = MCPServer('api.bookstore.example')\n\nBASE_URL_ENV = 'BOOKSTORE_BASE_URL'\nBASE_URL = (os.environ.get('BOOKSTORE_BASE_URL') or 'https://api.bookstore.example/v2').rstrip(\"/\")\n\n# How this API accepts credentials. Each value is read from an environment\n# variable, so secrets never pass through the AI client as tool arguments.\nAUTH = []\n\n\ndef _request(method, path, *, params=None, json=None, data=None, headers=None):\n    \"\"\"Sends one request to the API. Every tool below calls this.\n\n    - prefixes BASE_URL and adds the credentials configured in AUTH\n    - leaves out query parameters whose value is None (not set by the AI)\n    - raises ToolError for an HTTP error, naming the status code: MCP clients\n      show a ToolError's message to the AI, while any other exception reaches\n      it only as a generic \"Error executing tool\"\n    \"\"\"\n    if not BASE_URL:\n        raise ToolError(f\"The API base URL is not set. Set the {BASE_URL_ENV} environment variable.\")\n    params = {key: value for key, value in (params or {}).items() if value is not None}\n    headers = dict(headers or {})\n    cookies = {}\n    for entry in AUTH:\n        if entry[\"type\"] == \"basic\":\n            username, password = os.environ.get(entry[\"env\"]), os.environ.get(entry[\"env_password\"])\n            if username and password:\n                token = base64.b64encode(f\"{username}:{password}\".encode()).decode()\n                headers[\"Authorization\"] = f\"Basic {token}\"\n            continue\n        value = os.environ.get(entry[\"env\"])\n        if not value:\n            continue                              # not configured: send the request without it\n        if entry[\"type\"] == \"bearer\":\n            headers[\"Authorization\"] = f\"Bearer {value}\"\n        elif entry[\"type\"] == \"header\":\n            headers[entry[\"name\"]] = value\n        elif entry[\"type\"] == \"query\":\n            params[entry[\"name\"]] = value\n        elif entry[\"type\"] == \"cookie\":\n            cookies[entry[\"name\"]] = value\n\n    try:\n        response = httpx.request(method, BASE_URL + path, params=params, json=json, data=data,\n                                 headers=headers, cookies=cookies, timeout=30, follow_redirects=True)\n    except httpx.HTTPError as error:\n        raise ToolError(f\"{method} {path} could not reach the API: {error}\") from error\n\n    if response.is_error:\n        raise ToolError(f\"{method} {path} failed with HTTP {response.status_code}: {response.text[:1000]}\")\n    if not response.content:\n        return {\"status\": response.status_code}\n    if \"json\" in response.headers.get(\"content-type\", \"\"):\n        return response.json()\n    return response.text\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_books(\n    page: Annotated[Optional[str], Field(description=\"Page number\")] = None,\n    genre: Annotated[Optional[str], Field(description=\"Genre filter\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Lists books in the catalogue, optionally filtered by page and genre.\"\"\"\n    return _request(\"GET\", \"/books\", params={\"page\": page, \"genre\": genre})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_books_book_id(\n    book_id: Annotated[str, Field(description=\"Identifier of the book\")],\n) -> Union[dict, list, str]:\n    \"\"\"Fetch a single book by its identifier.\"\"\"\n    return _request(\"GET\", f\"/books/{book_id}\")\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True, open_world_hint=True))\ndef get_books_book_id_reviews(\n    book_id: Annotated[str, Field(description=\"Identifier of the book\")],\n    min_rating: Annotated[Optional[str], Field(description=\"Minimum rating filter\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Retrieves the list of reviews for the specified book.\"\"\"\n    return _request(\"GET\", f\"/books/{book_id}/reviews\", params={\"min_rating\": min_rating})\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True))\ndef post_books(\n    body: Annotated[dict, Field(description=\"Book data with fields: title, author, price\")],\n) -> Union[dict, list, str]:\n    \"\"\"Create a new book in the catalogue.\"\"\"\n    return _request(\"POST\", \"/books\", json=body)\n\n\n@server.tool(annotations=ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True))\ndef delete_books_book_id(\n    book_id: Annotated[str, Field(description=\"Identifier of the book\")],\n    keep_reviews: Annotated[Optional[str], Field(description=\"Whether to keep reviews\")] = None,\n) -> Union[dict, list, str]:\n    \"\"\"Removes a book from the catalogue permanently.\"\"\"\n    return _request(\"DELETE\", f\"/books/{book_id}\", params={\"keep_reviews\": keep_reviews})\n\n\nif __name__ == \"__main__\":\n    server.run()\n"
+  }
+ }
+]

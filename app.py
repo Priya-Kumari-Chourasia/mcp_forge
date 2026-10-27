@@ -20,8 +20,11 @@ variables, but determined code can get around those blocks and can read files
 """
 
 import datetime
+import hashlib
+import json
 import os
 import re
+import tempfile
 import time
 
 import streamlit as st
@@ -42,6 +45,7 @@ import requests                                              # noqa: E402
 import llm                                                   # noqa: E402
 import pipeline_runner as runner                             # noqa: E402
 import server_template                                       # noqa: E402
+import try_it                                                # noqa: E402
 from cli import prepare_docs                                 # noqa: E402
 
 PUBLIC_DEMO = os.getenv("PUBLIC_DEMO", "false").lower() == "true"
@@ -50,6 +54,8 @@ PUBLIC_DEMO = os.getenv("PUBLIC_DEMO", "false").lower() == "true"
 # Running locally (PUBLIC_DEMO=false), your own docs are always allowed.
 ALLOW_CUSTOM_DOCS = os.getenv("ALLOW_CUSTOM_DOCS", "false").lower() == "true"
 MAX_LIVE_RUNS_PER_DAY = int(os.getenv("MAX_LIVE_RUNS_PER_DAY", "40"))
+# Each question in the "Try it" tab costs LLM calls, so a public demo caps them per day.
+MAX_CHAT_MESSAGES_PER_DAY = int(os.getenv("MAX_CHAT_MESSAGES_PER_DAY", "200"))
 
 EXAMPLES = {
     "Bookstore guide - prose docs (shows agentic RAG)": {
@@ -72,6 +78,22 @@ NODE_TO_STAGE = {
 @st.cache_resource
 def live_run_counter():
     return {"day": None, "count": 0}
+
+
+@st.cache_resource
+def chat_counter():
+    return {"day": None, "count": 0}
+
+
+def under_daily_limit(counter, limit: int) -> bool:
+    """Counts one use for today and says whether the limit still allows it."""
+    today = datetime.date.today().isoformat()
+    if counter["day"] != today:
+        counter.update(day=today, count=0)
+    if counter["count"] >= limit:
+        return False
+    counter["count"] += 1
+    return True
 
 
 def load_input(kind: str, value: str):
@@ -236,6 +258,80 @@ def draw(events, slots, finished: bool, run_id: str):
         st.code("".join(e["log"] for e in events) or "(no output yet)", language="text")
 
 
+# ----------------------------------------------------------------------
+# "Try it": chat with the generated server, the way Claude Desktop would
+# ----------------------------------------------------------------------
+
+def server_file_for(code: str) -> str:
+    """Writes the run's server code to a temporary file the chat can start. Taking
+    the code from the run (not from generated/) means a recorded run works too,
+    on a machine where that server was never generated."""
+    folder = os.path.join(tempfile.gettempdir(), "mcp_forge_try_it")
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, hashlib.sha256(code.encode()).hexdigest()[:16] + ".py")
+    if not os.path.exists(path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(code)
+    return path
+
+
+def render_try_it(events, run_id):
+    st.markdown("**Try the generated server.** Ask a question in plain English. An LLM answers it by calling "
+                "the server's tools over MCP, the same way Claude Desktop does, and the real API responds.")
+    state = merged_state(events) if events else {}
+    code = state.get("server_code")
+    if not code:
+        st.info("Run the pipeline (or replay a recorded run) first: the generated server appears here.")
+        return
+    model = llm.chat_model()
+    if model is None:
+        st.info("The chat needs a real LLM to call the tools: set GROQ_API_KEY in .env (or in the app's secrets).")
+        return
+
+    meta = state.get("api_meta") or {}
+    chats = st.session_state.setdefault("chats", {})
+    chat = chats.setdefault(run_id, {"messages": [try_it.system_message(server_template.display_name(meta))],
+                                     "display": []})
+
+    changing = sum(1 for e in state.get("endpoints") or [] if (e.get("method") or "").upper() != "GET")
+    allow_changes = st.toggle(
+        "Allow tools that change data (POST, PUT, PATCH, DELETE)", value=False, disabled=PUBLIC_DEMO,
+        key=f"allow-{run_id}",
+        help="Off: only read-only tools are offered, so a question cannot change or delete data on the API. "
+             "Always off on the public demo.")
+    if changing and not allow_changes:
+        st.caption(f"{changing} tool(s) that change data are turned off.")
+
+    for entry in chat["display"]:
+        with st.chat_message(entry["role"]):
+            for step in entry.get("trace", []):
+                outcome = "returned an error" if step["error"] else "returned data"
+                st.caption(f"Called `{step['tool']}` with `{json.dumps(step['args'])}` - {outcome}")
+            st.markdown(entry["content"])
+
+    question = st.chat_input("Ask the API something, e.g. \"Find available pets\"", key=f"chat-{run_id}")
+    if not question:
+        return
+    if PUBLIC_DEMO and not under_daily_limit(chat_counter(), MAX_CHAT_MESSAGES_PER_DAY):
+        st.error("Today's question limit for this public demo has been reached.")
+        return
+
+    chat["display"].append({"role": "user", "content": question})
+    env_names = server_template.auth_env_names(meta) + [f"{server_template.env_prefix(meta)}_BASE_URL"]
+    try:
+        with st.spinner("Calling the server's tools..."):
+            outcome = try_it.ask(server_file_for(code), chat["messages"], question, model, allow_changes, env_names)
+        chat["display"].append({"role": "assistant", "content": outcome["answer"] or "(no answer)",
+                                "trace": outcome["trace"]})
+    except Exception as error:
+        # Start the LLM's side of the conversation afresh: a half-finished tool call
+        # left in it would make the next request invalid.
+        chat["messages"] = chat["messages"][:1]
+        chat["display"].append({"role": "assistant",
+                                "content": f"The chat stopped with an error: {try_it.describe_error(error)}"})
+    st.rerun()
+
+
 STUCK_AFTER_SECONDS = 120
 
 
@@ -300,9 +396,11 @@ with st.sidebar:
                    "Very long docs are cut to their first 60,000 characters.")
 
 slots = {"stages": st.empty(), "progress": st.empty(), "summary": st.empty()}
-tabs = st.tabs(["Extraction (agentic RAG)", "Validation (A2A)", "Self-correction", "Generated server", "Log"])
-for name, tab in zip(["extraction", "a2a", "loop", "output", "log"], tabs):
-    with tab:
+tabs = dict(zip(["extraction", "a2a", "loop", "output", "try_it", "log"],
+                st.tabs(["Extraction (agentic RAG)", "Validation (A2A)", "Self-correction", "Generated server",
+                         "Try it", "Log"])))
+for name in ("extraction", "a2a", "loop", "output", "log"):
+    with tabs[name]:
         slots[name] = st.empty()
 
 if go:
@@ -364,3 +462,7 @@ if st.session_state.get("events"):
     draw(st.session_state["events"], slots, finished=True, run_id=st.session_state["run_id"])
 else:
     slots["summary"].info("Choose a documentation source in the sidebar and press **Run**.")
+
+# Drawn once per page load, after the run, because it holds an input box.
+with tabs["try_it"]:
+    render_try_it(st.session_state.get("events"), st.session_state.get("run_id"))
