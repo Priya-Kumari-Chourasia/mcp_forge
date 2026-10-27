@@ -1,0 +1,20 @@
+# What never goes into an image.
+
+# Secrets: the Groq key reaches the app container as an environment variable at run
+# time (docker-compose.yml), never inside an image that could be shared or pushed.
+.env
+
+# Local environments, caches and history
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.github/
+
+# Output of local runs: each container makes its own
+generated/
+
+# Not needed to run the app
+tests/

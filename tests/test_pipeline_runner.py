@@ -80,3 +80,13 @@ def test_abandoning_the_run_stops_the_pipeline(monkeypatch, tmp_path, pipeline_a
     run.close()                              # what happens when the viewer presses Stop
     time.sleep(1.5)
     assert not (tmp_path / "generated").exists()        # it never got as far as packaging
+
+
+def test_without_local_agents_an_unreachable_agent_stops_the_run(monkeypatch):
+    """In Docker the agents have their own containers; the app must not fall back to
+    running LLM-written code in its own process."""
+    import pytest
+    monkeypatch.setattr(runner, "START_LOCAL_AGENTS", False)
+    monkeypatch.setattr(nodes, "VALIDATOR_AGENT_URL", "http://127.0.0.1:9")      # nothing listens there
+    with pytest.raises(RuntimeError, match="START_LOCAL_AGENTS=false"):
+        runner.ensure_validator_running()

@@ -1,0 +1,95 @@
+# MCP-Forge as three containers:  docker compose up --build   ->  http://localhost:8501
+#
+#   app        the Streamlit UI and the pipeline. Holds the Groq key; reaches the internet
+#              (Groq, API docs) and the two agents.
+#   security   the security reviewer agent: reads generated code, never runs it.
+#   validator  the validator agent: RUNS generated code (against mocked HTTP).
+#
+# The agents are where LLM-written code is handled, so their containers are locked down:
+#   - network "agents" is internal: no route to the internet, so code that escaped every
+#     other check still could not send anything out or call a real API
+#   - no secrets: they get no .env and no Groq key
+#   - no published ports: only the app (on the same network) can call them
+#   - read-only filesystem (only /tmp is writable, in memory), an ordinary user, all
+#     Linux capabilities dropped, no privilege escalation
+#   - limits on memory, CPU and processes, so a runaway tool or a fork bomb stays contained
+
+x-locked-down-agent: &locked-down-agent
+  build:
+    context: .
+    target: agents
+  image: mcp-forge-agents
+  networks: [agents]
+  read_only: true
+  tmpfs:
+    - /tmp:size=64m
+  cap_drop: [ALL]
+  security_opt:
+    - no-new-privileges:true
+  mem_limit: 512m
+  cpus: 1.0
+  pids_limit: 128
+  restart: unless-stopped
+
+services:
+  security:
+    <<: *locked-down-agent
+    command: ["python", "security_agent.py"]
+    environment:
+      SECURITY_AGENT_HOST: 0.0.0.0                       # listen on the container's network...
+      SECURITY_AGENT_PUBLIC_URL: http://security:8001/   # ...under the name the app uses (goes in the Agent Card)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/.well-known/agent-card.json', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  validator:
+    <<: *locked-down-agent
+    command: ["python", "validator_agent.py"]
+    environment:
+      VALIDATOR_HOST: 0.0.0.0
+      VALIDATOR_PUBLIC_URL: http://validator:8000/
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/.well-known/agent-card.json', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      target: app
+    image: mcp-forge-app
+    # Only this machine can open the UI by default. On a server, set APP_BIND=0.0.0.0.
+    ports:
+      - "${APP_BIND:-127.0.0.1}:8501:8501"
+    # GROQ_API_KEY (and any other settings) from .env. Without it, the offline stub LLM runs.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      VALIDATOR_AGENT_URL: http://validator:8000
+      SECURITY_AGENT_URL: http://security:8001
+      START_LOCAL_AGENTS: "false"          # never run the agents inside the app (see pipeline_runner.py)
+      PUBLIC_DEMO: ${PUBLIC_DEMO:-false}
+    networks: [agents, internet]
+    depends_on:
+      security:
+        condition: service_healthy
+      validator:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  agents:
+    internal: true          # no internet: the agents can reach each other and the app, nothing else
+  internet: {}              # an ordinary network with internet access, for the app only

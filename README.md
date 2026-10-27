@@ -204,8 +204,8 @@ The behavioural layer (`behaviour_check.py`) replaces the function httpx uses to
 - Validation checks the request each tool sends; it does not check response handling against the real API.
 - One base URL per server. OAuth2 is supported by passing an access token you already have; the server does not run the OAuth flow.
 - File uploads (binary request bodies) are not supported.
-- The security review and the validator's child process raise the bar a long way, but together they are still not a sandbox (a rule nobody thought of, or a bug in Python itself, is a way out), so the public demo accepts only the built-in examples (see `ALLOW_CUSTOM_DOCS` in `app.py`).
-- The validator runs whatever it is sent: it relies on its caller (the pipeline) having run the security review first. It listens only on 127.0.0.1 by default.
+- Without Docker, the security review and the validator's child process raise the bar a long way, but together they are still not a sandbox (a rule nobody thought of, or a bug in Python itself, is a way out). With Docker Compose the agents run in containers with no internet route and no secrets. Even then, the app container runs the final MCP client check and the Try it tab on code both agents passed, so the public demo accepts only the built-in examples (see `ALLOW_CUSTOM_DOCS` in `app.py`).
+- The validator runs whatever it is sent: it relies on its caller (the pipeline) having run the security review first. In Docker nothing outside can reach it; without Docker it listens only on 127.0.0.1.
 - The instruction-like text warnings are a heuristic: they can miss a reworded attack and can flag an honest sentence.
 - Both agents implement `SendMessage` and `GetTask` only.
 
@@ -237,7 +237,10 @@ mcp-forge/
 |-- examples/                 # A sample prose API guide
 |-- tests/                    # pytest suite
 |-- docs/DECISIONS.md         # Why each technology and design choice, and the alternatives
-|-- requirements.txt
+|-- Dockerfile                # Two images: "agents" (minimal) and "app"
+|-- docker-compose.yml        # app + security + validator; the agents locked down and offline
+|-- requirements.txt          # Everything (includes requirements-agents.txt)
+|-- requirements-agents.txt   # Only what the two agents need
 `-- .env.example
 ```
 
@@ -297,10 +300,29 @@ needs `GROQ_API_KEY`). It starts both agents itself, so one command is enough.
 For a public deployment set `PUBLIC_DEMO=true`. Live runs are then limited to the built-in examples
 and capped per day, because the validator executes LLM-generated code.
 
-### 7. Run the tests
+### 7. Or run everything with Docker
+```bash
+docker compose up --build
+```
+Then open http://localhost:8501. This starts three containers: the web UI, the security reviewer and the validator. Put `GROQ_API_KEY` in `.env` first; without it the offline stub LLM is used.
+
+The two agents handle LLM-written code, so their containers are locked down:
+
+| Setting | What it prevents |
+|---|---|
+| internal network: no route to the internet | code that got past every check sending data out or calling a real API |
+| no `.env`, no Groq key | anything to steal |
+| no published ports | anyone but the app calling the agents |
+| read-only filesystem (only `/tmp`, in memory), ordinary user, all capabilities dropped | changing the agent's code or gaining privileges |
+| 512 MB memory, 1 CPU, 128 processes | a runaway loop or a fork bomb taking the machine down |
+
+In Docker the app never falls back to running an agent inside itself (`START_LOCAL_AGENTS=false`): if an agent container is down, the run stops. The UI listens on 127.0.0.1 only; on a server, start it with `APP_BIND=0.0.0.0`. A containerised run writes servers whose `claude_desktop_config.json` points inside the container, so for Claude Desktop generate them with a local run (step 4).
+
+### 8. Run the tests
 ```bash
 python -m pytest
 ```
+CI runs these on every push, and a second job builds the Docker images, runs the pipeline through the three containers, and checks that neither agent has a route to the internet.
 
 | Test file | What it proves |
 |---|---|
@@ -312,7 +334,7 @@ python -m pytest
 | `test_validator.py` | A return type that rejects a JSON array, required parameters or bodies not sent, undefined names, wrong methods, missing endpoints, tools that bypass `_request`, and tools that cannot be registered on an MCP server are all caught |
 | `test_spec_parser.py` | Relative server URLs, path-level and `$ref` parameters, descriptions and enums, response shapes, security schemes, form and list bodies, YAML |
 | `test_server_template.py` | A packaged server, run as its own process and called over MCP, returns a JSON array, reports HTTP 404 with its status, rejects invalid values, and sends credentials from environment variables; a path value such as `../pet/1` stays inside its own segment; endpoint selection; the MCP client check |
-| `test_pipeline_runner.py` | The web UI's runner reports every step; the demo switch triggers a real correction |
+| `test_pipeline_runner.py` | The web UI's runner reports every step; the demo switch triggers a real correction; with `START_LOCAL_AGENTS=false` an unreachable agent stops the run instead of being started inside the app |
 | `test_try_it.py` | The chat calls the server's tools over MCP and answers from the API's data; errors reach the model with their status code; tools that change data are offered only when allowed; the loop stops after a fixed number of calls; the server never sees the Groq key |
 
 The loop tests use a scripted LLM so they are deterministic.

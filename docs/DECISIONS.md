@@ -40,7 +40,12 @@ Product
 23. [Groq as the LLM](#23-groq-as-the-llm)
 24. [Streamlit for the web UI](#24-streamlit-for-the-web-ui)
 25. [Pinned versions and CI](#25-pinned-versions-and-ci)
-26. [Known weaknesses](#26-known-weaknesses)
+
+Deployment
+26. [Docker Compose: the agents get locked-down containers](#26-docker-compose-the-agents-get-locked-down-containers)
+27. [One Dockerfile, two images](#27-one-dockerfile-two-images)
+28. [In Docker, no fallback to in-process agents](#28-in-docker-no-fallback-to-in-process-agents)
+29. [Known weaknesses](#29-known-weaknesses)
 
 ---
 
@@ -183,8 +188,9 @@ the one deciding whether it is safe to run.
 
 **Trade-off.**
 - An HTTP round trip per check. That costs milliseconds; validation takes seconds.
-- Two more services to run. The web UI starts both automatically when nothing
-  answers at their addresses (`ensure_agent_running`).
+- Two more services to run. With Docker Compose each gets its own container
+  (entry 26). Without Docker, the web UI starts both on background threads when
+  nothing answers at their addresses (`ensure_agent_running`).
 
 **Design detail.** A Task is `COMPLETED` even when the code fails the check,
 because "the code is wrong" is the agent's answer. `FAILED` means the agent
@@ -454,9 +460,10 @@ Because of this, the public demo (`PUBLIC_DEMO=true`) does not accept custom
 docs (`ALLOW_CUSTOM_DOCS` defaults to false): only the built-in examples can be
 run.
 
-**Planned.** Run the validator in a container with no network and a read-only
-filesystem. The A2A boundary (entry 6) is what makes that possible without
-changing the pipeline.
+**The container.** With Docker Compose, the validator runs in its own container
+with no internet route, no secrets, a read-only filesystem and resource limits
+(entry 26). That is the boundary the child process cannot be. The A2A boundary
+(entry 6) is what made this possible without changing the pipeline.
 
 ## 17. Only the failing batches are regenerated
 
@@ -616,7 +623,10 @@ for many users at once, but far more code for a demo UI.
 
 **Trade-off.**
 - Streamlit re-runs the script on every interaction.
-- Its hosting cannot run containers, which the sandbox in entry 16 would need.
+- Streamlit Community Cloud runs one process, not containers. There the agents
+  run on threads inside the app, without the container isolation of entry 26;
+  that is one reason the public demo accepts only the built-in examples. A VM
+  running Docker Compose gets the full isolation.
 
 ## 25. Pinned versions and CI
 
@@ -630,17 +640,110 @@ for many users at once, but far more code for a demo UI.
 - This mattered in practice: installing FastAPI upgraded Starlette, which `mcp`
   and `streamlit` also use. Starlette is now pinned on purpose.
 
+**Containers in CI too.** A second CI job builds the real images, runs the
+pipeline in the app container through both agent containers, and checks that
+neither agent has a route to the internet. That check was itself tested: with
+the validator wrongly put on the internet network, it fails.
+
 **Trade-off.** Upgrades are manual: change a version, reinstall, run the tests.
 
-## 26. Known weaknesses
+## 26. Docker Compose: the agents get locked-down containers
+
+**Decision.** `docker-compose.yml` runs three containers: `app` (the UI and the
+pipeline), `security` and `validator`. The two agent containers:
+- sit on a network marked `internal`, so they have no route to the internet
+- get no secrets: the Groq key reaches only the app (from `.env`, at run time)
+- publish no ports: only the app, on the same network, can call them
+- have a read-only filesystem (only `/tmp`, in memory, is writable), run as an
+  ordinary user, drop all Linux capabilities and cannot gain privileges
+- are limited to 512 MB of memory, one CPU and 128 processes
+
+The UI is published on 127.0.0.1 by default (`APP_BIND=0.0.0.0` on a server).
+
+**Why.** Each setting closes a way that LLM-written code could do harm if it got
+past the review and the child process:
+- no internet: it cannot send anything out or call a real API
+- no secrets: there is nothing to steal
+- read-only: it cannot change the agent's code or leave anything behind
+- limits: a runaway loop or a fork bomb cannot take the machine down
+
+It also fixes two known weaknesses for this deployment. Nothing outside can
+reach the validator, so "it runs whatever it is sent" and "no authentication"
+matter far less.
+
+**Alternatives.**
+- One container for everything: simpler, but the code would run next to the
+  Groq key and with internet access.
+- Kubernetes: the same isolation with far more setup, for a project that runs
+  on one machine.
+- gVisor or Firecracker: a stronger boundary than a container (they do not share
+  the host's kernel). Worth it for a public service that accepts any docs; not
+  set up here.
+
+**Proof.** Tested by running the containers:
+- a pipeline run through both agents passes
+- the agents have no default route, and a request to pypi.org fails
+- writing outside `/tmp` is refused
+- every container runs as uid 10001
+- the limits appear in `docker inspect`
+- with a key in `.env`, only the app container sees it
+
+CI repeats the first two on every push (entry 25).
+
+**Trade-off.** Docker Desktop is needed on Windows. The `claude_desktop_config.json`
+a containerised run writes points to paths inside the container, so to use a
+server with Claude Desktop, generate it with a local run.
+
+## 27. One Dockerfile, two images
+
+**Decision.** A multi-stage `Dockerfile` with two targets from one base:
+- `agents` installs only `requirements-agents.txt` and copies the six files the
+  agents use
+- `app` installs everything
+
+`requirements.txt` includes `requirements-agents.txt` (`-r`), so every version
+is pinned in exactly one place.
+
+**Why.**
+- The containers that handle LLM-written code carry no web UI, LLM client or
+  vector database: less installed code that could be misused. The agent image is
+  about 240 MB, against about 1.4 GB for the app.
+- The agents' code is owned by root and run as `forge`, so an agent cannot change
+  its own code. The app owns its folder, because it writes generated servers.
+- Requirements are copied and installed before the code, so a code change does
+  not reinstall every package (Docker reuses the cached step).
+- `.dockerignore` keeps `.env` out of every image: a secret inside an image goes
+  wherever the image goes.
+
+**Alternatives.** Two Dockerfiles: the same result, with the shared base written
+twice.
+
+## 28. In Docker, no fallback to in-process agents
+
+**Decision.** With `START_LOCAL_AGENTS=false` (set by `docker-compose.yml`), the
+app refuses to start an agent inside its own process when that agent is not
+answering. The run stops with a clear error instead.
+
+**Why.** Without Docker, starting the agents on background threads is what makes
+the UI one command to run. In Docker it would quietly undo entry 26: LLM-written
+code would run inside the app container, next to the Groq key and with internet
+access. Failing loudly is better than losing the isolation without anyone
+noticing.
+
+**Proof.** `test_without_local_agents_an_unreachable_agent_stops_the_run`, and a
+run with the validator container stopped.
+
+## 29. Known weaknesses
 
 What is weak today, and why it was left that way:
 
 | Weakness | Why it is acceptable now | Fix |
 |---|---|---|
-| Review plus isolation is still not a sandbox | The public demo runs only the built-in examples | Container with no network (entry 16) |
-| The validator runs whatever it is sent; it relies on its caller having run the review | Only the pipeline calls it, and it listens on 127.0.0.1 by default | The validator renders the trusted header itself and applies the review's blocking rules before running anything |
-| Neither agent has authentication | Both listen on 127.0.0.1 by default, so only this machine can reach them | Add auth before exposing them (`..._HOST=0.0.0.0`) |
+| Without Docker, review plus a child process is still not a sandbox | The public demo runs only the built-in examples | Run with Docker Compose (entry 26) |
+| Even with Docker, the app container runs generated servers: the final MCP client check, and the Try it tab | Both run only code that passed the review and the validator | A separate, locked-down runner container for them |
+| A container shares the host's kernel | The agents are also non-root, capability-free and offline | gVisor for a public service that accepts any docs |
+| The validator runs whatever it is sent; it relies on its caller having run the review | In Docker nothing outside can reach it; without Docker it listens on 127.0.0.1 | The validator renders the trusted header itself and applies the review's blocking rules before running anything |
+| Neither agent has authentication | The same: unreachable from outside in Docker, 127.0.0.1 otherwise | Add auth before exposing them |
 | Instruction-like text detection is a phrase list | It only warns; a person judges | Better detection; it can never be complete |
 | Responses are not checked against the real API | Checking them would mean calling real APIs with real credentials | Optional live check of read-only tools |
 | One base URL per server; no OAuth flow; no file uploads | They cover most REST APIs; OAuth works with a token you already have | Extend `_request` |

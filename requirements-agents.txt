@@ -1,0 +1,17 @@
+# What the two agents (security_agent.py, validator_agent.py) need - and nothing else.
+# The Dockerfile's "agents" image installs only this file: the containers that handle
+# LLM-written code carry no web UI, LLM client or vector database, so there is less
+# installed code to misuse and the image is much smaller. requirements.txt includes
+# this file, so every version is pinned in exactly one place.
+
+mcp==2.3.0                   # the validator runs each tool through a real MCP server
+a2a-sdk[fastapi]==1.2.1      # [fastapi] = the SDK's server side (routes, request handler, task store)
+httpx==0.28.1                # the generated tools' HTTP client; imported directly in a2a_client.py
+protobuf==7.36.2             # imported directly (google.protobuf) for A2A messages
+requests==2.34.2             # behaviour_check.py spots tools that use requests instead of _request
+
+# --- the agents' web server ---
+fastapi==0.162.0             # each agent's web app; the A2A SDK mounts its routes on it
+uvicorn==0.54.0              # the ASGI server that runs it (imported directly in a2a_server.py)
+starlette==1.7.0             # shared by fastapi, mcp and streamlit; pinned so installing one
+                             # of them cannot silently upgrade it under the others

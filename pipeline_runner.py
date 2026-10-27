@@ -41,6 +41,13 @@ SHOWN_KEYS = [
 
 _agent_servers = {}
 
+# Running both agents inside this process (on background threads) makes the UI one
+# command to start - fine on a laptop or on a host that runs a single process. With
+# Docker Compose the agents have their own locked-down containers, and starting them
+# here instead would run LLM-written code next to the Groq key, so docker-compose.yml
+# sets START_LOCAL_AGENTS=false: if an agent is not answering, the run stops.
+START_LOCAL_AGENTS = os.getenv("START_LOCAL_AGENTS", "true").lower() == "true"
+
 
 def ensure_agent_running(agent_url: str, agent_module) -> dict:
     """Returns the Agent Card of the agent at agent_url, starting that agent in
@@ -55,6 +62,9 @@ def ensure_agent_running(agent_url: str, agent_module) -> dict:
         return requests.get(card_url, timeout=2).json()
     except requests.RequestException:
         pass
+    if not START_LOCAL_AGENTS:
+        raise RuntimeError(f"No agent is answering at {agent_url}, and START_LOCAL_AGENTS=false, so it is not "
+                           f"started inside the app. Check that its container is running.")
     address = urlparse(agent_url)
     _, _agent_servers[agent_url] = agent_module.serve_in_thread(address.hostname or "127.0.0.1", address.port)
     return requests.get(card_url, timeout=5).json()

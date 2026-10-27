@@ -34,3 +34,35 @@ jobs:
       # 4. Run the whole test suite. Any failing test turns the run red.
       - name: Run tests
         run: python -m pytest -q
+
+  # The same project as three containers (docker-compose.yml): builds the real images,
+  # runs the pipeline in the app container through both agent containers, and checks
+  # that the agents really have no way out to the internet.
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --wait returns once every container's healthcheck passes (or fails the step).
+      - name: Build the images and start the three containers
+        run: docker compose up --build --detach --wait
+
+      # No GROQ_API_KEY here, so the offline stub LLM writes the code; both agents are real.
+      - name: A pipeline run in the app container, through both agent containers
+        run: |
+          docker compose exec -T app python graph.py --text "GET https://catfact.ninja/fact - returns a random cat fact" | tee run.log
+          grep -q "Validation: PASSED" run.log
+
+      # A container on an internal network gets no default route. Exit code 1 = it has one.
+      - name: The agents have no route to the internet
+        run: |
+          for agent in security validator; do
+            docker compose exec -T $agent python -c "import sys; rows = [r.split() for r in open('/proc/net/route').read().splitlines()[1:] if r.split()]; sys.exit(any(r[1] == '00000000' for r in rows))" \
+              || { echo "$agent has a route to the internet"; exit 1; }
+          done
+
+      - name: Show the containers' logs if anything failed
+        if: failure()
+        run: docker compose logs
