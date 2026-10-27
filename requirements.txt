@@ -1,11 +1,33 @@
-langgraph
-flask
-requests
-langchain-groq
-python-dotenv
-pyyaml
-mcp>=2
-a2a-sdk>=1.0
-chromadb
-pytest
-streamlit
+# Exact versions, copied from the .venv where the project runs and the tests pass.
+# Pinning means a fresh install (a new laptop, CI, Streamlit Cloud) gets the SAME
+# versions, so a new release of a library cannot silently break the project.
+# To upgrade one: change its version here, reinstall, run `python -m pytest`.
+
+# --- pipeline ---
+langgraph==1.2.12
+langchain-groq==1.1.3
+groq==0.37.1                 # imported directly in llm.py (RateLimitError)
+python-dotenv==1.2.4
+pyyaml==6.0.3
+requests==2.34.2
+
+# --- MCP and A2A ---
+mcp==2.3.0
+a2a-sdk==1.2.1
+httpx==0.28.1                # imported directly in a2a_client.py
+protobuf==7.36.2             # imported directly (google.protobuf) for A2A messages
+
+# --- validator agent web server ---
+flask==3.1.3
+werkzeug==3.1.9              # imported directly to run the validator in a thread
+
+# --- retrieval ---
+chromadb==1.5.9
+# ChromaDB needs a newer SQLite than some Linux hosts ship (see rag.py)
+pysqlite3-binary==0.5.4.post2; sys_platform == "linux"
+
+# --- web UI ---
+streamlit==1.65.0
+
+# --- tests ---
+pytest==9.1.1

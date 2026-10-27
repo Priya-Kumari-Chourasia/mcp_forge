@@ -126,6 +126,13 @@ def route_after_grading(state: ForgeState) -> str:
 # The codegen loop: generate code, validate it, regenerate what failed
 # ----------------------------------------------------------------------
 
+# The rulebook sent to the LLM every time it writes tool code.
+#
+# Return type rule (added after testing a generated server in Claude Desktop):
+# the MCP SDK checks each tool's return value against its return annotation.
+# Petstore's find-by-status returns a JSON ARRAY, so a tool annotated
+# `-> Union[dict, str]` was rejected with a bare "Error executing tool".
+# `Union[dict, list, str]` covers JSON objects, JSON arrays and plain text.
 CODEGEN_INSTRUCTIONS = """Write Python functions (MCP tools) - exactly ONE function per endpoint below.
 
 Rules:
@@ -140,9 +147,12 @@ Rules:
   Optional query parameters are arguments that default to None, and are only sent
   when they are not None.
 - If the endpoint has a "request_body", add an argument `body: dict` and send it
-  with json=body (or data=body when content_type is not JSON)List the body's
-  field names in the docstring..
+  with json=body (or data=body when content_type is not JSON). List the body's
+  field names in the docstring.
 - Add type hints to every argument and a one-line docstring taken from the description.
+- Annotate every function's return type as Union[dict, list, str] (import Union from
+  typing). Many endpoints return a JSON array, and the MCP SDK rejects a return value
+  that does not match the annotation.
 - Call requests.<method>(..., timeout=30), then return response.json() if the response
   is JSON, otherwise response.text.
 

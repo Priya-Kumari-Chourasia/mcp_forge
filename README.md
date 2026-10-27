@@ -1,5 +1,7 @@
 # MCP-Forge
 
+[![tests](https://github.com/Priya-Kumari-Chourasia/mcp_forge/actions/workflows/tests.yml/badge.svg)](https://github.com/Priya-Kumari-Chourasia/mcp_forge/actions/workflows/tests.yml)
+
 **Point it at API documentation. Get back a validated MCP (Model Context Protocol) server.**
 
 A multi-agent pipeline built with LangGraph, MCP, A2A and agentic RAG. It reads an OpenAPI spec or prose API docs, generates one MCP tool per endpoint, sends the code to a separate validator agent over the A2A protocol, and feeds the validator's errors back into regeneration until the code passes.

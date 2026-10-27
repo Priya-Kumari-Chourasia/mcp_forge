@@ -1,0 +1,36 @@
+# Continuous integration: GitHub runs the test suite on every push and pull request.
+# A green tick on GitHub (and the badge in the README) shows the code works as committed,
+# not just on one laptop.
+#
+# The tests need no API key and no internet access to any API: tests/conftest.py
+# switches to the offline stub LLM and offline embeddings.
+
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # 1. Get the repository's code onto the runner.
+      - uses: actions/checkout@v4
+
+      # 2. Install the same Python version the project uses locally (3.13).
+      #    `cache: pip` reuses downloaded packages between runs, so later runs are faster.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      # 3. Install the exact pinned versions from requirements.txt.
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 4. Run the whole test suite. Any failing test turns the run red.
+      - name: Run tests
+        run: python -m pytest -q
