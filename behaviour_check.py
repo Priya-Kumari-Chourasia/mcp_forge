@@ -2,20 +2,25 @@
 BEHAVIOUR CHECK - run by the validator in a separate process.
 
 Static checks can tell us the generated code is valid Python. They cannot
-tell us whether a tool, when called, would hit the right URL. This script
-answers that question WITHOUT touching the real API:
+tell us whether a tool, when an AI client calls it, would send the right
+request and hand back a result the client accepts. This script answers that
+WITHOUT touching the real API:
 
-  1. Replace the function `requests` uses to send HTTP with a recorder.
-     Nothing leaves the machine; we just note (method, url) and hand back
-     a fake 200 response.
-  2. Call every generated function with dummy arguments.
-  3. Compare what each function tried to call against the endpoints the
-     docs describe.
-  4. Register every function on a real MCP server and list its tools, to
-     confirm the code works as MCP tools and not just as Python functions.
+  1. Replace the function httpx uses to send a request with a recorder.
+     Nothing leaves the machine; the request is recorded and a fake 200
+     response comes back, shaped like the docs say (a JSON array or object).
+  2. Register every tool on a real MCP server, exactly as server.py will.
+  3. Call every tool THROUGH that server (server.call_tool), with dummy
+     arguments built from the tool's own input schema. This runs the same
+     argument checks and return-value checks a real client triggers - a tool
+     annotated `-> Union[dict, str]` that gets a JSON array back fails here,
+     the way find-by-status failed in Claude Desktop.
+  4. Compare each request with the endpoint the docs describe: method, path,
+     the required query parameters and the request body - and check the tool
+     has an argument for every documented parameter.
 
 So a generated delete_pet() is exercised safely: we learn it would send
-DELETE https://.../pet/x, and no pet is deleted.
+DELETE https://.../pet/1, and no pet is deleted.
 
 Usage: python behaviour_check.py <code.py> <endpoints.json> <result.json>
 The result file holds {"errors": [...], "calls": {...}}.
@@ -30,12 +35,15 @@ import os
 import re
 import socket
 import sys
+from urllib.parse import parse_qs, urlsplit
 
+import httpx
 import requests
 
 DUMMY_BASE_URL = "https://api.test.invalid"   # used when the docs give no base URL
 
-recorded_calls = []
+recorded_calls = []      # each: {"library", "method", "url", "body"}
+ENDPOINTS = []           # set in main(); the recorder uses it to shape fake responses
 
 # One asyncio event loop for the whole check, created in main() BEFORE the
 # network is blocked. On Windows, starting an event loop opens a local socket
@@ -43,7 +51,26 @@ recorded_calls = []
 _loop = None
 
 
-class FakeResponse:
+# ----------------------------------------------------------------------
+# Fake HTTP
+# ----------------------------------------------------------------------
+
+def _fake_payload(method, url):
+    """A JSON array for endpoints documented to return one, otherwise a JSON object."""
+    index = find_endpoint(method, url, ENDPOINTS)
+    if index is not None and ENDPOINTS[index].get("returns") == "array":
+        return [{"id": 1}]
+    return {"id": 1}
+
+
+def _record_httpx(self, request, **kwargs):
+    """Stands in for httpx.Client.send: records the request instead of sending it."""
+    method, url = request.method.upper(), str(request.url)
+    recorded_calls.append({"library": "httpx", "method": method, "url": url, "body": request.content})
+    return httpx.Response(200, json=_fake_payload(method, url), request=request)
+
+
+class FakeRequestsResponse:
     status_code = 200
     ok = True
     text = "{}"
@@ -57,9 +84,10 @@ class FakeResponse:
         return None
 
 
-def _record_instead_of_sending(self, method, url, **kwargs):
-    recorded_calls.append((str(method).upper(), str(url)))
-    return FakeResponse()
+def _record_requests(self, method, url, **kwargs):
+    """Stands in for requests: a tool should not use it (see the check below)."""
+    recorded_calls.append({"library": "requests", "method": str(method).upper(), "url": str(url), "body": b""})
+    return FakeRequestsResponse()
 
 
 def _no_network(*args, **kwargs):
@@ -88,28 +116,9 @@ def _block_process_spawning():
             setattr(os, name, _no_processes)
 
 
-def dummy_value(param: inspect.Parameter):
-    """A harmless argument of roughly the right type."""
-    by_type = {int: 1, float: 1.0, bool: True, dict: {}, list: [], str: "x"}
-    return by_type.get(param.annotation, "x")
-
-
-def call_with_dummy_args(func):
-    """Fills every REQUIRED parameter; optional ones keep their defaults."""
-    args, kwargs = [], {}
-    for param in inspect.signature(func).parameters.values():
-        if param.default is not inspect.Parameter.empty:
-            continue
-        if param.kind in (param.VAR_POSITIONAL, param.VAR_KEYWORD):
-            continue
-        if param.kind == param.KEYWORD_ONLY:
-            kwargs[param.name] = dummy_value(param)
-        else:
-            args.append(dummy_value(param))
-    result = func(*args, **kwargs)
-    if inspect.iscoroutine(result):
-        _loop.run_until_complete(result)
-
+# ----------------------------------------------------------------------
+# Matching a request to a documented endpoint
+# ----------------------------------------------------------------------
 
 def endpoint_pattern(endpoint: dict):
     """Regex for the full URL of an endpoint; {petId} matches any one path segment."""
@@ -136,19 +145,96 @@ def find_endpoint(method: str, url: str, endpoints: list):
     return min(matches, key=lambda i: endpoints[i]["path"].count("{") + endpoints[i]["path"].count(":"))
 
 
-def check_mcp_registration(module, function_names):
-    """Registers every function on a real MCPServer, exactly as the packaged
-    server.py will, then asks the server for its tool list.
+# ----------------------------------------------------------------------
+# Calling a tool the way an MCP client does
+# ----------------------------------------------------------------------
 
-    A function can be valid Python and send the right request, yet still be
-    unusable as an MCP tool: the SDK builds each tool's input and output
-    schema from the type hints, so a hint that is not a real type (for
-    example `-> any` instead of `-> Any`) makes registration crash."""
-    from mcp.server.mcpserver import MCPServer
+def dummy_value(schema: dict):
+    """A harmless argument that satisfies one property of a tool's input schema."""
+    if not isinstance(schema, dict):
+        return "x"
+    if "const" in schema:
+        return schema["const"]
+    if schema.get("enum"):
+        return schema["enum"][0]
+    for key in ("anyOf", "oneOf"):
+        if schema.get(key):
+            options = [s for s in schema[key] if s.get("type") != "null"] or schema[key]
+            return dummy_value(options[0])
+    kind = schema.get("type")
+    if kind == "integer":
+        return 1
+    if kind == "number":
+        return 1.0
+    if kind == "boolean":
+        return True
+    if kind == "array":
+        return [dummy_value(schema.get("items") or {"type": "string"})]
+    if kind == "object" or "$ref" in schema:
+        return {}
+    return "x"
 
+
+def dummy_arguments(input_schema: dict) -> dict:
+    """Fills every REQUIRED argument; optional ones keep their defaults."""
+    properties = input_schema.get("properties") or {}
+    return {name: dummy_value(properties.get(name, {})) for name in input_schema.get("required") or []}
+
+
+def _root_cause(error):
+    while error.__cause__ is not None:
+        error = error.__cause__
+    return error
+
+
+def describe_failure(name: str, error) -> str:
+    """Turns what the MCP SDK raised into a message the LLM can act on."""
+    root = _root_cause(error)
+    title = getattr(root, "title", "") or ""
+    if title.endswith("Output"):
+        returned = "a JSON array" if "input_value=[" in str(root) else "a value"
+        return (f"{name}() returned {returned} that its return type does not allow "
+                f"(annotate it -> Union[dict, list, str])")
+    if title.endswith("Arguments"):
+        first = str(root).splitlines()
+        return f"{name}() rejected arguments that match its own input schema: {' '.join(first[:3])}"
+    return f"{name}() raised {type(root).__name__}: {root}"
+
+
+def _normalise(name: str) -> str:
+    """petId, pet_id and pet-id all become petid, so a snake_case argument
+    matches the documented camelCase name."""
+    return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+
+
+def check_request(name, func, call, endpoint) -> list:
+    """Checks the request a tool sent against the endpoint it matched."""
     errors = []
-    server = MCPServer("validation")
-    registered = []
+    query = parse_qs(urlsplit(call["url"]).query, keep_blank_values=True)
+    for p in endpoint.get("parameters") or []:
+        if p.get("in") == "query" and p.get("required") and p["name"] not in query:
+            errors.append(f"{name}() did not send the required query parameter '{p['name']}'")
+    body = endpoint.get("request_body") or {}
+    if body.get("required") and not call["body"]:
+        errors.append(f"{name}() did not send the required request body")
+
+    # Every documented parameter needs an argument, or the AI can never set it.
+    arguments = {_normalise(a) for a in inspect.signature(func).parameters}
+    for p in endpoint.get("parameters") or []:
+        if p.get("in") in ("path", "query", "header") and _normalise(p["name"]) not in arguments:
+            errors.append(f"{name}() has no argument for the documented {p['in']} parameter '{p['name']}'")
+    if body and "body" not in arguments:
+        errors.append(f"{name}() has no `body` argument for the endpoint's request body")
+    return errors
+
+
+def register_tools(server, module, function_names):
+    """Registers every function on the MCP server, exactly as the packaged
+    server.py will. A function can be valid Python yet unusable as an MCP tool:
+    the SDK builds each tool's input and output schema from the type hints, so
+    a hint that is not a real type (for example `-> any` instead of `-> Any`)
+    makes registration crash."""
+    errors, registered = [], []
     for name in function_names:
         try:
             server.tool()(getattr(module, name))
@@ -158,29 +244,23 @@ def check_mcp_registration(module, function_names):
             errors.append({"function": name, "endpoint_index": None,
                            "error": f"{name}() cannot be registered as an MCP tool - check its type hints "
                                     f"({type(e).__name__}: {reason})"})
-
-    listed = {tool.name for tool in _loop.run_until_complete(server.list_tools())}
-    for name in registered:
-        if name not in listed:
-            errors.append({"function": name, "endpoint_index": None,
-                           "error": f"{name}() was registered but is missing from the MCP server's tool list"})
-    return errors
+    return registered, errors
 
 
 def main(code_path: str, endpoints_path: str, result_path: str):
+    global _loop
     with open(endpoints_path, encoding="utf-8") as f:
-        endpoints = json.load(f)
+        ENDPOINTS[:] = json.load(f)
     with open(code_path, encoding="utf-8") as f:
         source = f.read()
 
     errors = []          # each: {"function": name or None, "endpoint_index": int or None, "error": text}
     calls_by_function = {}
-
-    global _loop
     _loop = asyncio.new_event_loop()
 
     # Swap out real HTTP before any generated code runs.
-    requests.sessions.Session.request = _record_instead_of_sending
+    httpx.Client.send = _record_httpx
+    requests.sessions.Session.request = _record_requests
     socket.socket.connect = _no_network
     socket.create_connection = _no_network
     os.environ.setdefault("API_BASE_URL", DUMMY_BASE_URL)
@@ -196,43 +276,68 @@ def main(code_path: str, endpoints_path: str, result_path: str):
         _write(result_path, errors, calls_by_function)
         return
 
+    # The tools: public top-level functions. Names starting with _ (like _request) are helpers.
     function_names = [n.name for n in ast.parse(source).body
-                      if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]
+                      if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and not n.name.startswith("_")]
+
+    from mcp.server.mcpserver import MCPServer
+    from mcp.server.mcpserver.exceptions import ToolError
+
+    server = MCPServer("validation")
+    registered, registration_errors = register_tools(server, module, function_names)
+    errors.extend(registration_errors)
+
+    listed = {tool.name: tool for tool in _loop.run_until_complete(server.list_tools())}
     covered = set()
 
-    for name in function_names:
+    for name in registered:
+        if name not in listed:
+            errors.append({"function": name, "endpoint_index": None,
+                           "error": f"{name}() was registered but is missing from the MCP server's tool list"})
+            continue
+
         recorded_calls.clear()
         try:
-            call_with_dummy_args(getattr(module, name))
+            _loop.run_until_complete(server.call_tool(name, dummy_arguments(listed[name].input_schema or {})))
+        except ToolError as e:
+            errors.append({"function": name, "endpoint_index": None, "error": describe_failure(name, e)})
+            continue
         except Exception as e:
             errors.append({"function": name, "endpoint_index": None,
                            "error": f"{name}() raised {type(e).__name__}: {e}"})
             continue
 
-        calls_by_function[name] = list(recorded_calls)
+        calls_by_function[name] = [(c["method"], c["url"]) for c in recorded_calls]
         if not recorded_calls:
             errors.append({"function": name, "endpoint_index": None,
-                           "error": f"{name}() made no HTTP request through the `requests` library"})
+                           "error": f"{name}() made no HTTP request (it must call _request)"})
             continue
 
-        method, url = recorded_calls[0]
-        if not url.startswith(("http://", "https://")):
+        call = recorded_calls[0]
+        if call["library"] == "requests":
             errors.append({"function": name, "endpoint_index": None,
-                           "error": f"{name}() called '{url}', which is not an absolute URL "
-                                    f"(it must start with the base_url)"})
+                           "error": f"{name}() used the requests library directly; call _request(...) instead, "
+                                    f"which adds the base URL, authentication and error handling"})
+            continue
+        if not call["url"].startswith(("http://", "https://")):
+            errors.append({"function": name, "endpoint_index": None,
+                           "error": f"{name}() called '{call['url']}', which is not an absolute URL"})
             continue
 
-        index = find_endpoint(method, url, endpoints)
+        index = find_endpoint(call["method"], call["url"], ENDPOINTS)
         if index is None:
             errors.append({"function": name, "endpoint_index": None,
-                           "error": f"{name}() sent {method} {url}, which matches no documented endpoint "
-                                    f"(check the HTTP method, the base_url and the path)"})
-        else:
-            covered.add(index)
+                           "error": f"{name}() sent {call['method']} {call['url']}, which matches no documented "
+                                    f"endpoint (check the HTTP method and the path)"})
+            continue
 
-    errors.extend(check_mcp_registration(module, function_names))
+        # The endpoint HAS a tool; any problems with it are reported against the tool,
+        # not repeated as "no working tool for endpoint ...".
+        covered.add(index)
+        for problem in check_request(name, getattr(module, name), call, ENDPOINTS[index]):
+            errors.append({"function": name, "endpoint_index": None, "error": problem})
 
-    for i, ep in enumerate(endpoints):
+    for i, ep in enumerate(ENDPOINTS):
         if i not in covered:
             errors.append({"function": None, "endpoint_index": i,
                            "error": f"no working tool for endpoint {ep.get('method')} {ep.get('path')}"})

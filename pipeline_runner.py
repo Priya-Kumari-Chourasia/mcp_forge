@@ -35,6 +35,7 @@ RUN_LOCK = threading.Lock()
 SHOWN_KEYS = [
     "orchestration_plan", "max_code_attempts", "endpoints", "rag_candidates", "rag_trace",
     "codegen_attempt", "attempt_history", "test_passed", "test_output", "output_path",
+    "api_meta", "selection_note", "mcp_client_check",
 ]
 
 _validator_server = None
@@ -64,9 +65,11 @@ def ensure_validator_running() -> dict:
 
 class BugInjector:
     """DEMO ONLY. Wraps the LLM and breaks the FIRST piece of generated code on
-    purpose (it strips the host from one URL), so the self-correcting loop has
-    something to correct. The validator's error and the fix on the next attempt
-    are then real."""
+    purpose (it swaps the HTTP method of one tool, e.g. GET -> POST), so the
+    self-correcting loop has something to correct. The validator's error and
+    the fix on the next attempt are then real."""
+
+    WRONG_METHOD = {"GET": "POST", "POST": "GET", "PUT": "GET", "PATCH": "GET", "DELETE": "GET"}
 
     def __init__(self, real_llm):
         self.real_llm = real_llm
@@ -76,10 +79,11 @@ class BugInjector:
         code = self.real_llm(prompt)
         is_first_codegen = prompt.startswith(nodes.CODEGEN_INSTRUCTIONS) and "FAILED validation" not in prompt
         if is_first_codegen and not self.injected:
-            broken, count = re.subn(r"https?://[A-Za-z0-9.\-:]+", "", code, count=1)
-            if count:
+            # The first _request("METHOD", ...) call in the code.
+            match = re.search(r"""_request\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']""", code)
+            if match:
                 self.injected = True
-                return broken
+                return code[:match.start(1)] + self.WRONG_METHOD[match.group(1)] + code[match.end(1):]
         return code
 
 

@@ -56,11 +56,23 @@ def prepare_docs(text: str) -> str:
 
 
 def get_docs_input() -> tuple:
-    """Returns (docs_text, source_url). source_url is None unless --url was used."""
+    """Returns (docs_text, source_url, options). source_url is None unless --url was used.
+    options = {"selection": {...}, "extra_auth": [...]} from the optional flags."""
     parser = argparse.ArgumentParser(description="MCP-Forge: turn API docs into a tested MCP server")
     parser.add_argument("--file", help="Path to a local file with API docs or an OpenAPI spec")
     parser.add_argument("--url", help="URL to fetch API docs or an OpenAPI spec from")
     parser.add_argument("--text", help="Raw API docs text, passed directly")
+    # Which endpoints become tools. Large APIs have hundreds; an AI client works best with a focused set.
+    parser.add_argument("--tags", nargs="+", metavar="TAG",
+                        help="Only endpoints with one of these OpenAPI tags, e.g. --tags pet store")
+    parser.add_argument("--paths", nargs="+", metavar="PATTERN",
+                        help='Only endpoints whose path matches a pattern, e.g. --paths "/pet*"')
+    parser.add_argument("--max-tools", type=int, metavar="N",
+                        help="At most N tools (default 40); the first N selected endpoints are kept")
+    # For APIs whose docs do not declare their authentication (GitHub's spec, for example).
+    parser.add_argument("--auth", action="append", metavar="KIND",
+                        help="Credential the API needs: bearer, basic, header:NAME or query:NAME. "
+                             "The generated server reads it from an environment variable.")
     args = parser.parse_args()
 
     sources_given = sum(bool(x) for x in [args.file, args.url, args.text])
@@ -68,22 +80,34 @@ def get_docs_input() -> tuple:
         parser.error("You must provide one of: --file, --url, or --text")
     if sources_given > 1:
         parser.error("Provide only ONE of --file, --url, or --text, not multiple")
+    if args.max_tools is not None and args.max_tools < 1:
+        parser.error("--max-tools must be at least 1")
+
+    from server_template import parse_auth_option
+    try:
+        extra_auth = [parse_auth_option(option) for option in args.auth or []]
+    except ValueError as e:
+        parser.error(str(e))
+    options = {
+        "selection": {"tags": args.tags or [], "paths": args.paths or [], "max_tools": args.max_tools},
+        "extra_auth": extra_auth,
+    }
 
     if args.file:
         path = Path(args.file)
         if not path.exists():
             print(f"ERROR: File not found: {args.file}", file=sys.stderr)
             sys.exit(1)
-        return prepare_docs(path.read_text(encoding="utf-8")), None
+        return prepare_docs(path.read_text(encoding="utf-8")), None, options
 
     if args.url:
         import requests
         try:
             response = requests.get(args.url, timeout=10)
             response.raise_for_status()
-            return prepare_docs(response.text), args.url
+            return prepare_docs(response.text), args.url, options
         except requests.RequestException as e:
             print(f"ERROR: Could not fetch {args.url}: {e}", file=sys.stderr)
             sys.exit(1)
 
-    return args.text, None
+    return args.text, None, options

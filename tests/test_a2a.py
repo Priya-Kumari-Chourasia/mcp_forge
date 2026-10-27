@@ -3,12 +3,13 @@ callable with SendMessage, by the official a2a-sdk client."""
 import requests
 
 from a2a_client import validate_via_a2a
+from server_template import render_header
 
-GOOD = '''import requests
+GOOD = render_header({"title": "", "base_url": "https://catfact.ninja", "auth": []}) + '''
 
-def get_fact() -> dict:
+def get_fact() -> Union[dict, list, str]:
     """Returns a random cat fact."""
-    return requests.get("https://catfact.ninja/fact", timeout=30).json()
+    return _request("GET", "/fact")
 '''
 ENDPOINTS = [{"method": "GET", "path": "/fact", "base_url": "https://catfact.ninja", "description": "fact"}]
 
@@ -36,8 +37,8 @@ def test_agent_card_is_served_at_the_well_known_path(validator_agent_base_url):
 def test_official_sdk_client_can_discover_and_call_the_agent(validator_agent_base_url):
     result = validate_via_a2a(validator_agent_base_url, GOOD, ENDPOINTS)
     assert result == {"passed": True, "errors": [],
-                      "output": "1 tool(s) each called the correct method and URL "
-                                "and registered on an MCP server: ['get_fact']"}
+                      "output": "1 tool(s) passed: each was called through an MCP server and sent the documented "
+                                "method, path, required parameters and body: ['get_fact']"}
 
 
 def test_send_message_returns_a_completed_task_with_the_verdict_in_artifacts(validator_agent_base_url):
@@ -49,7 +50,7 @@ def test_send_message_returns_a_completed_task_with_the_verdict_in_artifacts(val
 
 def test_code_that_fails_validation_is_still_a_completed_task(validator_agent_base_url):
     """'The code is wrong' is the agent's answer, not a failure of the agent."""
-    task = send_message(validator_agent_base_url, GOOD.replace("https://catfact.ninja", ""))["result"]["task"]
+    task = send_message(validator_agent_base_url, GOOD.replace('_request("GET"', '_request("POST"'))["result"]["task"]
     assert task["status"]["state"] == "TASK_STATE_COMPLETED"
     verdict = task["artifacts"][1]["parts"][0]["data"]
     assert verdict["passed"] is False

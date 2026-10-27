@@ -65,15 +65,17 @@ def scripted_llm(prompt):
         return json.dumps({"sufficient": False, "missing": "what the endpoint does and its parameters",
                            "next_query": "removing a widget permanently force flag recycle bin"})
 
-    # code generation: one function per endpoint in the prompt
+    # code generation: one function per endpoint in the prompt, in the server template's style
     endpoints = json.loads(prompt.split("Endpoints:\n")[1].split("\nYour previous code")[0])
-    code = "import requests\n"
+    code = ""
     for ep in endpoints:
-        args = [p["name"] for p in ep["parameters"] if p["in"] == "path"]
-        name = (ep["method"] + re.sub(r"\W+", "_", ep["path"])).lower().strip("_")
-        url = ep["base_url"] + ep["path"]
-        code += (f'\ndef {name}({", ".join(a + ": str" for a in args)}) -> dict:\n    """{ep["description"]}"""\n'
-                 f'    return requests.{ep["method"].lower()}(f"{url}", timeout=30).json()\n')
+        path_args = [p["name"] for p in ep["parameters"] if p["in"] == "path"]
+        query = [p["name"] for p in ep["parameters"] if p["in"] == "query"]
+        signature = [f"{a}: str" for a in path_args] + [f"{q}: Optional[str] = None" for q in query]
+        params = "{" + ", ".join(f'"{q}": {q}' for q in query) + "}"
+        code += (f'\ndef {ep["name"]}({", ".join(signature)}) -> Union[dict, list, str]:\n'
+                 f'    """{ep["description"]}"""\n'
+                 f'    return _request("{ep["method"]}", f"{ep["path"]}", params={params})\n')
     return code
 
 
@@ -120,7 +122,7 @@ def test_gives_up_after_max_rounds_but_keeps_the_endpoint(tmp_path, monkeypatch,
 
     assert len(result["rag_trace"]) == rag_nodes.MAX_RETRIEVAL_ROUNDS
     assert result["endpoints"] == [{"method": "GET", "path": "/ping", "description": "GET /ping",
-                                    "base_url": "", "parameters": []}]
+                                    "base_url": "", "parameters": [], "name": "get_ping"}]
 
 
 def test_openapi_specs_skip_rag_entirely(tmp_path, monkeypatch, validator_agent_url):

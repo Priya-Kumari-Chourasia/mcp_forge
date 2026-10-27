@@ -41,6 +41,7 @@ for _key in ("GROQ_API_KEY", "USE_REAL_LLM", "EMBEDDINGS", "PUBLIC_DEMO", "MAX_L
 import requests                                              # noqa: E402
 import llm                                                   # noqa: E402
 import pipeline_runner as runner                             # noqa: E402
+import server_template                                       # noqa: E402
 from cli import prepare_docs                                 # noqa: E402
 
 PUBLIC_DEMO = os.getenv("PUBLIC_DEMO", "false").lower() == "true"
@@ -131,9 +132,11 @@ def draw(events, slots, finished: bool, run_id: str):
         else:
             c5.metric("Result", "stopped" if stopped_early else "running")
         if state.get("bug_injected"):
-            st.info("Demo switch is ON: the first generated tool was broken on purpose (its URL lost its host) "
-                    "so that the self-correcting loop has an error to fix. The validator's error and the "
-                    "repair on the next attempt are real.")
+            st.info("Demo switch is ON: the first generated tool was broken on purpose (its HTTP method was "
+                    "swapped, for example GET to POST) so that the self-correcting loop has an error to fix. "
+                    "The validator's error and the repair on the next attempt are real.")
+        if state.get("selection_note"):
+            st.warning(f"Endpoint selection: {state['selection_note']}.")
         if stopped_early:
             st.warning("The pipeline stopped before generating code: no usable endpoints were extracted.")
 
@@ -155,7 +158,8 @@ def draw(events, slots, finished: bool, run_id: str):
         if endpoints:
             st.markdown(f"**{len(endpoints)} endpoint(s) extracted**")
             st.dataframe(
-                [{"Method": e.get("method"), "Path": e.get("path"), "Description": e.get("description"),
+                [{"Tool": e.get("name") or "", "Method": e.get("method"), "Path": e.get("path"),
+                  "Description": e.get("description"),
                   "Parameters": ", ".join(p.get("name", "") for p in e.get("parameters") or []),
                   "Body fields": ", ".join((e.get("request_body") or {}).get("fields") or []),
                   "Base URL": e.get("base_url")} for e in endpoints],
@@ -209,8 +213,19 @@ def draw(events, slots, finished: bool, run_id: str):
     with slots["output"].container():
         code = state.get("server_code")
         if code:
-            tools = re.findall(r"@server\.tool\(\)\s+(?:async\s+)?def (\w+)", code)
+            tools = server_template.tool_names_in(code)      # the public functions = the tools
             st.markdown(f"**Generated MCP server - {len(tools)} tool(s):** " + ", ".join(f"`{t}`" for t in tools))
+            check = state.get("mcp_client_check")
+            if check and check.get("passed"):
+                st.success(f"MCP client check passed: server.py was started over stdio, as Claude Desktop does, "
+                           f"and listed {check['tools_listed']} tool(s).")
+            elif check:
+                st.error(f"MCP client check failed: {check.get('error') or 'missing ' + str(check.get('missing'))}")
+            env_names = server_template.auth_env_names(state.get("api_meta") or {})
+            if env_names:
+                st.caption("Credentials are read from environment variables, never from the AI: "
+                           + ", ".join(f"`{n}`" for n in env_names)
+                           + ". The generated claude_desktop_config.json has a place for each.")
             if finished:
                 st.download_button("Download server.py", code, file_name="server.py", key=f"download-{run_id}")
             st.code(code, language="python")
@@ -268,8 +283,8 @@ with st.sidebar:
         own_text = st.text_area("...or paste the documentation", height=180)
 
     inject_bug = st.toggle("Demo: break the first attempt on purpose",
-                           help="Strips the host from one generated URL so the self-correcting loop has an error "
-                                "to fix. Without it, the model usually gets the code right first time.")
+                           help="Swaps the HTTP method of one generated tool so the self-correcting loop has an "
+                                "error to fix. Without it, the model usually gets the code right first time.")
 
     save_recording = False
     if mode == "Live run" and not PUBLIC_DEMO and choice != "My own docs":

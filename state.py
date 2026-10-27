@@ -16,6 +16,12 @@ class ForgeState(TypedDict):
     # --- input ---
     raw_docs: str                       # the API documentation text we start with
     source_url: Optional[str]           # where the docs came from (used to resolve relative server URLs)
+    selection: dict                     # which endpoints to keep: {"tags": [...], "paths": [...], "max_tools": n}
+    extra_auth: List[dict]              # credentials the docs don't declare but the user says are needed (--auth)
+
+    # --- the API as a whole ---
+    api_meta: Optional[dict]            # {"title", "base_url", "auth"}: used to build the server around the tools
+    selection_note: Optional[str]       # what the selection left out, if anything
 
     # --- orchestrator ---
     orchestration_plan: Optional[str]   # "simple" or "complex"
@@ -45,3 +51,4 @@ class ForgeState(TypedDict):
 
     # --- output ---
     output_path: Optional[str]
+    mcp_client_check: Optional[dict]    # result of connecting a real MCP client to the packaged server

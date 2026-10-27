@@ -86,12 +86,9 @@ def _fake_llm_call(prompt: str) -> str:
         return ('{"sufficient": true, "endpoint": {"method": "GET", "path": "/fact", '
                 '"base_url": "https://catfact.ninja", "parameters": [], '
                 '"description": "Returns a random cat fact"}}')
-    # generate_tool's question
+    # generate_tool's question: a tool function that calls the header's _request()
     return (
-        "import requests\n\n"
-        "def get_fact() -> dict:\n"
+        "def get_fact() -> Union[dict, list, str]:\n"
         '    """Returns a random cat fact."""\n'
-        '    response = requests.get("https://catfact.ninja/fact", timeout=30)\n'
-        "    response.raise_for_status()\n"
-        "    return response.json()\n"
+        '    return _request("GET", "/fact")\n'
     )

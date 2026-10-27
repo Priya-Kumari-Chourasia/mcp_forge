@@ -15,7 +15,9 @@ def test_one_event_per_node_ending_with_the_packaged_server(monkeypatch, tmp_pat
     assert events[0]["node"] == "start"
     assert events[0]["state"]["agent_card"]["name"] == "MCP-Forge Validator"
     assert events[-1]["node"] == "package_server"
-    assert "@server.tool()" in events[-1]["state"]["server_code"]
+    # get_fact is a GET, so the packaged tool is marked read-only for MCP clients.
+    assert "@server.tool(annotations=ToolAnnotations(read_only_hint=True" in events[-1]["state"]["server_code"]
+    assert events[-1]["state"]["mcp_client_check"]["passed"] is True
     assert [a["passed"] for a in events[-1]["state"]["attempt_history"]] == [True]
 
 
@@ -23,7 +25,8 @@ def test_demo_switch_breaks_attempt_1_and_the_loop_repairs_it(monkeypatch, tmp_p
     real_llm = nodes.call_llm
     events = run(monkeypatch, tmp_path, validator_agent_url, inject_bug=True)
     first, second = events[-1]["state"]["attempt_history"]
-    assert first["passed"] is False and "not an absolute URL" in first["errors"][0]
+    # The demo switch swapped the tool's HTTP method; the validator names exactly that.
+    assert first["passed"] is False and "get_fact() sent POST https://catfact.ninja/fact" in first["errors"][0]
     assert second["passed"] is True
     assert nodes.call_llm is real_llm                    # the injector is removed afterwards
 

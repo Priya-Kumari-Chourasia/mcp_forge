@@ -24,13 +24,12 @@ SPEC = json.dumps({
     }}},
 })
 
-BUGGY = '''import requests
-
-def get_users(id: int) -> dict:
+BUGGY = '''def get_users_id(id: int) -> Union[dict, list, str]:
     """Get a user."""
-    return requests.get(f"/users/{id}", timeout=30).json()
+    return _request("GET", f"/user/{id}")
 '''
-FIXED = BUGGY.replace('f"/users/{id}"', 'f"https://api.example.com/users/{id}"')
+FIXED = BUGGY.replace('f"/user/{id}"', 'f"/users/{id}"')
+THE_ERROR = "get_users_id() sent GET https://api.example.com/user/1, which matches no documented endpoint"
 
 
 class ScriptedLLM:
@@ -39,7 +38,7 @@ class ScriptedLLM:
 
     def __call__(self, prompt):
         self.prompts.append(prompt)
-        saw_the_error = "not an absolute URL" in prompt and BUGGY in prompt
+        saw_the_error = THE_ERROR in prompt and BUGGY in prompt
         return FIXED if saw_the_error else BUGGY
 
 
@@ -55,17 +54,19 @@ def test_failed_on_attempt_1_fixed_on_attempt_2(tmp_path, monkeypatch, validator
 
     first, second = result["attempt_history"]
     assert first["passed"] is False
-    assert any("not an absolute URL" in e for e in first["errors"])
+    assert any(THE_ERROR in e for e in first["errors"])
     assert second["passed"] is True
 
     # The retry prompt contained the validator's error and the previous code.
     assert "FAILED validation" not in llm.prompts[0]
-    assert "not an absolute URL" in llm.prompts[1] and BUGGY in llm.prompts[1]
+    assert THE_ERROR in llm.prompts[1] and BUGGY in llm.prompts[1]
 
     # The packaged server is the FIXED code, and the report records both attempts.
-    assert "https://api.example.com/users/" in open(result["output_path"]).read()
+    server_code = open(result["output_path"]).read()
+    assert '_request("GET", f"/users/{id}")' in server_code and "/user/{id}" not in server_code
     report = json.load(open(tmp_path / "generated" / "https-api-example-com" / "validation_report.json"))
     assert [a["passed"] for a in report["attempts"]] == [False, True]
+    assert report["mcp_client_check"]["passed"] is True          # a real MCP client connected to server.py
 
 
 def test_only_the_failing_batch_is_regenerated():
@@ -104,10 +105,10 @@ def test_two_batches_only_the_broken_one_is_regenerated(tmp_path, monkeypatch, v
         calls.append(prompt)
         endpoints_section = prompt.split("Your previous code")[0]
         is_retry = "FAILED validation" in prompt
-        code = "import requests\n"
+        code = ""
         for n in re.findall(r'"path": "/r(\d+)"', endpoints_section):
-            base = "" if (n == "15" and not is_retry) else "https://api.example.com"
-            code += f'\ndef get_r{n}() -> dict:\n    """resource {n}"""\n    return requests.get("{base}/r{n}", timeout=30).json()\n'
+            method = "POST" if (n == "15" and not is_retry) else "GET"       # the bug: r15 uses the wrong method
+            code += f'\ndef get_r{n}() -> Union[dict, list, str]:\n    """resource {n}"""\n    return _request("{method}", "/r{n}")\n'
         return code
 
     monkeypatch.setattr(nodes, "call_llm", llm)
@@ -118,4 +119,4 @@ def test_two_batches_only_the_broken_one_is_regenerated(tmp_path, monkeypatch, v
     assert result["test_passed"] is True
     assert [a["batches"] for a in result["attempt_history"]] == [[1, 2], [2]]
     assert len(calls) == 3                      # 2 batches, then 1 regeneration
-    assert "get_r15() called '/r15'" in calls[2]
+    assert "get_r15() sent POST https://api.example.com/r15" in calls[2]

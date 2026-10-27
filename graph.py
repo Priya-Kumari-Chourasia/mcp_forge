@@ -82,26 +82,28 @@ def build_graph():
     return workflow.compile()
 
 
-def initial_state(raw_docs: str, source_url: str = None) -> dict:
+def initial_state(raw_docs: str, source_url: str = None, selection: dict = None, extra_auth: list = None) -> dict:
     return {
         "raw_docs": raw_docs, "source_url": source_url,
+        "selection": selection or {}, "extra_auth": extra_auth or [],
+        "api_meta": None, "selection_note": None,
         "orchestration_plan": None, "max_code_attempts": 2,
         "endpoints": None, "missing_fields": None,
         "rag_candidates": None, "rag_cursor": 0, "rag_round": 0, "rag_query": None,
         "rag_next_query": None, "rag_context": None, "rag_trace": [],
         "code_batches": None, "generated_code": None, "codegen_attempt": 0,
         "test_passed": None, "test_output": None, "test_errors": None,
-        "attempt_history": [], "output_path": None,
+        "attempt_history": [], "output_path": None, "mcp_client_check": None,
     }
 
 
-def run(raw_docs: str, source_url: str = None) -> dict:
-    return build_graph().invoke(initial_state(raw_docs, source_url), RUN_CONFIG)
+def run(raw_docs: str, source_url: str = None, selection: dict = None, extra_auth: list = None) -> dict:
+    return build_graph().invoke(initial_state(raw_docs, source_url, selection, extra_auth), RUN_CONFIG)
 
 
 if __name__ == "__main__":
-    raw_docs, source_url = get_docs_input()
-    result = run(raw_docs, source_url)
+    raw_docs, source_url, options = get_docs_input()
+    result = run(raw_docs, source_url, options["selection"], options["extra_auth"])
     print("\n=== FINAL ===")
     print(f"Plan: {result['orchestration_plan']}")
     print(f"Output saved to: {result['output_path']}")
