@@ -1,6 +1,9 @@
 # MCP-Forge
 
 [![tests](https://github.com/Priya-Kumari-Chourasia/mcp_forge/actions/workflows/tests.yml/badge.svg)](https://github.com/Priya-Kumari-Chourasia/mcp_forge/actions/workflows/tests.yml)
+[![Live demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://mcp-forge.streamlit.app/)
+
+**Live demo: [mcp-forge.streamlit.app](https://mcp-forge.streamlit.app/)** - start with a *Recorded run* (instant, no waiting), switch on the demo switch to watch the security reviewer catch a broken tool, then ask the generated server a question in the *Try it* tab. Live runs on the demo are limited to the built-in examples.
 
 **Point it at API documentation. Get back a validated MCP (Model Context Protocol) server you can add to Claude Desktop.**
 
@@ -23,7 +26,7 @@ MCP-Forge automates that translation. Give it documentation and it produces a pa
                              /            \
                   (OpenAPI spec)          (prose docs)
                        |                       |
-                  PARSE DOCS              INDEX DOCS              chunk + embed into ChromaDB
+                  PARSE DOCS              INDEX DOCS              chunk; index for keywords (BM25) + meaning (MiniLM)
                   (pure code,                  |
                    no LLM)            DISCOVER ENDPOINTS          which endpoints exist?
                        |                       |
@@ -71,7 +74,7 @@ Why each technology was chosen, and what else was considered, is in [docs/DECISI
 | **httpx** | The HTTP client inside every generated server; the validator replaces its send function with a recorder | `server_template.py`, `behaviour_check.py` |
 | **FastAPI + uvicorn** | Host both agents. The `a2a-sdk` server mounts the A2A routes on each FastAPI app; FastAPI adds the `/docs` page | `a2a_server.py` |
 | **Groq** | LLM backend (`openai/gpt-oss-120b`): extraction, code generation, and the tool-calling chat in the Try it tab | `llm.py`, `try_it.py` |
-| **ChromaDB** | In-memory vector store for the documentation chunks | `rag.py` |
+| **Hybrid retrieval** | MiniLM embeddings (in an in-memory ChromaDB collection) and BM25 keyword ranking, combined by reciprocal rank fusion - chosen by measurement | `rag.py`, `docs/EVALUATION.md` |
 
 ---
 
@@ -120,14 +123,14 @@ python graph.py --url <spec> --max-tools 60                # raise the cap
 
 Plain RAG retrieves once and uses whatever comes back. Here the pipeline checks its own retrieval:
 
-1. **index_docs** - the whole document is split into overlapping 1,200-character chunks and embedded into ChromaDB (all-MiniLM-L6-v2).
+1. **index_docs** - the whole document is split into overlapping 1,200-character chunks, indexed for keyword search (BM25) and embedded into ChromaDB (all-MiniLM-L6-v2).
 2. **discover_endpoints** - the document is scanned window by window to list every `METHOD /path`, so nothing is cut off by a context limit.
-3. **retrieve** - for one endpoint, fetch the 4 most relevant chunks.
+3. **retrieve** - for one endpoint, fetch the 4 most relevant chunks: the MiniLM and BM25 rankings for the query `METHOD /path`, combined.
 4. **grade_retrieval** - the LLM judges whether that context is enough to describe the endpoint. If yes, it extracts the description, parameters and base URL. If no, it says what is missing and proposes a better query.
 5. **rewrite_query** - adopt the better query and retrieve again, up to 3 rounds per endpoint.
 
 ```
-RAG 3 (retrieve) DELETE /widgets/{id} round 1 -> query: "DELETE /widgets/{id} endpoint description parameters base URL"
+RAG 3 (retrieve) DELETE /widgets/{id} round 1 -> query: "DELETE /widgets/{id}"
   GRADE: insufficient (missing: what the endpoint does and its parameters)
 RAG 4 (rewrite_query) -> "removing a widget permanently force flag recycle bin"
 RAG 3 (retrieve) DELETE /widgets/{id} round 2 -> query: "removing a widget permanently force flag recycle bin"
@@ -135,6 +138,17 @@ RAG 3 (retrieve) DELETE /widgets/{id} round 2 -> query: "removing a widget perma
 ```
 
 OpenAPI specs skip RAG entirely. A spec is already structured, so `spec_parser.py` reads it in code with zero LLM calls: absolute base URL, path-level and `$ref` parameters, descriptions and allowed values, request bodies (JSON, form data, lists), whether the response is a JSON array or object, security schemes, JSON or YAML, OpenAPI 3 or Swagger 2.
+
+### Measured, not assumed
+
+Retrieval was evaluated on 750 labelled questions from 6 real APIs and two hand-written guides ([docs/EVALUATION.md](docs/EVALUATION.md)). Comparing 4 ranking methods and 2 queries changed how the pipeline retrieves:
+
+| | First-round Hit@4 before | Now |
+|---|---|---|
+| With MiniLM | 0.825 (MiniLM alone) | **0.913** (MiniLM + BM25, fused) |
+| Offline | 0.629 (bag-of-words) | **0.912** (BM25) |
+
+Hit@4 = the chunk describing the endpoint is among the 4 retrieved. Keywords catch exact tokens like `conversations.list` that embeddings blur; embeddings catch endpoints described in words without their path. Run it with `python -m evaluation.retrieval_eval`.
 
 ---
 
@@ -235,8 +249,10 @@ mcp-forge/
 |-- pipeline_runner.py        # Runs the graph step by step for the UI; recordings; demo switch
 |-- demo_runs/                # Recorded runs the UI can replay
 |-- examples/                 # A sample prose API guide
+|-- evaluation/               # Retrieval evaluation: 750 labelled questions, 8 retrieval setups compared
 |-- tests/                    # pytest suite
 |-- docs/DECISIONS.md         # Why each technology and design choice, and the alternatives
+|-- docs/EVALUATION.md        # What was measured, the numbers, and what they changed
 |-- Dockerfile                # Two images: "agents" (minimal) and "app"
 |-- docker-compose.yml        # app + security + validator; the agents locked down and offline
 |-- requirements.txt          # Everything (includes requirements-agents.txt)
@@ -335,6 +351,7 @@ CI runs these on every push, and a second job builds the Docker images, runs the
 | `test_spec_parser.py` | Relative server URLs, path-level and `$ref` parameters, descriptions and enums, response shapes, security schemes, form and list bodies, YAML |
 | `test_server_template.py` | A packaged server, run as its own process and called over MCP, returns a JSON array, reports HTTP 404 with its status, rejects invalid values, and sends credentials from environment variables; a path value such as `../pet/1` stays inside its own segment; endpoint selection; the MCP client check |
 | `test_pipeline_runner.py` | The web UI's runner reports every step; the demo switch triggers a real correction; with `START_LOCAL_AGENTS=false` an unreachable agent stops the run instead of being started inside the app |
+| `test_evaluation.py` | The evaluation measures correctly: metrics on known rankings, the random baseline against brute force over every ordering, every question answerable, labels in the right place, each query embedded once; and the pipeline's search returns exactly what was measured |
 | `test_try_it.py` | The chat calls the server's tools over MCP and answers from the API's data; errors reach the model with their status code; tools that change data are offered only when allowed; the loop stops after a fixed number of calls; the server never sees the Groq key |
 
 The loop tests use a scripted LLM so they are deterministic.

@@ -11,7 +11,7 @@ Pipeline
 2. [OpenAPI specs are parsed in code, not by the LLM](#2-openapi-specs-are-parsed-in-code-not-by-the-llm)
 3. [LangGraph for the pipeline](#3-langgraph-for-the-pipeline)
 4. [Agentic RAG for prose docs](#4-agentic-rag-for-prose-docs)
-5. [ChromaDB and MiniLM for retrieval](#5-chromadb-and-minilm-for-retrieval)
+5. [Hybrid retrieval, chosen by measurement](#5-hybrid-retrieval-chosen-by-measurement)
 
 Agents
 6. [Two separate agents, reached over A2A](#6-two-separate-agents-reached-over-a2a)
@@ -138,27 +138,50 @@ of a long prompt.
 **Proof.** `test_agentic_rag.py`: an endpoint past the first 6,000 characters is
 found, and an insufficient retrieval triggers a rewritten query.
 
-## 5. ChromaDB and MiniLM for retrieval
+## 5. Hybrid retrieval, chosen by measurement
 
-**Decision.** Chunks of 1,200 characters (200 overlap) are embedded with
-all-MiniLM-L6-v2 and stored in an in-memory ChromaDB collection.
+**Decision.**
+- Chunks of 1,200 characters (200 overlap).
+- With MiniLM (the default with a real LLM): each chunk is ranked two ways,
+  by all-MiniLM-L6-v2 embeddings (in an in-memory ChromaDB collection) and by
+  BM25 keyword scoring. The two rankings are combined by reciprocal rank fusion
+  (RRF, k = 60).
+- Without MiniLM (offline, the tests): BM25 alone.
+- The first-round query is just `METHOD /path`.
 
-**Why.**
-- ChromaDB's default embedding function runs MiniLM through ONNX, so there is
-  no PyTorch to install.
-- The in-memory client needs no server.
-- The same code would work with a persistent store if indexes had to be kept.
+**Why.** It was measured ([EVALUATION.md](EVALUATION.md#1-retrieval-quality)):
+750 labelled questions, 4 ranking methods times 2 queries, with the rule for
+switching fixed before the MiniLM results existed.
+- **Hit@4 (a relevant chunk among the 4 retrieved) rose from 0.825 to 0.913**
+  with MiniLM, and from 0.629 to 0.912 offline.
+- **Keywords and meaning fail in different places.** Paths and parameter names
+  are exact tokens (`conversations.list`, `petId`) that BM25 matches and
+  embeddings blur; text that describes an endpoint without naming it is matched
+  by meaning, not by keywords. In the Bookstore guide, BM25 misses the endpoint
+  described only in words and MiniLM misses one whose path is in the text;
+  hybrid finds both.
+- **RRF combines rankings, not scores.** Cosine similarities and BM25 scores are
+  on different scales; RRF uses only the ranks, so there is nothing to calibrate.
+- **The query lost its generic words.** "endpoint description parameters base
+  URL" matched unrelated text and lowered Hit@4 for every method.
+- **Offline, BM25 alone beats BM25 plus the old hash embedding** (0.912 vs 0.840,
+  reproduced with `python -m evaluation.retrieval_eval --only hash+bm25`),
+  so the hash embedding was removed from the pipeline.
 
-**Honest note.** At this size (one document, at most a few hundred chunks), a
-NumPy cosine similarity over the vectors would do the same job. ChromaDB is more
-than this needs.
+**Why ChromaDB and ONNX.** ChromaDB's default embedding function runs MiniLM
+through ONNX, so there is no PyTorch to install, and the in-memory client needs
+no server. **Honest note:** at this size (one document, at most a few hundred
+chunks) a NumPy array of vectors would do the same job.
 
-**Planned improvement.** Hybrid retrieval: BM25 plus embeddings. Endpoint paths
-and parameter names are exact tokens, which keyword search finds better than
-embeddings do.
+**Alternatives.** MiniLM alone (the old setup): best at rank 1, but misses more
+in the top 4. BM25 alone: one question behind hybrid on Hit@4, clearly behind on
+Hit@1 and MRR. A cross-encoder re-ranker: likely better again, but one more
+model to download and run for every query.
 
-**Tests.** They use a hash-based embedding (`EMBEDDINGS=hash`), so they run
-offline and give the same result every time.
+**Proof.** `evaluation/retrieval_eval.py` imports the ranking code from `rag.py`,
+and `test_the_pipeline_searches_exactly_as_measured` checks that the pipeline's
+search returns the evaluation's top 4 in the same order. Tests run offline on
+BM25 (`EMBEDDINGS=none`), so they need no download and give the same result every time.
 
 ## 6. Two separate agents, reached over A2A
 
@@ -747,5 +770,6 @@ What is weak today, and why it was left that way:
 | Instruction-like text detection is a phrase list | It only warns; a person judges | Better detection; it can never be complete |
 | Responses are not checked against the real API | Checking them would mean calling real APIs with real credentials | Optional live check of read-only tools |
 | One base URL per server; no OAuth flow; no file uploads | They cover most REST APIs; OAuth works with a token you already have | Extend `_request` |
-| ChromaDB is more than this needs | It does no harm and would work with a persistent store | Hybrid BM25 retrieval (entry 5) |
+| ChromaDB is more than this needs | It does no harm and would work with a persistent store | A NumPy array of vectors |
+| The retrieval choice was made and scored on the same 750 questions | The gain (+66 questions) is far larger than the optimism this causes | Re-measure on a held-out set of new APIs |
 | Only one live run at a time (`RUN_LOCK`) | The RAG index and the demo switch are module-level | Per-run state |

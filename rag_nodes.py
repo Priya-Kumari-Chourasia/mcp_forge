@@ -10,7 +10,7 @@ checks its own retrieval and tries again when it is not good enough:
                                            |              |
                                            +- rewrite_query <-- insufficient
 
-  index_docs          chunk the whole document and embed it into ChromaDB
+  index_docs          chunk the whole document and index it (BM25, plus MiniLM embeddings in ChromaDB)
   discover_endpoints  scan the document window by window and list every
                       "METHOD /path" it mentions (so nothing is cut off)
   retrieve            for ONE endpoint, fetch the most relevant chunks
@@ -100,10 +100,19 @@ def route_after_discovery(state: ForgeState) -> str:
     return "retrieve" if state["rag_candidates"] else "none_found"
 
 
+def first_round_query(method: str, path: str) -> str:
+    """The query for an endpoint's first retrieval round, before any rewrite:
+    just "METHOD /path". Generic words such as "endpoint description parameters"
+    were measured to hurt (docs/EVALUATION.md): they match unrelated text, e.g.
+    "description" pulled up a chunk about setDescription. Retrieval is measured
+    with exactly this function (evaluation/retrieval_eval.py)."""
+    return f"{method} {path}"
+
+
 def retrieve_node(state: ForgeState) -> ForgeState:
     candidate = state["rag_candidates"][state["rag_cursor"]]
     # First round: a default query built from the endpoint. Later rounds: the rewritten query.
-    query = state.get("rag_query") or f"{candidate['method']} {candidate['path']} endpoint description parameters base URL"
+    query = state.get("rag_query") or first_round_query(candidate["method"], candidate["path"])
     state["rag_query"] = query
     state["rag_round"] = state.get("rag_round", 0) + 1
 

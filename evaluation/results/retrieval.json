@@ -1,0 +1,7872 @@
+{
+ "summary": {
+  "random": {
+   "all": {
+    "hit@1": 0.07264585779517287,
+    "hit@4": 0.21760413306973783,
+    "recall@4": 0.1982361382909328,
+    "mrr": 0.1786941127136467,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.38571428571428573,
+    "hit@4": 0.8142857142857143,
+    "recall@4": 0.7857142857142857,
+    "mrr": 0.6012585034013606,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.07315315315315316,
+    "hit@4": 0.22696289173824477,
+    "recall@4": 0.20553410553410553,
+    "mrr": 0.18356583535405924,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.06367725357451384,
+    "hit@4": 0.19211884517917746,
+    "recall@4": 0.17506038327956136,
+    "mrr": 0.16240173086545814,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.6,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.8
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.17142857142857143,
+     "hit@4": 0.6285714285714286,
+     "recall@4": 0.5714285714285714,
+     "mrr": 0.40251700680272107
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.20000000000000004,
+     "hit@4": 0.8000000000000002,
+     "recall@4": 0.8000000000000002,
+     "mrr": 0.4566666666666667
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.16666666666666666,
+     "hit@4": 0.6666666666666666,
+     "recall@4": 0.6666666666666666,
+     "mrr": 0.4083333333333334
+    },
+    "circleci (reference)": {
+     "hit@1": 0.18939393939393936,
+     "hit@4": 0.7030303030303031,
+     "recall@4": 0.6666666666666666,
+     "mrr": 0.4317424242424242
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.16233766233766234,
+     "hit@4": 0.6103896103896104,
+     "recall@4": 0.5714285714285714,
+     "mrr": 0.3923005565862709
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.11917808219178083,
+     "hit@4": 0.4511415525114156,
+     "recall@4": 0.4,
+     "mrr": 0.31893352419608123
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.09817351598173515,
+     "hit@4": 0.3765047737650477,
+     "recall@4": 0.3333333333333333,
+     "mrr": 0.2806476524720609
+    },
+    "spotify (reference)": {
+     "hit@1": 0.028409090909090908,
+     "hit@4": 0.11229014887551472,
+     "recall@4": 0.09523809523809522,
+     "mrr": 0.1144661139138366
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.023200757575757572,
+     "hit@4": 0.09219858156028372,
+     "recall@4": 0.08333333333333333,
+     "mrr": 0.09906106812060068
+    },
+    "slack (reference)": {
+     "hit@1": 0.020114942528735632,
+     "hit@4": 0.0798548094373866,
+     "recall@4": 0.06896551724137931,
+     "mrr": 0.0880796577984887
+    },
+    "slack (narrative)": {
+     "hit@1": 0.01598173515981735,
+     "hit@4": 0.06354642313546424,
+     "recall@4": 0.0547945205479452,
+     "mrr": 0.07358261810487497
+    }
+   }
+  },
+  "hash / path-only": {
+   "all": {
+    "hit@1": 0.364,
+    "hit@4": 0.6333333333333333,
+    "recall@4": 0.6153333333333333,
+    "mrr": 0.510979627471351,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.2,
+    "hit@4": 0.9,
+    "recall@4": 0.9,
+    "mrr": 0.5476190476190477,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.7054054054054054,
+    "hit@4": 0.9459459459459459,
+    "recall@4": 0.9283783783783783,
+    "mrr": 0.8145913770913771,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.02702702702702703,
+    "hit@4": 0.31351351351351353,
+    "recall@4": 0.2945945945945946,
+    "mrr": 0.20637762325273845,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.4,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.7
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.0,
+     "hit@4": 0.8,
+     "recall@4": 0.8,
+     "mrr": 0.3952380952380953
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.5,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.75
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.3333333333333333,
+     "hit@4": 0.8333333333333334,
+     "recall@4": 0.8333333333333334,
+     "mrr": 0.5333333333333333
+    },
+    "circleci (reference)": {
+     "hit@1": 0.8636363636363636,
+     "hit@4": 0.9545454545454546,
+     "recall@4": 0.9545454545454546,
+     "mrr": 0.9053030303030304
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.045454545454545456,
+     "hit@4": 0.6363636363636364,
+     "recall@4": 0.6363636363636364,
+     "mrr": 0.30833333333333335
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.821917808219178,
+     "hit@4": 0.958904109589041,
+     "recall@4": 0.9383561643835616,
+     "mrr": 0.881767775603392
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.6438356164383562,
+     "recall@4": 0.6095890410958904,
+     "mrr": 0.2747010219612959
+    },
+    "spotify (reference)": {
+     "hit@1": 0.6136363636363636,
+     "hit@4": 0.9431818181818182,
+     "recall@4": 0.9147727272727273,
+     "mrr": 0.7656204906204906
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.4090909090909091,
+     "recall@4": 0.36363636363636365,
+     "mrr": 0.1877098166118888
+    },
+    "slack (reference)": {
+     "hit@1": 0.6781609195402298,
+     "hit@4": 0.9367816091954023,
+     "recall@4": 0.9224137931034483,
+     "mrr": 0.7944740923189199
+    },
+    "slack (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.040229885057471264,
+     "recall@4": 0.03735632183908046,
+     "mrr": 0.13106177474229352
+    }
+   }
+  },
+  "hash / generic-words": {
+   "all": {
+    "hit@1": 0.3466666666666667,
+    "hit@4": 0.6293333333333333,
+    "recall@4": 0.6106666666666667,
+    "mrr": 0.4987079943782433,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.2,
+    "hit@4": 0.9,
+    "recall@4": 0.9,
+    "mrr": 0.5283333333333333,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.6648648648648648,
+    "hit@4": 0.9216216216216216,
+    "recall@4": 0.9013513513513514,
+    "mrr": 0.7881083903452325,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.032432432432432434,
+    "hit@4": 0.32972972972972975,
+    "recall@4": 0.31216216216216214,
+    "mrr": 0.2085069135746301,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.4,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.7
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.0,
+     "hit@4": 0.8,
+     "recall@4": 0.8,
+     "mrr": 0.35666666666666663
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.5,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.75
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.3333333333333333,
+     "hit@4": 0.8333333333333334,
+     "recall@4": 0.8333333333333334,
+     "mrr": 0.5333333333333333
+    },
+    "circleci (reference)": {
+     "hit@1": 0.8636363636363636,
+     "hit@4": 0.9545454545454546,
+     "recall@4": 0.9545454545454546,
+     "mrr": 0.9053030303030304
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.13636363636363635,
+     "hit@4": 0.6818181818181818,
+     "recall@4": 0.6818181818181818,
+     "mrr": 0.3515151515151515
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.7671232876712328,
+     "hit@4": 0.9315068493150684,
+     "recall@4": 0.910958904109589,
+     "mrr": 0.8469341161121983
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.7123287671232876,
+     "recall@4": 0.684931506849315,
+     "mrr": 0.2846112791318271
+    },
+    "spotify (reference)": {
+     "hit@1": 0.5681818181818182,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.8806818181818182,
+     "mrr": 0.7303030303030303
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.3977272727272727,
+     "recall@4": 0.3522727272727273,
+     "mrr": 0.18186629541065932
+    },
+    "slack (reference)": {
+     "hit@1": 0.6379310344827587,
+     "hit@4": 0.9137931034482759,
+     "recall@4": 0.8936781609195402,
+     "mrr": 0.770635520794323
+    },
+    "slack (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.04597701149425287,
+     "recall@4": 0.04310344827586207,
+     "mrr": 0.12892739837079545
+    }
+   }
+  },
+  "bm25 / path-only": {
+   "all": {
+    "hit@1": 0.468,
+    "hit@4": 0.912,
+    "recall@4": 0.9013333333333333,
+    "mrr": 0.6670582708203076,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.2,
+    "hit@4": 0.9,
+    "recall@4": 0.9,
+    "mrr": 0.5666666666666667,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.8783783783783784,
+    "hit@4": 0.9864864864864865,
+    "recall@4": 0.9837837837837838,
+    "mrr": 0.9313063063063063,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.06486486486486487,
+    "hit@4": 0.8378378378378378,
+    "recall@4": 0.8189189189189189,
+    "mrr": 0.40552352193305596,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.4,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.7
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.0,
+     "hit@4": 0.8,
+     "recall@4": 0.8,
+     "mrr": 0.4333333333333333
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.8333333333333334,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9166666666666666
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.16666666666666666,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.5277777777777778
+    },
+    "circleci (reference)": {
+     "hit@1": 0.8181818181818182,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.9090909090909091,
+     "mrr": 0.8742424242424243
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.8636363636363636,
+     "recall@4": 0.8636363636363636,
+     "mrr": 0.3793290043290043
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.9178082191780822,
+     "hit@4": 0.9863013698630136,
+     "recall@4": 0.9863013698630136,
+     "mrr": 0.9525114155251141
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.9178082191780822,
+     "recall@4": 0.9178082191780822,
+     "mrr": 0.3949934768427919
+    },
+    "spotify (reference)": {
+     "hit@1": 0.8522727272727273,
+     "hit@4": 0.9772727272727273,
+     "recall@4": 0.9659090909090909,
+     "mrr": 0.9126893939393939
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.022727272727272728,
+     "hit@4": 0.6704545454545454,
+     "recall@4": 0.6420454545454546,
+     "mrr": 0.29780849932638404
+    },
+    "slack (reference)": {
+     "hit@1": 0.8793103448275862,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9367816091954023
+    },
+    "slack (narrative)": {
+     "hit@1": 0.08045977011494253,
+     "hit@4": 0.8735632183908046,
+     "recall@4": 0.8477011494252874,
+     "mrr": 0.4395984287533352
+    }
+   }
+  },
+  "bm25 / generic-words": {
+   "all": {
+    "hit@1": 0.42,
+    "hit@4": 0.8546666666666667,
+    "recall@4": 0.8386666666666667,
+    "mrr": 0.6095724147688771,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.5,
+    "hit@4": 0.9,
+    "recall@4": 0.9,
+    "mrr": 0.6416666666666667,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.727027027027027,
+    "hit@4": 0.981081081081081,
+    "recall@4": 0.977027027027027,
+    "mrr": 0.84993564993565,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.11081081081081082,
+    "hit@4": 0.727027027027027,
+    "recall@4": 0.6986486486486486,
+    "mrr": 0.36834176738865043,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.0,
+     "hit@4": 0.8,
+     "recall@4": 0.8,
+     "mrr": 0.2833333333333333
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.8333333333333334,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9166666666666666
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.16666666666666666,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.5277777777777778
+    },
+    "circleci (reference)": {
+     "hit@1": 0.7272727272727273,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.9090909090909091,
+     "mrr": 0.8287878787878789
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.18181818181818182,
+     "hit@4": 0.8636363636363636,
+     "recall@4": 0.8409090909090909,
+     "mrr": 0.4172077922077922
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.5616438356164384,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.7751141552511416
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.2876712328767123,
+     "hit@4": 0.821917808219178,
+     "recall@4": 0.8082191780821918,
+     "mrr": 0.5187323331158948
+    },
+    "spotify (reference)": {
+     "hit@1": 0.8409090909090909,
+     "hit@4": 0.9772727272727273,
+     "recall@4": 0.9659090909090909,
+     "mrr": 0.9066287878787879
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.0,
+     "hit@4": 0.6590909090909091,
+     "recall@4": 0.6306818181818182,
+     "mrr": 0.27110395387183855
+    },
+    "slack (reference)": {
+     "hit@1": 0.7241379310344828,
+     "hit@4": 0.9827586206896551,
+     "recall@4": 0.9798850574712644,
+     "mrr": 0.8469896004378764
+    },
+    "slack (narrative)": {
+     "hit@1": 0.04597701149425287,
+     "hit@4": 0.6839080459770115,
+     "recall@4": 0.646551724137931,
+     "mrr": 0.3173368251746004
+    }
+   }
+  },
+  "minilm / path-only": {
+   "all": {
+    "hit@1": 0.5146666666666667,
+    "hit@4": 0.8493333333333334,
+    "recall@4": 0.808,
+    "mrr": 0.6764542117401109,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.5,
+    "hit@4": 0.9,
+    "recall@4": 0.9,
+    "mrr": 0.7166666666666667,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.672972972972973,
+    "hit@4": 0.9081081081081082,
+    "recall@4": 0.8581081081081081,
+    "mrr": 0.7848645837692491,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.3567567567567568,
+    "hit@4": 0.7891891891891892,
+    "recall@4": 0.7554054054054054,
+    "mrr": 0.5669570166048494,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.8,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.2,
+     "hit@4": 0.8,
+     "recall@4": 0.8,
+     "mrr": 0.5333333333333333
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.5,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.6805555555555555
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.3333333333333333,
+     "hit@4": 0.8333333333333334,
+     "recall@4": 0.8333333333333334,
+     "mrr": 0.5888888888888889
+    },
+    "circleci (reference)": {
+     "hit@1": 0.6818181818181818,
+     "hit@4": 0.8636363636363636,
+     "recall@4": 0.8409090909090909,
+     "mrr": 0.796969696969697
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.4090909090909091,
+     "hit@4": 0.8636363636363636,
+     "recall@4": 0.8181818181818182,
+     "mrr": 0.6493506493506493
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.7671232876712328,
+     "hit@4": 0.9178082191780822,
+     "recall@4": 0.8561643835616438,
+     "mrr": 0.8415525114155251
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.547945205479452,
+     "hit@4": 0.8493150684931506,
+     "recall@4": 0.7945205479452054,
+     "mrr": 0.7026591749194488
+    },
+    "spotify (reference)": {
+     "hit@1": 0.5681818181818182,
+     "hit@4": 0.8636363636363636,
+     "recall@4": 0.8011363636363636,
+     "mrr": 0.7098503657661411
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.2159090909090909,
+     "hit@4": 0.6704545454545454,
+     "recall@4": 0.6590909090909091,
+     "mrr": 0.4511315704497523
+    },
+    "slack (reference)": {
+     "hit@1": 0.6781609195402298,
+     "hit@4": 0.9252873563218391,
+     "recall@4": 0.8793103448275862,
+     "mrr": 0.7924314011908147
+    },
+    "slack (narrative)": {
+     "hit@1": 0.3160919540229885,
+     "hit@4": 0.8045977011494253,
+     "recall@4": 0.7672413793103449,
+     "mrr": 0.5400077618163719
+    }
+   }
+  },
+  "minilm / generic-words": {
+   "all": {
+    "hit@1": 0.49066666666666664,
+    "hit@4": 0.8253333333333334,
+    "recall@4": 0.7853333333333333,
+    "mrr": 0.6494505345498987,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.5,
+    "hit@4": 0.8,
+    "recall@4": 0.75,
+    "mrr": 0.6616666666666666,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.5567567567567567,
+    "hit@4": 0.8783783783783784,
+    "recall@4": 0.8297297297297297,
+    "mrr": 0.7070182466660795,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.4243243243243243,
+    "hit@4": 0.772972972972973,
+    "recall@4": 0.7418918918918919,
+    "mrr": 0.5915526567008322,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.8,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.2,
+     "hit@4": 0.6,
+     "recall@4": 0.5,
+     "mrr": 0.42333333333333334
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.5,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.6805555555555555
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.3333333333333333,
+     "hit@4": 0.8333333333333334,
+     "recall@4": 0.8333333333333334,
+     "mrr": 0.5750000000000001
+    },
+    "circleci (reference)": {
+     "hit@1": 0.6363636363636364,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.8863636363636364,
+     "mrr": 0.7628787878787879
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.45454545454545453,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.8636363636363636,
+     "mrr": 0.6504329004329005
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.6301369863013698,
+     "hit@4": 0.9452054794520548,
+     "recall@4": 0.8904109589041096,
+     "mrr": 0.7767286366601435
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.5342465753424658,
+     "hit@4": 0.8904109589041096,
+     "recall@4": 0.8424657534246576,
+     "mrr": 0.7050668129435252
+    },
+    "spotify (reference)": {
+     "hit@1": 0.48863636363636365,
+     "hit@4": 0.8295454545454546,
+     "recall@4": 0.7670454545454546,
+     "mrr": 0.6476913022517089
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.29545454545454547,
+     "hit@4": 0.6818181818181818,
+     "recall@4": 0.6704545454545454,
+     "mrr": 0.4743853368853369
+    },
+    "slack (reference)": {
+     "hit@1": 0.5344827586206896,
+     "hit@4": 0.8620689655172413,
+     "recall@4": 0.8160919540229885,
+     "mrr": 0.6898394225600109
+    },
+    "slack (narrative)": {
+     "hit@1": 0.41954022988505746,
+     "hit@4": 0.7413793103448276,
+     "recall@4": 0.7068965517241379,
+     "mrr": 0.5798802998792939
+    }
+   }
+  },
+  "hybrid / path-only": {
+   "all": {
+    "hit@1": 0.5666666666666667,
+    "hit@4": 0.9133333333333333,
+    "recall@4": 0.89,
+    "mrr": 0.7250670877855088,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.5,
+    "hit@4": 1.0,
+    "recall@4": 1.0,
+    "mrr": 0.7083333333333333,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.7972972972972973,
+    "hit@4": 0.9675675675675676,
+    "recall@4": 0.9472972972972973,
+    "mrr": 0.8795131820131821,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.33783783783783783,
+    "hit@4": 0.8567567567567568,
+    "recall@4": 0.8297297297297297,
+    "mrr": 0.5710732571916782,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.8,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.2,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.5166666666666667
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.6666666666666666,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.8333333333333334
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.3333333333333333,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.625
+    },
+    "circleci (reference)": {
+     "hit@1": 0.7727272727272727,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.9090909090909091,
+     "mrr": 0.8477272727272727
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.3181818181818182,
+     "hit@4": 0.8636363636363636,
+     "recall@4": 0.8409090909090909,
+     "mrr": 0.5887445887445888
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.821917808219178,
+     "hit@4": 0.9726027397260274,
+     "recall@4": 0.9726027397260274,
+     "mrr": 0.8889432485322896
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.5068493150684932,
+     "hit@4": 0.8767123287671232,
+     "recall@4": 0.8493150684931506,
+     "mrr": 0.6749896222498962
+    },
+    "spotify (reference)": {
+     "hit@1": 0.75,
+     "hit@4": 0.9772727272727273,
+     "recall@4": 0.9431818181818182,
+     "mrr": 0.8545454545454546
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.14772727272727273,
+     "hit@4": 0.7613636363636364,
+     "recall@4": 0.7443181818181818,
+     "mrr": 0.42581004853732124
+    },
+    "slack (reference)": {
+     "hit@1": 0.8103448275862069,
+     "hit@4": 0.9655172413793104,
+     "recall@4": 0.9396551724137931,
+     "mrr": 0.8889483919656334
+    },
+    "slack (narrative)": {
+     "hit@1": 0.3390804597701149,
+     "hit@4": 0.8850574712643678,
+     "recall@4": 0.8505747126436781,
+     "mrr": 0.5795930891552489
+    }
+   }
+  },
+  "hybrid / generic-words": {
+   "all": {
+    "hit@1": 0.5773333333333334,
+    "hit@4": 0.8906666666666667,
+    "recall@4": 0.862,
+    "mrr": 0.7258400444965663,
+    "questions": 750
+   },
+   "hand-written": {
+    "hit@1": 0.5,
+    "hit@4": 0.9,
+    "recall@4": 0.9,
+    "mrr": 0.67,
+    "questions": 10
+   },
+   "reference": {
+    "hit@1": 0.7513513513513513,
+    "hit@4": 0.9459459459459459,
+    "recall@4": 0.9135135135135135,
+    "mrr": 0.84748088998089,
+    "questions": 370
+   },
+   "narrative": {
+    "hit@1": 0.40540540540540543,
+    "hit@4": 0.8351351351351352,
+    "recall@4": 0.8094594594594594,
+    "mrr": 0.6057083894040416,
+    "questions": 370
+   },
+   "documents": {
+    "bookstore_api.md": {
+     "hit@1": 0.8,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.9
+    },
+    "bookstore_api_long.md": {
+     "hit@1": 0.2,
+     "hit@4": 0.8,
+     "recall@4": 0.8,
+     "mrr": 0.44000000000000006
+    },
+    "apis-guru (reference)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "apis-guru (narrative)": {
+     "hit@1": 1.0,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 1.0
+    },
+    "nytimes-books (reference)": {
+     "hit@1": 0.5,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.75
+    },
+    "nytimes-books (narrative)": {
+     "hit@1": 0.3333333333333333,
+     "hit@4": 1.0,
+     "recall@4": 1.0,
+     "mrr": 0.5972222222222222
+    },
+    "circleci (reference)": {
+     "hit@1": 0.6818181818181818,
+     "hit@4": 0.9090909090909091,
+     "recall@4": 0.9090909090909091,
+     "mrr": 0.8060606060606061
+    },
+    "circleci (narrative)": {
+     "hit@1": 0.36363636363636365,
+     "hit@4": 0.8181818181818182,
+     "recall@4": 0.7954545454545454,
+     "mrr": 0.5728354978354978
+    },
+    "httpbin (reference)": {
+     "hit@1": 0.8356164383561644,
+     "hit@4": 0.958904109589041,
+     "recall@4": 0.9246575342465754,
+     "mrr": 0.8977168949771689
+    },
+    "httpbin (narrative)": {
+     "hit@1": 0.5205479452054794,
+     "hit@4": 0.9315068493150684,
+     "recall@4": 0.9178082191780822,
+     "mrr": 0.6994292237442922
+    },
+    "spotify (reference)": {
+     "hit@1": 0.6931818181818182,
+     "hit@4": 0.9204545454545454,
+     "recall@4": 0.8806818181818182,
+     "mrr": 0.8092171717171717
+    },
+    "spotify (narrative)": {
+     "hit@1": 0.2159090909090909,
+     "hit@4": 0.7386363636363636,
+     "recall@4": 0.7272727272727273,
+     "mrr": 0.4738854895104895
+    },
+    "slack (reference)": {
+     "hit@1": 0.7528735632183908,
+     "hit@4": 0.9540229885057471,
+     "recall@4": 0.9195402298850575,
+     "mrr": 0.8482192615813305
+    },
+    "slack (narrative)": {
+     "hit@1": 0.4367816091954023,
+     "hit@4": 0.8333333333333334,
+     "recall@4": 0.7931034482758621,
+     "mrr": 0.6216444447329005
+    }
+   }
+  }
+ },
+ "misses": {
+  "random": [],
+  "hash / path-only": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "DELETE /books/{book_id}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "nytimes-books (narrative)",
+    "endpoint": "GET /lists/names.{format}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}/{build_num}/tests",
+    "first_relevant_rank": 6,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}/tree/{branch}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}/{build_num}",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}/{build_num}/artifacts",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}/{build_num}/cancel",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}/{build_num}/retry",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /base64/{value}",
+    "first_relevant_rank": 7,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 7,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /bearer",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /absolute-redirect/{n}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /redirect-to",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /redirect/{n}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /relative-redirect/{n}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /anything",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /base64/{value}",
+    "first_relevant_rank": 12,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /drip",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /range/{numbytes}",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /stream/{n}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /uuid",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bearer",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /brotli",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /encoding/utf8",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /cookies",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /cookies/delete",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /cookies/set",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /cookies/set/{name}/{value}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "DELETE /delete",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PUT /put",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /headers",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /ip",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /user-agent",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 7,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /browse/featured-playlists",
+    "first_relevant_rank": 7,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 18,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 16,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/new-releases",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists/{id}/albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /recommendations",
+    "first_relevant_rank": 27,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks/{id}",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks/{id}",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks/{id}/chapters",
+    "first_relevant_rank": 16,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/audiobooks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}/playlists",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/featured-playlists",
+    "first_relevant_rank": 21,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/images",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 17,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}/playlists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /users/{user_id}/playlists",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters/{id}",
+    "first_relevant_rank": 22,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 26,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/episodes",
+    "first_relevant_rank": 15,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/episodes",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/following",
+    "first_relevant_rank": 21,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 15,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 21,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 34,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/top/{type}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/followers/contains",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player/devices",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/pause",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player/queue",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /me/player/queue",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player/recently-played",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/volume",
+    "first_relevant_rank": 16,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.invite",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.users.session.reset",
+    "first_relevant_rank": 24,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /apps.uninstall",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 18,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.replies",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /emoji.list",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /team.profile.get",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /users.profile.set",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /workflows.updateStep",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.apps.approve",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.apps.restrict",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.approved.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.requests.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.restricted.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.archive",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.convertToPrivate",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.create",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.delete",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.disconnectShared",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getConversationPrefs",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getTeams",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.invite",
+    "first_relevant_rank": 17,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.rename",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.search",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.unarchive",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.ekm.listOriginalConnectedChannelInfo",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.restrictAccess.addGroup",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.restrictAccess.listGroups",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.restrictAccess.removeGroup",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.add",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.addAlias",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.emoji.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.remove",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.rename",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.approve",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.deny",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.inviteRequests.list",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.inviteRequests.approved.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.inviteRequests.denied.list",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.admins.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.create",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.owners.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.settings.info",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDefaultChannels",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDescription",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDiscoverability",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setIcon",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setName",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.addChannels",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.addTeams",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.usergroups.listChannels",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.removeChannels",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.assign",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.invite",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.users.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.remove",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setAdmin",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setExpiration",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setOwner",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setRegular",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.session.invalidate",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.session.reset",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /api.test",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.info",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.scopes.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.request",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.uninstall",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /auth.revoke",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /auth.test",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /bots.info",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.end",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /calls.info",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.update",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.participants.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.delete",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.deleteScheduledMessage",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /chat.getPermalink",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.meMessage",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.postEphemeral",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.postMessage",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.scheduleMessage",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.unfurl",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.update",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /chat.scheduledMessages.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.archive",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.close",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.create",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.history",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 38,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.invite",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.members",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.replies",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setPurpose",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setTopic",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dialog.open",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /dnd.endSnooze",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.info",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /dnd.setSnooze",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.teamInfo",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /emoji.list",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.comments.delete",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.info",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.revokePublicURL",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.sharedPublicURL",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.upload",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.remote.add",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.remote.info",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.remote.list",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.remote.remove",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.remote.share",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.remote.update",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /migration.exchange",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /oauth.access",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /oauth.token",
+    "first_relevant_rank": 45,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /oauth.v2.access",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.add",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /pins.list",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.remove",
+    "first_relevant_rank": 24,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.add",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /reactions.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reminders.add",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reminders.complete",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reminders.delete",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /reminders.info",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /reminders.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /rtm.connect",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /stars.add",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /stars.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /stars.remove",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.accessLogs",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.billableInfo",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.integrationLogs",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.profile.get",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.create",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.disable",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.enable",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.update",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.users.update",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.deletePhoto",
+    "first_relevant_rank": 41,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.lookupByEmail",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.setActive",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.setPhoto",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.setPresence",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.profile.get",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.profile.set",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.open",
+    "first_relevant_rank": 23,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.publish",
+    "first_relevant_rank": 24,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.push",
+    "first_relevant_rank": 41,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.update",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /workflows.stepCompleted",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /workflows.stepFailed",
+    "first_relevant_rank": 49,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /workflows.updateStep",
+    "first_relevant_rank": 23,
+    "chunks": 73
+   }
+  ],
+  "hash / generic-words": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "DELETE /books/{book_id}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "nytimes-books (narrative)",
+    "endpoint": "GET /lists/names.{format}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}/{build_num}/tests",
+    "first_relevant_rank": 6,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}/tree/{branch}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}/{build_num}",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}/{build_num}/cancel",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}/{build_num}/retry",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /base64/{value}",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /bearer",
+    "first_relevant_rank": 7,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /brotli",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /base64/{value}",
+    "first_relevant_rank": 12,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 11,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /drip",
+    "first_relevant_rank": 10,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /links/{n}/{offset}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /range/{numbytes}",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /stream/{n}",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /uuid",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bearer",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /brotli",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deny",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /encoding/utf8",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /gzip",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /html",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /json",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /xml",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /cache",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /cache/{value}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /ip",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /user-agent",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /audiobooks/{id}/chapters",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 10,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /browse/featured-playlists",
+    "first_relevant_rank": 10,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/playlists",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "POST /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 20,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/top/{type}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 17,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/new-releases",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists/{id}/albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /recommendations",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks/{id}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks/{id}",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks/{id}/chapters",
+    "first_relevant_rank": 18,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/audiobooks",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}/playlists",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/featured-playlists",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/images",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 18,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}/playlists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /users/{user_id}/playlists",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters/{id}",
+    "first_relevant_rank": 24,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes",
+    "first_relevant_rank": 15,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/episodes",
+    "first_relevant_rank": 14,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/episodes",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/following",
+    "first_relevant_rank": 25,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 19,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 25,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 35,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/top/{type}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/followers/contains",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player/devices",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /me/player/next",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/pause",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /me/player/previous",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /me/player/queue",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/volume",
+    "first_relevant_rank": 22,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.invite",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.rename",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.restrictAccess.addGroup",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.restrictAccess.removeGroup",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.users.session.reset",
+    "first_relevant_rank": 21,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 19,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.replies",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /oauth.token",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /team.profile.get",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /users.deletePhoto",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /users.profile.set",
+    "first_relevant_rank": 8,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /workflows.updateStep",
+    "first_relevant_rank": 19,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.apps.approve",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.apps.restrict",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.approved.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.requests.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.restricted.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.archive",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.convertToPrivate",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.create",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.delete",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.disconnectShared",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getConversationPrefs",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getTeams",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.invite",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.rename",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.search",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.unarchive",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.ekm.listOriginalConnectedChannelInfo",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.restrictAccess.addGroup",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.restrictAccess.listGroups",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.restrictAccess.removeGroup",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.add",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.addAlias",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.emoji.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.remove",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.emoji.rename",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.approve",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.deny",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.inviteRequests.list",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.inviteRequests.approved.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.inviteRequests.denied.list",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.admins.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.create",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.owners.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.teams.settings.info",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDefaultChannels",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDescription",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDiscoverability",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setIcon",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setName",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.addChannels",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.addTeams",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.usergroups.listChannels",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.removeChannels",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.assign",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.invite",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.users.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.remove",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setAdmin",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setExpiration",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setOwner",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setRegular",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.session.invalidate",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.session.reset",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /api.test",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.info",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.resources.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.scopes.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.list",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.request",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.uninstall",
+    "first_relevant_rank": 22,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /auth.revoke",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /auth.test",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /bots.info",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 27,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.end",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /calls.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.update",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.delete",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.deleteScheduledMessage",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /chat.getPermalink",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.meMessage",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.postEphemeral",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.postMessage",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.scheduleMessage",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.update",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /chat.scheduledMessages.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.archive",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.close",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.create",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.history",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 25,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.invite",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.members",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.replies",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setPurpose",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setTopic",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dialog.open",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /dnd.endSnooze",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.info",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /dnd.setSnooze",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.teamInfo",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /emoji.list",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.comments.delete",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.info",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.revokePublicURL",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.sharedPublicURL",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.upload",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.remote.add",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.remote.info",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.remote.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.remote.remove",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.remote.share",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.remote.update",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /migration.exchange",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /oauth.access",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /oauth.token",
+    "first_relevant_rank": 29,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /oauth.v2.access",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.add",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /pins.list",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.remove",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.add",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /reactions.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reminders.add",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reminders.complete",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reminders.delete",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /reminders.info",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /reminders.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /rtm.connect",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /stars.add",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /stars.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /stars.remove",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.accessLogs",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.billableInfo",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.integrationLogs",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.profile.get",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.create",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.disable",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.enable",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.list",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.update",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.users.update",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.deletePhoto",
+    "first_relevant_rank": 39,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.lookupByEmail",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.setActive",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.setPhoto",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.setPresence",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.profile.get",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /users.profile.set",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.open",
+    "first_relevant_rank": 32,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.publish",
+    "first_relevant_rank": 35,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.push",
+    "first_relevant_rank": 52,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.update",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /workflows.stepCompleted",
+    "first_relevant_rank": 28,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /workflows.stepFailed",
+    "first_relevant_rank": 37,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /workflows.updateStep",
+    "first_relevant_rank": 22,
+    "chunks": 73
+   }
+  ],
+  "bm25 / path-only": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "DELETE /books/{book_id}",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /uuid",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "DELETE /delete",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PUT /put",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /tracks/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /playlists/{playlist_id}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks/{id}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/playlists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/images",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters/{id}",
+    "first_relevant_rank": 19,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/episodes",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/following",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 15,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 31,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/followers/contains",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /me/player/next",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getTeams",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /api.test",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.request",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.uninstall",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.archive",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.close",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.create",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 29,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.invite",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   }
+  ],
+  "bm25 / generic-words": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "DELETE /books/{book_id}",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /base64/{value}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /drip",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /range/{numbytes}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /stream-bytes/{n}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /stream/{n}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /uuid",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deny",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /encoding/utf8",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /gzip",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /html",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /json",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /xml",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /tracks/{id}",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /playlists/{playlist_id}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /tracks/{id}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/playlists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/images",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}/playlists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters/{id}",
+    "first_relevant_rank": 19,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/episodes",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/following",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 15,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 31,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /playlists/{playlist_id}/followers",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/followers/contains",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "POST /me/player/next",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /files.list",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.list",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getTeams",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.addTeams",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.usergroups.listChannels",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.usergroups.removeChannels",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.assign",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.users.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setAdmin",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /api.test",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.request",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.uninstall",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /auth.revoke",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /bots.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.end",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /calls.info",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.update",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.update",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.archive",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.close",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.create",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 32,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.invite",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 23,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.members",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setPurpose",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setTopic",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /emoji.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.info",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /migration.exchange",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /stars.add",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /stars.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.billableInfo",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.info",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.users.update",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.info",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.list",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.push",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.update",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   }
+  ],
+  "minilm / path-only": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "POST /books",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "nytimes-books (narrative)",
+    "endpoint": "GET /lists/best-sellers/history.json",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 6,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /user/heroku-key",
+    "first_relevant_rank": 6,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "DELETE /anything",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "DELETE /delete",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 10,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 10,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "DELETE /status/{codes}",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /anything",
+    "first_relevant_rank": 10,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /links/{n}/{offset}",
+    "first_relevant_rank": 11,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /range/{numbytes}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /stream/{n}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "DELETE /delete",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 11,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 10,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "POST /post",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PUT /put",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /user-agent",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "DELETE /me/albums",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /audio-features",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /recommendations",
+    "first_relevant_rank": 11,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /markets",
+    "first_relevant_rank": 17,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 12,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/player/currently-playing",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "DELETE /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "PUT /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/shows/contains",
+    "first_relevant_rank": 11,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /shows",
+    "first_relevant_rank": 7,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/albums",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /artists/{id}/related-artists",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 14,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /recommendations",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}/playlists",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes/contains",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /markets",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/top/{type}",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/repeat",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/seek",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.restrictAccess.addGroup",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.comments.delete",
+    "first_relevant_rank": 12,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 27,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /oauth.access",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /reactions.add",
+    "first_relevant_rank": 29,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /team.accessLogs",
+    "first_relevant_rank": 15,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /usergroups.create",
+    "first_relevant_rank": 11,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /usergroups.disable",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 30,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.restricted.list",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.archive",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.convertToPrivate",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getTeams",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.invite",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 26,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 34,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.unarchive",
+    "first_relevant_rank": 17,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.approve",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.teams.settings.setDefaultChannels",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 26,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /calls.info",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.postMessage",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /chat.scheduleMessage",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.close",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.members",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setPurpose",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /dnd.endDnd",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.teamInfo",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.add",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /pins.list",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.accessLogs",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /team.info",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.create",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.open",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   }
+  ],
+  "minilm / generic-words": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "GET /books/{book_id}/reviews",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "POST /books",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "nytimes-books (narrative)",
+    "endpoint": "GET /lists/best-sellers/history.json",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /user/heroku-key",
+    "first_relevant_rank": 6,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 8,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /deny",
+    "first_relevant_rank": 7,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /encoding/utf8",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 10,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /anything",
+    "first_relevant_rank": 9,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /links/{n}/{offset}",
+    "first_relevant_rank": 11,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /range/{numbytes}",
+    "first_relevant_rank": 10,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 7,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "POST /post",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PUT /put",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /user-agent",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "DELETE /me/albums",
+    "first_relevant_rank": 8,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /audio-features",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/tracks",
+    "first_relevant_rank": 13,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /recommendations",
+    "first_relevant_rank": 9,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /playlists/{playlist_id}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "PUT /me/episodes",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/episodes/contains",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /markets",
+    "first_relevant_rank": 14,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 22,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "DELETE /me/shows",
+    "first_relevant_rank": 15,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 14,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "PUT /me/shows",
+    "first_relevant_rank": 7,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/shows/contains",
+    "first_relevant_rank": 12,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /shows",
+    "first_relevant_rank": 19,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/albums",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/albums",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/tracks",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}/playlists",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/episodes",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes/contains",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /markets",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 14,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/top/{type}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/repeat",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/seek",
+    "first_relevant_rank": 15,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/shows",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows/contains",
+    "first_relevant_rank": 14,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows",
+    "first_relevant_rank": 22,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}",
+    "first_relevant_rank": 12,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /admin.apps.requests.list",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.restrictAccess.addGroup",
+    "first_relevant_rank": 17,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.teams.create",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.users.assign",
+    "first_relevant_rank": 35,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /admin.users.list",
+    "first_relevant_rank": 10,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.users.setRegular",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 8,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 7,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 11,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /dnd.info",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.comments.delete",
+    "first_relevant_rank": 16,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 36,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /oauth.access",
+    "first_relevant_rank": 8,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /reactions.add",
+    "first_relevant_rank": 10,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 14,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /stars.add",
+    "first_relevant_rank": 20,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /team.accessLogs",
+    "first_relevant_rank": 13,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 18,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 34,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /users.setActive",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /users.setPresence",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.requests.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.restricted.list",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.archive",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.convertToPrivate",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.create",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getConversationPrefs",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.conversations.getTeams",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.invite",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.rename",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 56,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 59,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.unarchive",
+    "first_relevant_rank": 38,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.approve",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.assign",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.users.list",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.remove",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setAdmin",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setExpiration",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setRegular",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.scopes.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.permissions.users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 25,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /calls.info",
+    "first_relevant_rank": 21,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.members",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setPurpose",
+    "first_relevant_rank": 22,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /dnd.endDnd",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.teamInfo",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /migration.exchange",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 30,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.users.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.users.update",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 31,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /views.open",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   }
+  ],
+  "hybrid / path-only": [
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 6,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 7,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /anything",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /links/{n}/{offset}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deny",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "DELETE /delete",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /get",
+    "first_relevant_rank": 11,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "POST /post",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PUT /put",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "DELETE /status/{codes}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /recommendations",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /markets",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 11,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters/{id}",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "DELETE /me/following",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 14,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 22,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/seek",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows/{id}/episodes",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.comments.delete",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 9,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /reactions.add",
+    "first_relevant_rank": 8,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /usergroups.disable",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 11,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.apps.restricted.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.archive",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 19,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.unarchive",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.approve",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 13,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 16,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 12,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /emoji.list",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /files.info",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /pins.add",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /pins.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   }
+  ],
+  "hybrid / generic-words": [
+   {
+    "document": "bookstore_api_long.md",
+    "endpoint": "DELETE /books/{book_id}",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (reference)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 5,
+    "chunks": 6
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "POST /project/{username}/{project}",
+    "first_relevant_rank": 7,
+    "chunks": 7
+   },
+   {
+    "document": "circleci (narrative)",
+    "endpoint": "GET /project/{username}/{project}/envvar",
+    "first_relevant_rank": 5,
+    "chunks": 7
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /deflate",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "GET /deny",
+    "first_relevant_rank": 5,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (reference)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 6,
+    "chunks": 10
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /bytes/{n}",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /links/{n}/{offset}",
+    "first_relevant_rank": 6,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /range/{numbytes}",
+    "first_relevant_rank": 8,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "GET /deny",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "httpbin (narrative)",
+    "endpoint": "PATCH /patch",
+    "first_relevant_rank": 5,
+    "chunks": 12
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "DELETE /me/albums",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/tracks",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /playlists/{playlist_id}",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 9,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "DELETE /me/shows",
+    "first_relevant_rank": 6,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (reference)",
+    "endpoint": "GET /shows",
+    "first_relevant_rank": 5,
+    "chunks": 42
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /albums/{id}/tracks",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/albums",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/albums",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/tracks/contains",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/audiobooks/contains",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /browse/categories/{category_id}/playlists",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /playlists/{playlist_id}/tracks",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /chapters/{id}",
+    "first_relevant_rank": 10,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /episodes/{id}",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/episodes/contains",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following",
+    "first_relevant_rank": 7,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/following",
+    "first_relevant_rank": 13,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/following/contains",
+    "first_relevant_rank": 21,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /users/{user_id}",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/play",
+    "first_relevant_rank": 6,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/repeat",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/player/seek",
+    "first_relevant_rank": 9,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "PUT /me/shows",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /me/shows/contains",
+    "first_relevant_rank": 5,
+    "chunks": 48
+   },
+   {
+    "document": "spotify (narrative)",
+    "endpoint": "GET /shows",
+    "first_relevant_rank": 8,
+    "chunks": 48
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.conversations.restrictAccess.addGroup",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /admin.users.assign",
+    "first_relevant_rank": 11,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.comments.delete",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /files.delete",
+    "first_relevant_rank": 11,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 6,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "POST /stars.add",
+    "first_relevant_rank": 5,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 8,
+    "chunks": 58
+   },
+   {
+    "document": "slack (reference)",
+    "endpoint": "GET /users.getPresence",
+    "first_relevant_rank": 10,
+    "chunks": 58
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.archive",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setConversationPrefs",
+    "first_relevant_rank": 23,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.setTeams",
+    "first_relevant_rank": 28,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.conversations.unarchive",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.inviteRequests.approve",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /admin.users.list",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.remove",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /admin.users.setAdmin",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /apps.uninstall",
+    "first_relevant_rank": 5,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /calls.add",
+    "first_relevant_rank": 11,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /calls.info",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.info",
+    "first_relevant_rank": 18,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.invite",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.join",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.kick",
+    "first_relevant_rank": 8,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.leave",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.list",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.mark",
+    "first_relevant_rank": 20,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /conversations.members",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.open",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.rename",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.setPurpose",
+    "first_relevant_rank": 10,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /conversations.unarchive",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /dnd.teamInfo",
+    "first_relevant_rank": 7,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /reactions.remove",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /search.messages",
+    "first_relevant_rank": 14,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /usergroups.list",
+    "first_relevant_rank": 6,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "POST /usergroups.users.update",
+    "first_relevant_rank": 9,
+    "chunks": 73
+   },
+   {
+    "document": "slack (narrative)",
+    "endpoint": "GET /users.conversations",
+    "first_relevant_rank": 15,
+    "chunks": 73
+   }
+  ]
+ },
+ "settings": {
+  "date": "2026-10-28",
+  "k": 4,
+  "chunk_size": 1200,
+  "chunk_overlap": 200,
+  "queries": {
+   "path-only": "METHOD /path",
+   "generic-words": "METHOD /path endpoint description parameters base URL"
+  },
+  "spec_collection_commit": "f04b8d0bcd39c52e1cf3ad7a5fe744709832ae49",
+  "specs": {
+   "apis-guru": "apis.guru/2.2.0/openapi.yaml",
+   "nytimes-books": "nytimes.com/books_api/3.0.0/openapi.yaml",
+   "circleci": "circleci.com/v1/openapi.yaml",
+   "httpbin": "httpbin.org/0.9.2/openapi.yaml",
+   "spotify": "spotify.com/1.0.0/openapi.yaml",
+   "slack": "slack.com/1.7.0/openapi.yaml"
+  },
+  "documents": [
+   {
+    "name": "bookstore_api.md",
+    "questions": 5,
+    "chunks": 2
+   },
+   {
+    "name": "bookstore_api_long.md",
+    "questions": 5,
+    "chunks": 7
+   },
+   {
+    "name": "apis-guru (reference)",
+    "questions": 7,
+    "chunks": 1
+   },
+   {
+    "name": "apis-guru (narrative)",
+    "questions": 7,
+    "chunks": 1
+   },
+   {
+    "name": "nytimes-books (reference)",
+    "questions": 6,
+    "chunks": 5
+   },
+   {
+    "name": "nytimes-books (narrative)",
+    "questions": 6,
+    "chunks": 6
+   },
+   {
+    "name": "circleci (reference)",
+    "questions": 22,
+    "chunks": 6
+   },
+   {
+    "name": "circleci (narrative)",
+    "questions": 22,
+    "chunks": 7
+   },
+   {
+    "name": "httpbin (reference)",
+    "questions": 73,
+    "chunks": 10
+   },
+   {
+    "name": "httpbin (narrative)",
+    "questions": 73,
+    "chunks": 12
+   },
+   {
+    "name": "spotify (reference)",
+    "questions": 88,
+    "chunks": 42
+   },
+   {
+    "name": "spotify (narrative)",
+    "questions": 88,
+    "chunks": 48
+   },
+   {
+    "name": "slack (reference)",
+    "questions": 174,
+    "chunks": 58
+   },
+   {
+    "name": "slack (narrative)",
+    "questions": 174,
+    "chunks": 73
+   }
+  ]
+ }
+}

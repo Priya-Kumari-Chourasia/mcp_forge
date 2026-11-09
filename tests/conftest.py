@@ -3,9 +3,9 @@ import sys
 
 import pytest
 
-# Tests always use the offline stub LLM + hash embeddings, and import modules from the project root.
+# Tests always use the offline stub LLM + keyword-only retrieval (no model download), and import modules from the project root.
 os.environ["USE_REAL_LLM"] = "false"
-os.environ["EMBEDDINGS"] = "hash"
+os.environ["EMBEDDINGS"] = "none"
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
