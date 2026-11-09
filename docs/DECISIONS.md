@@ -84,6 +84,14 @@ the retry budget, instead of asking the LLM.
 **Alternatives.** Sending the spec through the RAG path like prose docs. Slower,
 costs tokens, and less accurate.
 
+**The base URL.** Taken from the top-level `servers`, from `servers` on a path or
+an operation (Open-Meteo's specs put it there), or from Swagger 2's host and
+basePath. A relative URL is resolved against where the spec was downloaded from.
+A spec that states no server at all means "the host that serves the spec", as
+both standards say. This used to come out as the spec file's own URL, so every
+tool would have called `.../forecast.yml/v1/...`. The validator could not catch
+it, because it mocks HTTP: the address was wrong, not the request.
+
 **Proof.** `test_spec_parser.py`.
 
 ## 3. LangGraph for the pipeline
@@ -135,8 +143,23 @@ of a long prompt.
 **Trade-off.** More LLM calls per endpoint. They are capped by
 `MAX_RETRIEVAL_ROUNDS` and `MAX_DOC_CHARS`.
 
+**Made-up endpoints.** Discovery is an LLM call, so it can list an endpoint the
+docs never mention. Retrieval then never finds context for it. Keeping "a minimal
+definition" anyway would give the AI client a tool for an endpoint that does not
+exist, and the validator would pass it, because it checks the code against that
+same endpoint. So an endpoint is dropped when both are true:
+- the grader never judged its context sufficient in 3 rounds
+- its path appears nowhere in the docs (`path_in_docs`)
+
+The path check is lenient on purpose, because dropping a real endpoint is worse:
+`{id}`, `:id`, `<id>`, an example value such as `/books/42` and a full URL all
+count, and a base path joined onto the path (`/v2/books`) is tried without it.
+Every one of the 750 endpoint paths in the retrieval evaluation is found in its
+own document. A dropped endpoint is marked in the report's retrieval trace.
+
 **Proof.** `test_agentic_rag.py`: an endpoint past the first 6,000 characters is
-found, and an insufficient retrieval triggers a rewritten query.
+found, an insufficient retrieval triggers a rewritten query, and an endpoint that
+discovery made up is dropped while the real ones are kept.
 
 ## 5. Hybrid retrieval, chosen by measurement
 
@@ -444,6 +467,9 @@ the encoding: the test then fails).
   like the spec (a JSON array or an object)
 - compares the recorded request with the endpoint: method, path, required query
   parameters, body
+- calls a tool that has optional arguments a second time, with every argument
+  set, and checks that every documented query and header parameter is sent under
+  its documented name
 
 **Why.**
 - Reading the code (the review) cannot show what it does when it runs. The bug
@@ -454,6 +480,13 @@ the encoding: the test then fails).
   (`test_self_correction.py` uses exactly that bug).
 - Mocking means every tool can really run, including `delete_pet`, without
   touching the API.
+- The first call fills only the required arguments, so on its own it never runs
+  the code that sends optional parameters. A tool that sent
+  `params={"genere": genre}` for the documented `genre` passed, and the API would
+  have ignored the filter without an error. The second call catches it. It also
+  found a bug in the template: `_request` dropped unset query parameters but not
+  unset headers, which httpx refuses, so any tool with an optional header failed
+  when the AI left it out. `_request` now drops both.
 
 **Alternatives.** Calling the real API. It would need credentials, could change
 or delete real data, and depends on the API being up.
@@ -508,7 +541,15 @@ with no internet route, no secrets, a read-only filesystem and resource limits
 complex one. It is shared by both agents: an attempt counts whether the reviewer
 or the validator rejected it.
 
-**Proof.** `test_self_correction.py`.
+**When the budget runs out.** The run fails closed, as it does when the security
+review never passes (entry 10): no `server.py` is written, since its header says
+every tool was validated, and one from an earlier run is removed. The code is kept
+as `unvalidated_tools.txt` with the report. An unreachable validator is treated
+the same way: code that was never run is not packaged as if it had passed.
+
+**Proof.** `test_self_correction.py`, including
+`test_gives_up_when_the_retry_budget_runs_out` and
+`test_an_unreachable_validator_packages_nothing`.
 
 ## 18. The official MCP Python SDK, stdio transport, `ToolError`
 

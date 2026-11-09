@@ -170,3 +170,38 @@ def test_generated_code_cannot_start_other_programs_or_read_the_api_key(monkeypa
     assert not passed
     assert any("starting other programs is disabled" in e for e in errors)
     assert not any("key leaked" in e for e in errors)
+
+
+BOOKS = [{"method": "GET", "path": "/books", "base_url": BASE, "description": "list books",
+          "parameters": [{"name": "genre", "in": "query", "required": False, "type": "string"},
+                         {"name": "X-Request-Id", "in": "header", "required": False, "type": "string"}]}]
+LIST_BOOKS = '''
+def list_books(
+    genre: Annotated[Optional[str], Field(description="Genre")] = None,
+    x_request_id: Annotated[Optional[str], Field(description="Request id")] = None,
+) -> Union[dict, list, str]:
+    """List books."""
+    return _request("GET", "/books", params={"genre": genre}, headers={"X-Request-Id": x_request_id})
+'''
+
+
+def test_optional_parameters_sent_correctly_pass():
+    passed, errors, _ = errors_for(HEADER + LIST_BOOKS, BOOKS)
+    assert passed, errors
+
+
+def test_a_misspelled_optional_query_parameter_is_caught():
+    """Optional parameters are not sent when a tool is called with only its required
+    arguments, so a wrong name there used to pass. The second call, with every
+    argument set, sends it - and the request must use the documented name."""
+    code = HEADER + LIST_BOOKS.replace('params={"genre": genre}', 'params={"genere": genre}')
+    passed, errors, structured = errors_for(code, BOOKS)
+    assert not passed
+    assert any("query parameter 'genre'" in e for e in errors), errors
+    assert structured[0]["function"] == "list_books"            # mapped to the tool, so its batch is regenerated
+
+
+def test_an_optional_header_that_is_never_sent_is_caught():
+    code = HEADER + LIST_BOOKS.replace(', headers={"X-Request-Id": x_request_id}', "")
+    passed, errors, _ = errors_for(code, BOOKS)
+    assert not passed and any("header 'X-Request-Id'" in e for e in errors), errors

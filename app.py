@@ -275,6 +275,9 @@ def draw(events, slots, finished: bool, run_id: str):
         elif rejected:
             st.error("Rejected by the security review: the code was not run, and no server was packaged. "
                      "The rejected code and the report are in the run's folder under generated/.")
+        elif finished and last_node == "package_server" and state.get("test_passed") is False:
+            st.error("The code did not pass validation, so no server was packaged. The code is kept as "
+                     "unvalidated_tools.txt, with the report, in the run's folder under generated/.")
         else:
             st.write("The server is packaged at the end of the run.")
 

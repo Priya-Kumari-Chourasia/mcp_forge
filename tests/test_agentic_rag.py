@@ -127,6 +127,33 @@ def test_gives_up_after_max_rounds_but_keeps_the_endpoint(tmp_path, monkeypatch,
                                     "base_url": "", "parameters": [], "name": "get_ping"}]
 
 
+def test_an_endpoint_discovery_made_up_is_dropped(tmp_path, monkeypatch, pipeline_agents):
+    """Discovery is an LLM call, so it can list an endpoint the docs never mention. Retrieval
+    then never finds context for it, and keeping "a minimal definition" would give the AI client
+    a tool for an endpoint that does not exist - one the validator would pass, because it checks
+    the code against that same endpoint. Not confirmed by the grader + path not in the docs = dropped."""
+    monkeypatch.chdir(tmp_path)
+    made_up = {"method": "DELETE", "path": "/authors/{id}"}
+
+    def llm_that_invents(prompt):
+        if "List every API endpoint" in prompt:
+            return json.dumps(json.loads(scripted_llm(prompt)) + [made_up])
+        if "Is the context sufficient" in prompt and "DELETE /authors/{id}" in prompt:
+            return json.dumps({"sufficient": False, "missing": "everything", "next_query": "authors"})
+        return scripted_llm(prompt)
+
+    monkeypatch.setattr(nodes, "call_llm", llm_that_invents)
+    monkeypatch.setattr(rag_nodes, "call_llm", llm_that_invents)
+
+    result = run(DOCS)
+
+    assert {f"{e['method']} {e['path']}" for e in result["endpoints"]} == {"GET /widgets", "DELETE /widgets/{id}"}
+    rounds = [t for t in result["rag_trace"] if t["endpoint"] == "DELETE /authors/{id}"]
+    assert len(rounds) == rag_nodes.MAX_RETRIEVAL_ROUNDS                 # it was given every chance
+    assert "dropped" in rounds[-1]                                        # and the report says why
+    assert result["test_passed"] is True
+
+
 def test_openapi_specs_skip_rag_entirely(tmp_path, monkeypatch, pipeline_agents):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(nodes, "call_llm", scripted_llm)
@@ -148,3 +175,15 @@ def test_chunks_overlap_and_cover_the_whole_text():
 def test_index_search_returns_the_relevant_chunk_first():
     index = DocIndex(DOCS)
     assert "optional query flag called force" in index.search("force flag recycle bin removing a widget", k=1)[0]
+
+
+def test_the_path_check_is_lenient_so_real_endpoints_are_never_dropped():
+    found = rag_nodes.path_in_docs
+    assert found("/users/{id}", "Call GET /users/:id to fetch one")              # :id style
+    assert found("/users/{id}", "GET /users/<id>")                               # <id> style
+    assert found("/users/{user_id}", "e.g. https://api.x.test/users/42")         # an example value, in a URL
+    assert found("/v2/users", "the users list is at GET /users")                 # a base path joined on
+    assert not found("/authors/{id}", "GET /users/{id}")                         # never mentioned
+    assert not found("/authors/{id}/users", "GET /users")                        # a made-up prefix on a real path
+    assert not found("/user", "GET /users")                                      # not inside a longer word
+    assert not found("/{id}", "GET /42")                                         # only a placeholder: too vague

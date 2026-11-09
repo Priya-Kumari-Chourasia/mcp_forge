@@ -171,9 +171,18 @@ Context:
     state["rag_trace"] = trace
 
     if sufficient or out_of_rounds:
+        endpoint = None
         if sufficient:
             endpoint = {**partial, "method": candidate["method"], "path": candidate["path"]}
             print("  GRADE: sufficient -> endpoint extracted")
+        elif not path_in_docs(candidate["path"], state["raw_docs"]):
+            # Never confirmed by the grader AND its path appears nowhere in the docs:
+            # discovery most likely made it up. Generating a tool for it would give the
+            # AI client a tool for an endpoint that does not exist - and the validator
+            # could not tell, because it checks the code against this same endpoint.
+            trace[-1]["dropped"] = "not confirmed by the grader and its path is not in the docs"
+            print(f"  GRADE: still insufficient after {MAX_RETRIEVAL_ROUNDS} rounds, and {candidate['path']} "
+                  f"is not in the docs -> dropped (discovery probably made it up)")
         else:
             # Out of rounds. Use the best partial description any round produced, so
             # what WAS found is not thrown away; fall back to a bare definition only
@@ -186,7 +195,8 @@ Context:
                 endpoint["description"] = name
             kind = "the best partial description" if partials else "a minimal definition"
             print(f"  GRADE: still insufficient after {MAX_RETRIEVAL_ROUNDS} rounds -> keeping {kind}")
-        state["endpoints"] = state["endpoints"] + [endpoint]
+        if endpoint is not None:
+            state["endpoints"] = state["endpoints"] + [endpoint]
         state["rag_cursor"] += 1
         state["rag_round"] = 0
         state["rag_query"] = None
@@ -197,6 +207,34 @@ Context:
         state["rag_next_query"] = verdict.get("next_query")
         print(f"  GRADE: insufficient (missing: {verdict.get('missing')})")
     return state
+
+
+_PLACEHOLDER_IN_DOCS = r"(?:\{[^{}/\s]*\}|:\w+|<[^<>/\s]*>|[^/\s{}<>`'\"()\[\],]+)"
+
+
+def path_in_docs(path: str, docs: str) -> bool:
+    """Is this path written anywhere in the docs? Lenient on purpose, because a real
+    endpoint must never be dropped:
+      - a placeholder matches {id}, :id, <id> or an example value (/books/{id} matches /books/42)
+      - the path may sit inside a full URL (https://api.example.com/v2/books)
+      - if discovery joined a base path onto it (/v2/books while the docs say /books),
+        the path is also tried without leading segments that look like a base path
+        (v2, api, rest) - only those, so a made-up /authors/{id}/books is not let
+        through by the real /books
+    Only the fixed words of the path must appear, so a made-up /authors/{id} in docs
+    that never mention "authors" is not found."""
+    segments = [s for s in (path or "").strip("/").split("/") if s]
+    for start in range(len(segments)):
+        rest = segments[start:]
+        if not any(not re.fullmatch(r"\{[^}]*\}", s) for s in rest):
+            return False                           # only placeholders left: too vague to count
+        pattern = "".join("/" + (_PLACEHOLDER_IN_DOCS if re.fullmatch(r"\{[^}]*\}", s) else re.escape(s))
+                          for s in rest)
+        if re.search(pattern + r"(?![\w-])", docs or "", re.IGNORECASE):
+            return True
+        if not re.fullmatch(r"(?:api|rest|v\d+(?:\.\d+)?)", segments[start], re.IGNORECASE):
+            return False                           # the next try would drop a real word of the path
+    return False
 
 
 def _fill_missing_base_urls(endpoints):

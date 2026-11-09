@@ -222,3 +222,18 @@ def test_a_path_value_cannot_reach_another_endpoint(monkeypatch):
             header["_request"]("GET", "/user/{username}", path_params={"username": value})
     with pytest.raises(header["ToolError"], match="Missing a value"):
         header["_request"]("GET", "/user/{username}")
+
+
+def test_unset_headers_are_left_out_and_values_are_sent_as_text(monkeypatch):
+    """A tool sends its optional header arguments as headers={"X-Request-Id": x_request_id}.
+    When the AI leaves one unset its value is None, which httpx refuses ("Header value must
+    be str or bytes"), so _request drops it, as it does for query parameters."""
+    import httpx
+    header = {}
+    exec(T.render_header({"title": "t", "base_url": "https://api.example.com/v3", "auth": []}), header)
+    sent = []
+    monkeypatch.setattr(httpx, "request",
+                        lambda method, url, **kwargs: sent.append(kwargs["headers"]) or httpx.Response(200, json={}))
+
+    header["_request"]("GET", "/books", headers={"X-Request-Id": None, "X-Page": 2, "X-Dry-Run": True})
+    assert sent == [{"X-Page": "2", "X-Dry-Run": "true"}]

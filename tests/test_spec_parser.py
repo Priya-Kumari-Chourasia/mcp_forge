@@ -61,6 +61,33 @@ def test_swagger2_host_and_basepath():
     assert extract_endpoints_from_openapi(spec)[0]["base_url"] == "https://api.example.com/v1"
 
 
+SPEC_FILE = "https://raw.githubusercontent.com/example/weather/main/openapi/forecast.yml"
+
+
+def test_servers_declared_on_the_path_are_used():
+    """Open-Meteo's specs put `servers` under each path, not at the top of the file."""
+    spec = {"openapi": "3.0.0", "info": {"title": "Weather"},
+            "paths": {"/v1/forecast": {"servers": [{"url": "https://api.weather.test"}],
+                                       "get": {"summary": "forecast"}}}}
+    assert get_api_meta(spec, SPEC_FILE)["base_url"] == "https://api.weather.test"
+    assert extract_endpoints_from_openapi(spec, SPEC_FILE)[0]["base_url"] == "https://api.weather.test"
+
+    on_the_operation = {"openapi": "3.0.0", "paths": {"/v1/forecast": {"get": {
+        "summary": "forecast", "servers": [{"url": "https://{region}.weather.test",
+                                            "variables": {"region": {"default": "eu"}}}]}}}}
+    assert get_api_meta(on_the_operation, SPEC_FILE)["base_url"] == "https://eu.weather.test"
+
+
+def test_with_no_server_the_spec_files_own_url_is_never_the_base_url():
+    """No server anywhere means "the host that serves the spec" (OpenAPI 3: url "/").
+    It used to come out as the spec file's full URL, so every tool called .../forecast.yml/v1/..."""
+    spec = {"openapi": "3.0.0", "paths": {"/ping": {"get": {"summary": "ping"}}}}
+    assert get_api_meta(spec, SPEC_FILE)["base_url"] == "https://raw.githubusercontent.com"
+    assert get_api_meta(spec)["base_url"] == ""         # nothing to resolve against: the server will ask for one
+    swagger = {"swagger": "2.0", "basePath": "/v1", "paths": {"/ping": {"get": {"summary": "ping"}}}}
+    assert get_api_meta(swagger, "https://docs.example.com/specs/api.json")["base_url"] == "https://docs.example.com/v1"
+
+
 def test_yaml_specs_are_detected_and_prose_is_not():
     yaml_spec = "openapi: 3.0.0\npaths:\n  /ping:\n    get:\n      summary: ping\n"
     assert is_openapi_spec(yaml_spec)["paths"]["/ping"]["get"]["summary"] == "ping"

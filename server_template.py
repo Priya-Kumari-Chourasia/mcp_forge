@@ -186,7 +186,8 @@ def _request(method, path, *, path_params=None, params=None, json=None, data=Non
 
     - fills the path's placeholders from path_params, encoded (see _fill_path)
     - prefixes BASE_URL and adds the credentials configured in AUTH
-    - leaves out query parameters whose value is None (not set by the AI)
+    - leaves out query parameters and headers whose value is None (not set by the AI)
+    - sends header values as text (httpx accepts only text there): True -> "true"
     - raises ToolError for an HTTP error, naming the status code: MCP clients
       show a ToolError's message to the AI, while any other exception reaches
       it only as a generic "Error executing tool"
@@ -195,7 +196,8 @@ def _request(method, path, *, path_params=None, params=None, json=None, data=Non
         raise ToolError(f"The API base URL is not set. Set the {BASE_URL_ENV} environment variable.")
     path = _fill_path(path, path_params or {})
     params = {key: value for key, value in (params or {}).items() if value is not None}
-    headers = dict(headers or {})
+    headers = {key: (str(value).lower() if isinstance(value, bool) else str(value))
+               for key, value in (headers or {}).items() if value is not None}
     cookies = {}
     for entry in AUTH:
         if entry["type"] == "basic":

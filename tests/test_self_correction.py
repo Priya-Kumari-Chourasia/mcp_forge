@@ -11,6 +11,7 @@ scripted LLM only returns the fix IF the validator's error is in the
 prompt - so the test fails if the error ever stops being fed back.
 """
 import json
+import os
 
 import nodes
 from graph import run
@@ -87,11 +88,35 @@ def test_gives_up_when_the_retry_budget_runs_out(tmp_path, monkeypatch, pipeline
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(nodes, "call_llm", lambda prompt: BUGGY)     # an LLM that never learns
 
+    folder = tmp_path / "generated" / "https-api-example-com"
+    folder.mkdir(parents=True)
+    (folder / "server.py").write_text("# a server from an earlier run")         # must not survive this run
+
     result = run(SPEC)
 
     assert result["security_passed"] is True            # safe code: it was the validator that failed it
     assert result["test_passed"] is False
     assert result["codegen_attempt"] == result["max_code_attempts"] == 2
+    # Fail closed: no server.py (whose header says every tool was validated) for code that failed.
+    assert result["output_path"] is None
+    assert sorted(os.listdir(folder)) == ["unvalidated_tools.txt", "validation_report.json"]
+    assert (folder / "unvalidated_tools.txt").read_text() == BUGGY
+    report = json.loads((folder / "validation_report.json").read_text())
+    assert report["passed"] is False and report["security_review"]["passed"] is True
+
+
+def test_an_unreachable_validator_packages_nothing(tmp_path, monkeypatch, pipeline_agents):
+    """No validation means no server: the code passed the review but was never run."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(nodes, "VALIDATOR_AGENT_URL", "http://127.0.0.1:9")    # nothing listens there
+    monkeypatch.setattr(nodes, "call_llm", lambda prompt: FIXED)
+
+    result = run(SPEC)
+
+    assert result["security_passed"] is True and result["test_output"] == "validator unreachable"
+    assert result["output_path"] is None
+    folder = tmp_path / "generated" / "https-api-example-com"
+    assert sorted(os.listdir(folder)) == ["unvalidated_tools.txt", "validation_report.json"]
 
 
 def test_two_batches_only_the_broken_one_is_regenerated(tmp_path, monkeypatch, pipeline_agents):

@@ -47,7 +47,7 @@ MCP-Forge automates that translation. Give it documentation and it produces a pa
                                   v                                |
                            VALIDATOR AGENT ------------------------+   runs it against mocked HTTP
                                   |
-                       (review never passes: report only, nothing packaged or run)
+              (review or validation never passes: report only, nothing packaged)
                                   |
                            PACKAGE SERVER             server.py + README + Claude Desktop config
                                   |                   + validation report
@@ -129,6 +129,8 @@ Plain RAG retrieves once and uses whatever comes back. Here the pipeline checks 
 4. **grade_retrieval** - the LLM judges whether that context is enough to describe the endpoint. If yes, it extracts the description, parameters and base URL. If no, it says what is missing and proposes a better query.
 5. **rewrite_query** - adopt the better query and retrieve again, up to 3 rounds per endpoint.
 
+Discovery is itself an LLM call, so it can list an endpoint the docs never mention. An endpoint the grader never judged sufficient in 3 rounds, and whose path appears nowhere in the docs, is dropped (and marked as dropped in the report) rather than turned into a tool for an endpoint that does not exist. The path check is lenient (`{id}`, `:id`, `<id>`, example values and full URLs all count), so a real endpoint is not dropped.
+
 ```
 RAG 3 (retrieve) DELETE /widgets/{id} round 1 -> query: "DELETE /widgets/{id}"
   GRADE: insufficient (missing: what the endpoint does and its parameters)
@@ -137,7 +139,7 @@ RAG 3 (retrieve) DELETE /widgets/{id} round 2 -> query: "removing a widget perma
   GRADE: sufficient -> endpoint extracted
 ```
 
-OpenAPI specs skip RAG entirely. A spec is already structured, so `spec_parser.py` reads it in code with zero LLM calls: absolute base URL, path-level and `$ref` parameters, descriptions and allowed values, request bodies (JSON, form data, lists), whether the response is a JSON array or object, security schemes, JSON or YAML, OpenAPI 3 or Swagger 2.
+OpenAPI specs skip RAG entirely. A spec is already structured, so `spec_parser.py` reads it in code with zero LLM calls: absolute base URL (including servers declared on a path, as Open-Meteo's specs do), path-level and `$ref` parameters, descriptions and allowed values, request bodies (JSON, form data, lists), whether the response is a JSON array or object, security schemes, JSON or YAML, OpenAPI 3 or Swagger 2.
 
 ### Measured, not assumed
 
@@ -198,6 +200,8 @@ Its findings go back to the generator like the validator's. If the review never 
 
 Without step 4 a retry would ask the model the identical question, and at temperature 0 it would get the identical answer. The orchestrator sets the budget: 2 attempts for a simple API, 4 for a complex one.
 
+If the budget runs out before the validator passes the code, or the validator cannot be reached, the run **fails closed**, as it does for the security review: no `server.py` is written (its header says every tool was validated), any from an earlier run is removed, and the code is kept as `unvalidated_tools.txt` with the report.
+
 ### What the validator checks
 
 The code under test is exactly what gets packaged: the template's header followed by the generated tools.
@@ -206,7 +210,7 @@ The code under test is exactly what gets packaged: the template's header followe
 |---|---|---|
 | Static | `ast.parse`, at least one tool, no duplicate names | syntax errors, name clashes between batches |
 | MCP registration | every tool is registered on a real `MCPServer` | type hints the SDK cannot build a schema from |
-| Behavioural | every tool is called **through the MCP server** with arguments built from its own input schema, while HTTP is mocked and fake responses are shaped like the spec (array or object) | exceptions, undefined names, a return type that rejects a JSON array, wrong HTTP method or path, required query parameters or bodies not sent, documented parameters with no argument, tools that bypass `_request`, endpoints with no tool |
+| Behavioural | every tool is called **through the MCP server** with arguments built from its own input schema, while HTTP is mocked and fake responses are shaped like the spec (array or object); a tool with optional arguments is called twice, once with only the required ones and once with every argument set | exceptions, undefined names, a return type that rejects a JSON array, wrong HTTP method or path, required query parameters or bodies not sent, optional query parameters or headers sent under the wrong name (or not at all), documented parameters with no argument, tools that bypass `_request`, endpoints with no tool |
 | Packaging | the finished `server.py` is started as its own process and an MCP client connects over stdio and lists the tools | a server that does not start, tools missing from the server |
 
 The behavioural layer (`behaviour_check.py`) replaces the function httpx uses to send a request with a recorder, so each tool can be called for real without touching the API: a generated `delete_pet()` is exercised, and nothing is deleted. It runs in a child process with a timeout and without secret environment variables, so generated code never runs inside the validator and a hanging tool is killed. This is process isolation, not a security sandbox.
@@ -342,14 +346,14 @@ CI runs these on every push, and a second job builds the Docker images, runs the
 
 | Test file | What it proves |
 |---|---|
-| `test_self_correction.py` | Attempt 1 fails, the validator's error reaches the retry prompt, attempt 2 passes; only the failing batch is regenerated |
-| `test_agentic_rag.py` | An endpoint past the first 6,000 characters is found; an insufficient retrieval triggers a rewritten query |
+| `test_self_correction.py` | Attempt 1 fails, the validator's error reaches the retry prompt, attempt 2 passes; only the failing batch is regenerated; code that never passes validation, or meets an unreachable validator, is not packaged and an older server.py is removed |
+| `test_agentic_rag.py` | An endpoint past the first 6,000 characters is found; an insufficient retrieval triggers a rewritten query; an endpoint discovery made up is dropped, while the path check still accepts `:id`, `<id>`, example values and full URLs |
 | `test_a2a.py` | Both agents: Agent Card at the well-known path; the official SDK client can discover and call them; a request without the protocol version is refused; an agent keeps answering while a check runs; old tasks are forgotten beyond the limit; the reviewer's findings and warnings arrive structured |
 | `test_security_rules.py` | f-string paths, a different method or path than documented, two requests, names outside the allowlist (`os`, `eval`, `open`, `print`, `getattr`, `__import__`, `httpx`), imports, `global`, dunder attributes, `.format`, top-level code, redefining `_request`, decorators, calling `_request` indirectly and invisible characters are all refused; instruction-like text is a warning, not an error |
 | `test_security_review.py` | In the pipeline: a finding is fed back and fixed, and the unsafe attempt never reaches the validator; code the review never passes is not run or packaged and an older server.py is removed; an unreachable reviewer fails closed; warnings reach the generated README |
-| `test_validator.py` | A return type that rejects a JSON array, required parameters or bodies not sent, undefined names, wrong methods, missing endpoints, tools that bypass `_request`, and tools that cannot be registered on an MCP server are all caught |
+| `test_validator.py` | A return type that rejects a JSON array, required parameters or bodies not sent, undefined names, wrong methods, missing endpoints, tools that bypass `_request`, tools that cannot be registered on an MCP server, and optional query parameters or headers sent under the wrong name are all caught |
 | `test_spec_parser.py` | Relative server URLs, path-level and `$ref` parameters, descriptions and enums, response shapes, security schemes, form and list bodies, YAML |
-| `test_server_template.py` | A packaged server, run as its own process and called over MCP, returns a JSON array, reports HTTP 404 with its status, rejects invalid values, and sends credentials from environment variables; a path value such as `../pet/1` stays inside its own segment; endpoint selection; the MCP client check |
+| `test_server_template.py` | A packaged server, run as its own process and called over MCP, returns a JSON array, reports HTTP 404 with its status, rejects invalid values, and sends credentials from environment variables; a path value such as `../pet/1` stays inside its own segment; unset optional headers are left out of the request; endpoint selection; the MCP client check |
 | `test_pipeline_runner.py` | The web UI's runner reports every step; the demo switch triggers a real correction; with `START_LOCAL_AGENTS=false` an unreachable agent stops the run instead of being started inside the app |
 | `test_evaluation.py` | The evaluation measures correctly: metrics on known rankings, the random baseline against brute force over every ordering, every question answerable, labels in the right place, each query embedded once; and the pipeline's search returns exactly what was measured |
 | `test_try_it.py` | The chat calls the server's tools over MCP and answers from the API's data; errors reach the model with their status code; tools that change data are offered only when allowed; the loop stops after a fixed number of calls; the server never sees the Groq key |

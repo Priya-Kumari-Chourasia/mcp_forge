@@ -16,6 +16,7 @@ just a working one:
 """
 
 import json
+from collections import Counter
 from urllib.parse import urljoin
 
 import yaml
@@ -55,26 +56,58 @@ def _resolve_ref(spec: dict, obj):
     return target
 
 
+def _server_url(server: dict) -> str:
+    """A Server Object's url, with its {variables} replaced by their defaults."""
+    url = server.get("url", "")
+    for name, var in (server.get("variables") or {}).items():
+        url = url.replace("{" + name + "}", str(var.get("default", "")))
+    return url
+
+
+def _path_level_server_url(spec: dict):
+    """OpenAPI 3 also allows `servers` on a path or on an operation instead of at the
+    top of the file (Open-Meteo's specs do this). Returns the URL most paths use, or None."""
+    found = Counter()
+    for path_item in (spec.get("paths") or {}).values():
+        path_item = _resolve_ref(spec, path_item)
+        if not isinstance(path_item, dict):
+            continue
+        servers = path_item.get("servers") or next(
+            (op["servers"] for method, op in path_item.items()
+             if method.lower() in HTTP_METHODS and isinstance(op, dict) and op.get("servers")), None)
+        if servers:
+            found[_server_url(servers[0])] += 1
+    return found.most_common(1)[0][0] if found else None
+
+
 def get_base_url(spec: dict, source_url: str = None) -> str:
     """Works out the absolute base URL every endpoint path is appended to.
 
-    OpenAPI 3 keeps it in servers[0].url, and that value is allowed to be
-    RELATIVE (the Petstore spec says just "/api/v3"). A relative URL only
-    makes sense relative to where the spec was downloaded from, so we
-    resolve it against source_url. Swagger 2 uses schemes + host + basePath.
+    OpenAPI 3 keeps it in servers[0].url, at the top of the file or on a path or
+    operation, and that value is allowed to be RELATIVE (the Petstore spec says
+    just "/api/v3"). A relative URL only makes sense relative to where the spec
+    was downloaded from, so we resolve it against source_url. Swagger 2 uses
+    schemes + host + basePath.
+
+    With no server stated anywhere, both standards say the API is on the host
+    that serves the spec ("/" in OpenAPI 3, basePath on that host in Swagger 2).
+    That is resolved against source_url too - never the spec file's own URL.
+    Without a source_url there is nothing to resolve it against, so the base URL
+    is left empty and the generated server asks for one.
     """
-    base_url = ""
     if spec.get("servers"):
-        server = spec["servers"][0]
-        base_url = server.get("url", "")
-        for name, var in (server.get("variables") or {}).items():
-            base_url = base_url.replace("{" + name + "}", str(var.get("default", "")))
+        base_url = _server_url(spec["servers"][0])
     elif spec.get("host"):
         scheme = (spec.get("schemes") or ["https"])[0]
         base_url = f"{scheme}://{spec['host']}{spec.get('basePath', '')}"
+    else:
+        base_url = _path_level_server_url(spec) or spec.get("basePath") or "/"
 
-    if not base_url.startswith(("http://", "https://")) and source_url:
-        base_url = urljoin(source_url, base_url)
+    if not base_url.startswith(("http://", "https://")):
+        if source_url:
+            base_url = urljoin(source_url, base_url)
+        elif base_url == "/":
+            base_url = ""
     return base_url.rstrip("/")
 
 

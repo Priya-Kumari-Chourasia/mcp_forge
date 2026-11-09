@@ -121,5 +121,8 @@ if __name__ == "__main__":
     elif result.get("security_passed") is False:
         print("Nothing was packaged: the security review rejected the code "
               "(see validation_report.json in the API's folder under generated/)")
+    elif result.get("test_passed") is False:
+        print("Nothing was packaged: the code did not pass validation "
+              "(see unvalidated_tools.txt and validation_report.json in the API's folder under generated/)")
     else:
         print("Nothing was packaged.")

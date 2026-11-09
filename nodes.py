@@ -211,7 +211,7 @@ os, Annotated, Any, Literal, Optional, Union and pydantic's Field, and defines:
     _request(method, path, *, path_params=None, params=None, json=None, data=None, headers=None)
 
 _request fills in the path's placeholders (encoding each value), adds the API's base URL
-and authentication, leaves out params whose value is None, raises a clear error when the
+and authentication, leaves out params and headers whose value is None, raises a clear error when the
 API returns an error, and returns the response.
 
 Rules (a security review checks them before the code is run):
@@ -511,6 +511,29 @@ def _write(path, text):
         f.write(text)
 
 
+# What a run can leave in its folder. A failed run removes them all first, because
+# files from an earlier run of the same API would not match this run's report.
+_RUN_FILES = ("server.py", "claude_desktop_config.json", "README.md", "requirements.txt",
+              "rejected_tools.txt", "unvalidated_tools.txt")
+
+
+def _fail_closed(state, output_dir, report, keep_as, headline, detail):
+    """Packages nothing: writes the code as a .txt file (which cannot be run by
+    accident) and the report, and removes any server from an earlier run."""
+    for stale in _RUN_FILES:
+        if os.path.exists(os.path.join(output_dir, stale)):
+            os.remove(os.path.join(output_dir, stale))
+    _write(os.path.join(output_dir, keep_as), state.get("generated_code") or "")
+    report_path = os.path.join(output_dir, "validation_report.json")
+    _write(report_path, json.dumps(report, indent=2))
+    print(f"\n{headline}")
+    print(f"  {detail}")
+    print(f"  Code kept for inspection: {os.path.join(output_dir, keep_as)}")
+    print(f"  Report: {report_path}")
+    state["output_path"] = None
+    return state
+
+
 def package_server_node(state: ForgeState) -> ForgeState:
     meta = state.get("api_meta") or {}
     output_dir = os.path.join("generated", server_template.folder_name(meta))
@@ -530,30 +553,26 @@ def package_server_node(state: ForgeState) -> ForgeState:
     if not state.get("security_passed"):
         # Fail closed: code the security review rejected is never packaged as a server and
         # never started. It is kept as .txt for inspection, so it cannot be run by accident.
-        # Files from an earlier run of the same API are removed: they would not match this report.
-        for stale in ("server.py", "claude_desktop_config.json", "README.md", "requirements.txt"):
-            if os.path.exists(os.path.join(output_dir, stale)):
-                os.remove(os.path.join(output_dir, stale))
-        _write(os.path.join(output_dir, "rejected_tools.txt"), state.get("generated_code") or "")
-        report_path = os.path.join(output_dir, "validation_report.json")
-        _write(report_path, json.dumps(report, indent=2))
-        print(f"\nREJECTED by the security review: nothing was packaged or run.")
-        print(f"  {state.get('security_output')}")
-        print(f"  Report: {report_path}")
-        state["output_path"] = None
-        return state
+        return _fail_closed(state, output_dir, report, "rejected_tools.txt",
+                            "REJECTED by the security review: nothing was packaged or run.",
+                            state.get("security_output"))
+
+    if not state.get("test_passed"):
+        # Fail closed here too: the validator failed the code on its last attempt, or could
+        # not be reached. A server.py would say "Every tool was validated", and it would not
+        # be true, so none is written. The code is kept as .txt for a person to inspect.
+        return _fail_closed(state, output_dir, report, "unvalidated_tools.txt",
+                            "FAILED validation: nothing was packaged.",
+                            state.get("test_output"))
 
     try:
         server_code, tool_info = server_template.package_server(state["generated_code"], state["endpoints"], meta)
     except SyntaxError as e:
-        raw_path = os.path.join(output_dir, "raw_output_INVALID.py")
-        _write(raw_path, f"# WARNING: syntax error, could not be packaged as a real MCP server.\n# Error: {e}\n\n"
-                         + state["generated_code"])
-        _write(os.path.join(output_dir, "validation_report.json"), json.dumps(report, indent=2))
-        print(f"\nERROR: Generated code has a syntax error and could not be packaged: {e}")
-        print(f"  Raw output saved for inspection: {raw_path}")
-        state["output_path"] = raw_path
-        return state
+        # Cannot happen after a passed validation (the validator parses the code first);
+        # kept so that, if it ever did, nothing runnable would be written.
+        report["passed"] = False
+        return _fail_closed(state, output_dir, report, "unvalidated_tools.txt",
+                            "ERROR: the code could not be packaged: nothing was packaged.", f"SyntaxError: {e}")
 
     server_path = os.path.join(output_dir, "server.py")
     _write(server_path, server_code)
@@ -567,10 +586,13 @@ def package_server_node(state: ForgeState) -> ForgeState:
     report["mcp_client_check"] = client_check
     _write(os.path.join(output_dir, "validation_report.json"), json.dumps(report, indent=2))
 
-    status = "PASSED" if state.get("test_passed") else "FAILED (needs manual review)"
+    # Only code that passed both the security review and the validator gets this far.
+    for leftover in ("rejected_tools.txt", "unvalidated_tools.txt"):
+        if os.path.exists(os.path.join(output_dir, leftover)):
+            os.remove(os.path.join(output_dir, leftover))
     print(f"\nPackaged MCP server -> {output_dir}/")
     print(f"  {len(tool_info)} tool(s): {[t['name'] for t in tool_info]}")
-    print(f"  Validation: {status}")
+    print("  Validation: PASSED")
     if warnings:
         print(f"  Security review: {len(warnings)} warning(s) - see README.md")
     if client_check["passed"]:

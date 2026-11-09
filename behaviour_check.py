@@ -66,7 +66,8 @@ def _fake_payload(method, url):
 def _record_httpx(self, request, **kwargs):
     """Stands in for httpx.Client.send: records the request instead of sending it."""
     method, url = request.method.upper(), str(request.url)
-    recorded_calls.append({"library": "httpx", "method": method, "url": url, "body": request.content})
+    recorded_calls.append({"library": "httpx", "method": method, "url": url, "body": request.content,
+                           "headers": {key.lower(): value for key, value in request.headers.items()}})
     return httpx.Response(200, json=_fake_payload(method, url), request=request)
 
 
@@ -86,7 +87,8 @@ class FakeRequestsResponse:
 
 def _record_requests(self, method, url, **kwargs):
     """Stands in for requests: a tool should not use it (see the check below)."""
-    recorded_calls.append({"library": "requests", "method": str(method).upper(), "url": str(url), "body": b""})
+    recorded_calls.append({"library": "requests", "method": str(method).upper(), "url": str(url), "body": b"",
+                           "headers": {}})
     return FakeRequestsResponse()
 
 
@@ -175,10 +177,31 @@ def dummy_value(schema: dict):
     return "x"
 
 
-def dummy_arguments(input_schema: dict) -> dict:
-    """Fills every REQUIRED argument; optional ones keep their defaults."""
+def dummy_arguments(input_schema: dict, include_optional: bool = False) -> dict:
+    """Fills every REQUIRED argument; optional ones keep their defaults.
+    With include_optional, every argument is filled: that is how a tool is called
+    a second time, so the code that sends optional parameters runs too."""
     properties = input_schema.get("properties") or {}
-    return {name: dummy_value(properties.get(name, {})) for name in input_schema.get("required") or []}
+    names = list(properties) if include_optional else input_schema.get("required") or []
+    return {name: dummy_value(properties.get(name, {})) for name in names}
+
+
+def check_optional_parameters(name, call, endpoint) -> list:
+    """For a call made with EVERY argument set: each documented query and header
+    parameter must be in the request, under its documented name. Without this, a
+    tool that sends an optional parameter under a wrong name (params={"genere": genre}
+    for the documented "genre") would pass, and the API would silently ignore it."""
+    errors = []
+    query = parse_qs(urlsplit(call["url"]).query, keep_blank_values=True)
+    headers = call.get("headers") or {}
+    for p in endpoint.get("parameters") or []:
+        if p.get("in") == "query" and p["name"] not in query:
+            errors.append(f"{name}() did not send the query parameter '{p['name']}' when its argument was set; "
+                          f"send it as params={{\"{p['name']}\": ...}}, under its documented name")
+        elif p.get("in") == "header" and p["name"].lower() not in headers:
+            errors.append(f"{name}() did not send the header '{p['name']}' when its argument was set; "
+                          f"send it as headers={{\"{p['name']}\": ...}}, under its documented name")
+    return errors
 
 
 def _root_cause(error):
@@ -336,6 +359,21 @@ def main(code_path: str, endpoints_path: str, result_path: str):
         covered.add(index)
         for problem in check_request(name, getattr(module, name), call, ENDPOINTS[index]):
             errors.append({"function": name, "endpoint_index": None, "error": problem})
+
+        # Second call, with EVERY argument set: the first call only exercised the
+        # required ones, so the code that sends optional parameters has not run yet.
+        schema = listed[name].input_schema or {}
+        if set(schema.get("properties") or {}) - set(schema.get("required") or []):
+            recorded_calls.clear()
+            try:
+                _loop.run_until_complete(server.call_tool(name, dummy_arguments(schema, include_optional=True)))
+            except Exception as e:
+                errors.append({"function": name, "endpoint_index": None,
+                               "error": describe_failure(name, e) + " (when called with every optional argument set)"})
+                continue
+            if recorded_calls:
+                for problem in check_optional_parameters(name, recorded_calls[0], ENDPOINTS[index]):
+                    errors.append({"function": name, "endpoint_index": None, "error": problem})
 
     for i, ep in enumerate(ENDPOINTS):
         if i not in covered:
